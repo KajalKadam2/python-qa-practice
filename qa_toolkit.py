@@ -29,11 +29,11 @@ def build_url(env, path="/"):
     return url, None
 
 #Quick test
-url, err = build_url("staging", "/login")
+"""url, err = build_url("staging", "/login")
 print(f"URL: {url}")
 
 url, err = build_url("unknown", "/login")
-print(f"Error: {err}")
+print(f"Error: {err}")"""
 
 # ---- validate user() --------------------
 def validate_user(user):
@@ -71,11 +71,11 @@ def validate_user(user):
     return errors
 
 # Quick test
-good = {"username": "tomsmith", "password": "SuperSecret!", "role": "admin"}
+"""good = {"username": "tomsmith", "password": "SuperSecret!", "role": "admin"}
 bad  = {"username": "ab",       "password": "short",       "role": "superuser"}
 
 print(validate_user(good)) #[]
-print(validate_user(bad)) # ['username too short...', 'password too short...', 'invalid role...']
+print(validate_user(bad)) # ['username too short...', 'password too short...', 'invalid role...']"""
 
 # ---- classify_response() ------------------------------
 def classify_response(status, body=None, ms=0):
@@ -111,11 +111,11 @@ def classify_response(status, body=None, ms=0):
     }
 
 # Quick test
-r = classify_response(200, {"id": 1, "email": "a@b.com"}, 320)
+"""r = classify_response(200, {"id": 1, "email": "a@b.com"}, 320)
 print(f"200 with body: {r['verdict']} ({r['perf']})") #PASS {fast}
 
 r= classify_response(200, {}, 150)
-print(f"200 empty body: {r['verdict']}") #FAIL 
+print(f"200 empty body: {r['verdict']}") #FAIL """
 
 
 # ---- run_test_suite() -----------------------
@@ -242,7 +242,7 @@ def generate_report(results, config=None):
     return "\n".join(lines)
 
 # ------ Main demo -------------------------------------------------
-if __name__ == "_main_":
+if __name__ == "__main__":
 
     # Test data
     TEST_USERS = [
