@@ -1,0 +1,720 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#FCEBEB;color:#791F1F;border-color:#F09595}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.err{color:#791F1F;font-weight:500}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-err{color:#791F1F}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#FCEBEB;color:#791F1F;border-color:#F09595;font-weight:500}
+.btn-n:hover{background:#F5C6C6}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.br{background:#FCEBEB;color:#791F1F}
+.exc-table{width:100%;border-collapse:collapse;margin:9px 0;font-size:13px}
+.exc-table th{background:var(--color-background-secondary);padding:7px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;border-bottom:0.5px solid var(--color-border-tertiary)}
+.exc-table td{padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5;font-size:12px}
+.exc-table tr:last-child td{border-bottom:none}
+.exc-table tr:hover td{background:var(--color-background-secondary)}
+.ename{font-family:var(--font-mono);font-size:12px;color:#791F1F;font-weight:500}
+.edesc{color:var(--color-text-secondary)}
+.eex{font-family:var(--font-mono);font-size:11px;color:var(--color-text-tertiary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHY ERROR HANDLING MATTERS -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 9 — try/except error handling</div>
+    <div class="card-b">In QA automation, things fail constantly — elements not found, APIs timing out, files missing, networks dropping. <b>Without error handling, one failure crashes the entire test run</b>. With it, your test captures the failure, logs it clearly, cleans up, and moves on to the next test.<br><br>Today you learn to write test code that is resilient — the difference between amateur scripts that crash and professional automation that handles failure gracefully.</div>
+  </div>
+
+  <div class="sec">Without vs with error handling</div>
+  <div class="code"><span class="cm"># WITHOUT — one error kills everything</span>
+data = {}
+value = data[<span class="st">"email"</span>]           <span class="cm"># KeyError — script stops here</span>
+<span class="fn">print</span>(<span class="st">"This never runs"</span>)        <span class="cm"># never reached</span>
+
+<span class="cm"># WITH — error is caught, execution continues</span>
+<span class="kw">try</span>:
+    value = data[<span class="st">"email"</span>]
+<span class="kw">except</span> <span class="err">KeyError</span>:
+    value = <span class="st">"not found"</span>
+    <span class="fn">print</span>(<span class="st">"email field missing from response"</span>)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Value: {value}"</span>)          <span class="cm"># still runs: Value: not found</span></div>
+
+  <div class="sec">The full try/except structure</div>
+  <div class="code"><span class="kw">try</span>:
+    <span class="cm"># Code that might fail — put ONLY the risky line here</span>
+    risky_operation()
+
+<span class="kw">except</span> <span class="err">SpecificError</span>:
+    <span class="cm"># Runs ONLY if SpecificError occurred</span>
+    <span class="fn">print</span>(<span class="st">"That specific thing went wrong"</span>)
+
+<span class="kw">except</span> (<span class="err">TypeError</span>, <span class="err">ValueError</span>) <span class="kw">as</span> e:
+    <span class="cm"># Catch multiple exception types in one block</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Type or value problem: {e}"</span>)
+
+<span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+    <span class="cm"># Catch-all — runs for any exception not caught above</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Unexpected error: {e}"</span>)
+
+<span class="kw">else</span>:
+    <span class="cm"># Runs ONLY if NO exception occurred</span>
+    <span class="fn">print</span>(<span class="st">"Everything worked!"</span>)
+
+<span class="kw">finally</span>:
+    <span class="cm"># ALWAYS runs — error or not. Use for cleanup.</span>
+    <span class="fn">print</span>(<span class="st">"Cleanup here — close browser, delete test data"</span>)</div>
+
+  <div class="tip">Keep the <code>try</code> block as small as possible — only the line(s) that might actually fail. A large try block hides where the error came from and catches things you did not intend to catch.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">Exception types →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: EXCEPTION TYPES -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">Exception types — know which error to catch</div>
+    <div class="card-b">Every Python error has a specific type. Catching the right type makes your error handling precise — you handle exactly what you expect and let everything else bubble up as a genuine bug.</div>
+  </div>
+
+  <div class="sec">The exceptions you will encounter most in QA automation</div>
+  <table class="exc-table">
+    <tr><th>Exception</th><th>When it happens</th><th>QA scenario</th></tr>
+    <tr><td><span class="ename">KeyError</span></td><td><span class="edesc">Dict key does not exist</span></td><td><span class="eex">response["email"] when no email field</span></td></tr>
+    <tr><td><span class="ename">TypeError</span></td><td><span class="edesc">Wrong type for operation</span></td><td><span class="eex">"Status: " + 200 (str + int)</span></td></tr>
+    <tr><td><span class="ename">ValueError</span></td><td><span class="edesc">Right type, wrong value</span></td><td><span class="eex">int("abc") — can't convert</span></td></tr>
+    <tr><td><span class="ename">IndexError</span></td><td><span class="edesc">List index out of range</span></td><td><span class="eex">results[10] when only 3 items</span></td></tr>
+    <tr><td><span class="ename">AttributeError</span></td><td><span class="edesc">Object has no such attribute</span></td><td><span class="eex">None.strip() — None has no strip</span></td></tr>
+    <tr><td><span class="ename">FileNotFoundError</span></td><td><span class="edesc">File does not exist</span></td><td><span class="eex">open("config.json") — file missing</span></td></tr>
+    <tr><td><span class="ename">TimeoutError</span></td><td><span class="edesc">Operation took too long</span></td><td><span class="eex">API call exceeded timeout</span></td></tr>
+    <tr><td><span class="ename">AssertionError</span></td><td><span class="edesc">assert statement failed</span></td><td><span class="eex">assert status == 200 when it was 404</span></td></tr>
+    <tr><td><span class="ename">Exception</span></td><td><span class="edesc">Base class — catches all</span></td><td><span class="eex">Use as last resort only</span></td></tr>
+  </table>
+
+  <div class="try-lbl">Type this — see each exception in action</div>
+  <div class="code"><span class="cm"># Intentionally trigger and catch each type</span>
+
+<span class="cm"># KeyError</span>
+<span class="kw">try</span>:
+    data = {<span class="st">"id"</span>: <span class="nm">1</span>}
+    email = data[<span class="st">"email"</span>]
+<span class="kw">except</span> <span class="err">KeyError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"KeyError: missing key {e}"</span>)          <span class="cm"># KeyError: missing key 'email'</span>
+
+<span class="cm"># TypeError</span>
+<span class="kw">try</span>:
+    result = <span class="st">"Status: "</span> <span class="op">+</span> <span class="nm">200</span>
+<span class="kw">except</span> <span class="err">TypeError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"TypeError: {e}"</span>)                     <span class="cm"># can only concatenate str to str</span>
+
+<span class="cm"># ValueError</span>
+<span class="kw">try</span>:
+    port = <span class="fn">int</span>(<span class="st">"not_a_number"</span>)
+<span class="kw">except</span> <span class="err">ValueError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"ValueError: {e}"</span>)                    <span class="cm"># invalid literal for int()</span>
+
+<span class="cm"># IndexError</span>
+<span class="kw">try</span>:
+    results = [<span class="st">"PASS"</span>, <span class="st">"FAIL"</span>]
+    third   = results[<span class="nm">5</span>]
+<span class="kw">except</span> <span class="err">IndexError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"IndexError: {e}"</span>)                    <span class="cm"># list index out of range</span>
+
+<span class="cm"># AttributeError</span>
+<span class="kw">try</span>:
+    text = <span class="kw">None</span>
+    clean = text.<span class="fn">strip</span>()
+<span class="kw">except</span> <span class="err">AttributeError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"AttributeError: {e}"</span>)               <span class="cm"># 'NoneType' has no attribute 'strip'</span></div>
+
+  <div class="tip">Always catch the <b>most specific</b> exception possible. Catching <code>Exception</code> everywhere hides real bugs — a typo in your code throws an exception too, and a broad catch would silently swallow it.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">else + finally →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: ELSE + FINALLY -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">else and finally — the two clauses most people skip</div>
+    <div class="card-b"><code>else</code> runs only when NO exception occurred — perfect for "success path" logic. <code>finally</code> runs ALWAYS — error or not — perfect for cleanup like closing a browser or deleting test data. Both appear constantly in professional test code.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># else — runs only on success</span>
+<span class="kw">def</span> <span class="fn">parse_user_id</span>(value: <span class="fn">str</span>) -> <span class="fn">int</span> | <span class="kw">None</span>:
+    <span class="st">"""Parse a string to user ID. Returns None on failure."""</span>
+    <span class="kw">try</span>:
+        user_id = <span class="fn">int</span>(value)
+    <span class="kw">except</span> <span class="err">ValueError</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Cannot parse '{value}' as integer"</span>)
+        <span class="kw">return</span> <span class="kw">None</span>
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Parsed successfully: {user_id}"</span>)   <span class="cm"># only runs on success</span>
+        <span class="kw">return</span> user_id
+
+<span class="kw">for</span> val <span class="kw">in</span> [<span class="st">"2"</span>, <span class="st">"abc"</span>, <span class="st">"99"</span>, <span class="st">""</span>]:
+    result = <span class="fn">parse_user_id</span>(val)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  → result: {result}\n"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># finally — always runs, use for cleanup</span>
+<span class="kw">def</span> <span class="fn">run_with_cleanup</span>(test_name: <span class="fn">str</span>, should_fail: <span class="fn">bool</span> = <span class="kw">False</span>):
+    <span class="st">"""Simulate a test with guaranteed cleanup."""</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"[{test_name}] Setting up test data..."</span>)
+
+    <span class="kw">try</span>:
+        <span class="kw">if</span> should_fail:
+            <span class="kw">raise</span> <span class="err">AssertionError</span>(<span class="st">"Element not found"</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"[{test_name}] Test actions completed"</span>)
+
+    <span class="kw">except</span> <span class="err">AssertionError</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"[{test_name}] FAIL: {e}"</span>)
+
+    <span class="kw">finally</span>:
+        <span class="cm"># This ALWAYS runs — clean up test data</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"[{test_name}] Cleanup: deleting test data..."</span>)
+
+<span class="fn">run_with_cleanup</span>(<span class="st">"test_login"</span>,        should_fail=<span class="kw">False</span>)
+<span class="fn">print</span>()
+<span class="fn">run_with_cleanup</span>(<span class="st">"test_checkout"</span>,     should_fail=<span class="kw">True</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">  Parsed successfully: 2</div>
+    <div class="ol">  → result: 2</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">  Cannot parse 'abc' as integer</div>
+    <div class="ol">  → result: None</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">[test_login] Setting up test data...</div>
+    <div class="ol">[test_login] Test actions completed</div>
+    <div class="ol">[test_login] Cleanup: deleting test data...</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">[test_checkout] Setting up test data...</div>
+    <div class="ol">[test_checkout] FAIL: Element not found</div>
+    <div class="ol">[test_checkout] Cleanup: deleting test data...</div>
+  </div>
+
+  <div class="tip">In Playwright tests, <code>finally</code> is how you guarantee the browser closes even if the test crashes. Without it, failed tests leave orphan browser processes running. With it, cleanup always happens.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">raise →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: RAISE -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">raise — deliberately triggering exceptions <span class="badge br" style="margin-left:6px">critical for test helpers</span></div>
+    <div class="card-b"><code>raise</code> deliberately creates an exception. Use it in helper functions when inputs are invalid — fail loudly with a clear message rather than silently producing wrong results. You already used this in <code>build_config()</code> on Day 8. Today you master the full pattern.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># raise with a built-in exception type</span>
+<span class="kw">def</span> <span class="fn">set_timeout</span>(ms: <span class="fn">int</span>) -> <span class="fn">int</span>:
+    <span class="st">"""Set test timeout. Must be between 1000 and 30000ms."""</span>
+    <span class="kw">if not</span> <span class="fn">isinstance</span>(ms, <span class="fn">int</span>):
+        <span class="kw">raise</span> <span class="err">TypeError</span>(<span class="fn">f</span><span class="st">"timeout must be int, got {type(ms).__name__}"</span>)
+    <span class="kw">if</span> ms <span class="op">&lt;</span> <span class="nm">1000</span>:
+        <span class="kw">raise</span> <span class="err">ValueError</span>(<span class="fn">f</span><span class="st">"timeout too low: {ms}ms (minimum 1000ms)"</span>)
+    <span class="kw">if</span> ms <span class="op">&gt;</span> <span class="nm">30000</span>:
+        <span class="kw">raise</span> <span class="err">ValueError</span>(<span class="fn">f</span><span class="st">"timeout too high: {ms}ms (maximum 30000ms)"</span>)
+    <span class="kw">return</span> ms
+
+<span class="cm"># Test valid and invalid values</span>
+<span class="kw">for</span> val <span class="kw">in</span> [<span class="nm">5000</span>, <span class="nm">500</span>, <span class="nm">50000</span>, <span class="st">"5000"</span>]:
+    <span class="kw">try</span>:
+        result = <span class="fn">set_timeout</span>(val)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✓ timeout set to {result}ms"</span>)
+    <span class="kw">except</span> (<span class="err">TypeError</span>, <span class="err">ValueError</span>) <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✗ {type(e).__name__}: {e}"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Custom exception class — professional pattern</span>
+<span class="kw">class</span> <span class="fn">TestConfigError</span>(<span class="err">Exception</span>):
+    <span class="st">"""Raised when test configuration is invalid."""</span>
+    <span class="kw">pass</span>
+
+<span class="kw">class</span> <span class="fn">TestDataError</span>(<span class="err">Exception</span>):
+    <span class="st">"""Raised when test data is missing or malformed."""</span>
+    <span class="kw">pass</span>
+
+<span class="kw">def</span> <span class="fn">load_test_user</span>(users: <span class="fn">list</span>, role: <span class="fn">str</span>) -> <span class="fn">dict</span>:
+    <span class="st">"""Find a user by role. Raises TestDataError if not found."""</span>
+    <span class="kw">for</span> user <span class="kw">in</span> users:
+        <span class="kw">if</span> user.<span class="fn">get</span>(<span class="st">"role"</span>) == role:
+            <span class="kw">return</span> user
+    <span class="kw">raise</span> <span class="fn">TestDataError</span>(<span class="fn">f</span><span class="st">"No user found with role '{role}' in test data"</span>)
+
+users = [
+    {<span class="st">"username"</span>: <span class="st">"tomsmith"</span>, <span class="st">"role"</span>: <span class="st">"admin"</span>},
+    {<span class="st">"username"</span>: <span class="st">"janesmith"</span>, <span class="st">"role"</span>: <span class="st">"viewer"</span>},
+]
+
+<span class="kw">try</span>:
+    user = <span class="fn">load_test_user</span>(users, <span class="st">"editor"</span>)
+<span class="kw">except</span> <span class="fn">TestDataError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"TestDataError: {e}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">✓ timeout set to 5000ms</div>
+    <div class="ol">✗ ValueError: timeout too low: 500ms (minimum 1000ms)</div>
+    <div class="ol">✗ ValueError: timeout too high: 50000ms (maximum 30000ms)</div>
+    <div class="ol">✗ TypeError: timeout must be int, got str</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">TestDataError: No user found with role 'editor' in test data</div>
+  </div>
+
+  <div class="tip">Custom exception classes — <code>class TestDataError(Exception): pass</code> — are just classes that inherit from Exception. The <code>pass</code> body means they behave like regular exceptions but have a distinct name. Callers can catch <code>TestDataError</code> specifically without catching every other exception.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">Reading files →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: READING FILES -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">Reading files and JSON — loading test data <span class="badge bb" style="margin-left:6px">used in every real project</span></div>
+    <div class="card-b">Real test projects store test data in JSON files — users, expected responses, config values. Python's <code>open()</code> and <code>json</code> module load them. Error handling is essential here because files can be missing, malformed, or have wrong permissions.</div>
+  </div>
+
+  <div class="try-lbl">Type this — first create a test_data.json file</div>
+  <div class="code"><span class="cm"># Create this file: test_data.json</span>
+<span class="cm"># {</span>
+<span class="cm">#   "users": [</span>
+<span class="cm">#     {"username": "tomsmith", "password": "SuperSecretPassword!", "role": "admin"},</span>
+<span class="cm">#     {"username": "janesmith", "password": "Password123!", "role": "viewer"}</span>
+<span class="cm">#   ],</span>
+<span class="cm">#   "base_url": "https://the-internet.herokuapp.com",</span>
+<span class="cm">#   "timeout": 5000</span>
+<span class="cm"># }</span></div>
+
+  <div class="code"><span class="kw">import</span> json
+<span class="kw">from</span> typing <span class="kw">import</span> Any, Dict, Optional
+
+<span class="kw">def</span> <span class="fn">load_test_data</span>(filepath: <span class="fn">str</span>) -> Optional[Dict[<span class="fn">str</span>, Any]]:
+    <span class="st">"""Load test data from a JSON file.
+    Returns the data dict, or None on any error."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(filepath, <span class="st">"r"</span>, encoding=<span class="st">"utf-8"</span>) <span class="kw">as</span> f:
+            data = json.<span class="fn">load</span>(f)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✓ Loaded: {filepath}"</span>)
+        <span class="kw">return</span> data
+
+    <span class="kw">except</span> <span class="err">FileNotFoundError</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✗ File not found: {filepath}"</span>)
+    <span class="kw">except</span> json.<span class="err">JSONDecodeError</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✗ Invalid JSON in {filepath}: {e}"</span>)
+    <span class="kw">except</span> <span class="err">PermissionError</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✗ No permission to read: {filepath}"</span>)
+    <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="cm"># Load real file</span>
+data = <span class="fn">load_test_data</span>(<span class="st">"test_data.json"</span>)
+<span class="kw">if</span> data:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Users: {len(data['users'])}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Base URL: {data['base_url']}"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Try a missing file — handled gracefully</span>
+bad = <span class="fn">load_test_data</span>(<span class="st">"missing.json"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Result: {bad}"</span>)   <span class="cm"># None</span>
+
+<span class="fn">print</span>()
+
+<span class="cm"># Writing JSON — save test results to file</span>
+<span class="kw">def</span> <span class="fn">save_results</span>(results: <span class="fn">list</span>, filepath: <span class="fn">str</span>) -> <span class="fn">bool</span>:
+    <span class="st">"""Save test results to JSON. Returns True on success."""</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(filepath, <span class="st">"w"</span>, encoding=<span class="st">"utf-8"</span>) <span class="kw">as</span> f:
+            json.<span class="fn">dump</span>(results, f, indent=<span class="nm">2</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✓ Results saved to {filepath}"</span>)
+        <span class="kw">return</span> <span class="kw">True</span>
+    <span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✗ Failed to save: {e}"</span>)
+        <span class="kw">return</span> <span class="kw">False</span>
+
+<span class="fn">save_results</span>([{<span class="st">"id"</span>:<span class="st">"TC01"</span>,<span class="st">"status"</span>:<span class="st">"PASS"</span>}], <span class="st">"results.json"</span>)</div>
+
+  <div class="tip">The <code>with open(...) as f:</code> pattern is the correct way to open files in Python. The <code>with</code> block automatically closes the file when done — even if an exception occurs. You never need to call <code>f.close()</code> manually.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">QA Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: QA EXAMPLE 1 -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">QA Example 1 — Safe API response parser <span class="badge bg" style="margin-left:6px">real Week 4 pattern</span></div>
+    <div class="card-b">When an API returns JSON, anything can be missing, null, or the wrong type. A safe parser wraps every risky access in try/except and returns structured errors instead of crashing. This is exactly what your Week 4 API tests will use.</div>
+  </div>
+  <div class="try-lbl">Create day9_ex1.py</div>
+  <div class="code"><span class="kw">from</span> typing <span class="kw">import</span> Any, Dict, List, Tuple
+
+<span class="kw">def</span> <span class="fn">parse_api_user</span>(response: Dict[<span class="fn">str</span>, Any]) -> Tuple[<span class="fn">bool</span>, Dict, List[<span class="fn">str</span>]]:
+    <span class="st">"""Safely parse a user from an API response dict.
+
+    Returns:
+        (success, user_data, errors)
+    """</span>
+    errors = {}
+    user   = {}
+
+    <span class="cm"># Try to get nested data.email</span>
+    <span class="kw">try</span>:
+        user[<span class="st">"email"</span>] = response[<span class="st">"data"</span>][<span class="st">"email"</span>]
+    <span class="kw">except</span> <span class="err">KeyError</span> <span class="kw">as</span> e:
+        errors[<span class="st">"email"</span>] = <span class="fn">f</span><span class="st">"Missing key: {e}"</span>
+
+    <span class="cm"># Try to get id as integer</span>
+    <span class="kw">try</span>:
+        user[<span class="st">"id"</span>] = <span class="fn">int</span>(response[<span class="st">"data"</span>][<span class="st">"id"</span>])
+    <span class="kw">except</span> (<span class="err">KeyError</span>, <span class="err">TypeError</span>, <span class="err">ValueError</span>) <span class="kw">as</span> e:
+        errors[<span class="st">"id"</span>] = <span class="fn">f</span><span class="st">"{type(e).__name__}: {e}"</span>
+
+    <span class="cm"># Try to get first_name — not critical, default to empty</span>
+    <span class="kw">try</span>:
+        user[<span class="st">"first_name"</span>] = response[<span class="st">"data"</span>][<span class="st">"first_name"</span>].<span class="fn">strip</span>()
+    <span class="kw">except</span> (<span class="err">KeyError</span>, <span class="err">AttributeError</span>):
+        user[<span class="st">"first_name"</span>] = <span class="st">""</span>   <span class="cm"># default — not an error</span>
+
+    success = <span class="fn">len</span>(errors) == <span class="nm">0</span>
+    <span class="kw">return</span> success, user, <span class="fn">list</span>(errors.<span class="fn">values</span>())
+
+<span class="cm"># Test with various responses</span>
+responses = [
+    {<span class="st">"data"</span>: {<span class="st">"id"</span>: <span class="nm">2</span>, <span class="st">"email"</span>: <span class="st">"janet@reqres.in"</span>, <span class="st">"first_name"</span>: <span class="st">"Janet"</span>}},
+    {<span class="st">"data"</span>: {<span class="st">"id"</span>: <span class="st">"not_int"</span>, <span class="st">"email"</span>: <span class="st">"eve@reqres.in"</span>}},
+    {<span class="st">"data"</span>: {<span class="st">"first_name"</span>: <span class="st">"Emma"</span>}},   <span class="cm"># missing id and email</span>
+    {},                                    <span class="cm"># empty response</span>
+]
+
+<span class="kw">for</span> i, resp <span class="kw">in</span> <span class="fn">enumerate</span>(responses, <span class="nm">1</span>):
+    ok, user, errs = <span class="fn">parse_api_user</span>(resp)
+    status = <span class="st">"✓ PASS"</span> <span class="kw">if</span> ok <span class="kw">else</span> <span class="st">"✗ FAIL"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Response {i}: {status}"</span>)
+    <span class="kw">if</span> user:  <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  User: {user}"</span>)
+    <span class="kw">if</span> errs:  <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Errors: {errs}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Response 1: ✓ PASS</div>
+    <div class="ol">  User: {'email': 'janet@reqres.in', 'id': 2, 'first_name': 'Janet'}</div>
+    <div class="ol">Response 2: ✗ FAIL</div>
+    <div class="ol">  User: {'email': 'eve@reqres.in', 'first_name': ''}</div>
+    <div class="ol">  Errors: ["ValueError: invalid literal for int()..."]</div>
+    <div class="ol">Response 3: ✗ FAIL</div>
+    <div class="ol">  User: {'first_name': 'Emma'}</div>
+    <div class="ol">  Errors: ["Missing key: 'email'", "Missing key: 'id'"]</div>
+    <div class="ol">Response 4: ✗ FAIL</div>
+    <div class="ol">  Errors: ["Missing key: 'data'", "Missing key: 'data'"]</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">QA Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA EXAMPLE 2 -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">QA Example 2 — Resilient test runner with error capture <span class="badge bb" style="margin-left:6px">never crashes mid-suite</span></div>
+    <div class="card-b">A test runner that catches any failure in any test, records it, and continues to the next test. One flaky test never kills the whole suite.</div>
+  </div>
+  <div class="try-lbl">Create day9_ex2.py</div>
+  <div class="code"><span class="kw">from</span> typing <span class="kw">import</span> Callable, Dict, List
+<span class="kw">import</span> traceback
+
+<span class="kw">def</span> <span class="fn">run_resilient_suite</span>(tests: List[Dict]) -> List[Dict]:
+    <span class="st">"""Run a list of test dicts. Never crashes — captures all errors."""</span>
+    results = []
+
+    <span class="kw">for</span> test <span class="kw">in</span> tests:
+        name   = test.<span class="fn">get</span>(<span class="st">"name"</span>, <span class="st">"unnamed"</span>)
+        action = test.<span class="fn">get</span>(<span class="st">"action"</span>)
+        result = {<span class="st">"name"</span>: name, <span class="st">"status"</span>: <span class="st">"UNKNOWN"</span>, <span class="st">"error"</span>: <span class="kw">None</span>}
+
+        <span class="kw">if not</span> <span class="fn">callable</span>(action):
+            result[<span class="st">"status"</span>] = <span class="st">"SKIP"</span>
+            result[<span class="st">"error"</span>]  = <span class="st">"No action defined"</span>
+            results.<span class="fn">append</span>(result)
+            <span class="kw">continue</span>
+
+        <span class="kw">try</span>:
+            action()
+            result[<span class="st">"status"</span>] = <span class="st">"PASS"</span>
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ {name}"</span>)
+
+        <span class="kw">except</span> <span class="err">AssertionError</span> <span class="kw">as</span> e:
+            result[<span class="st">"status"</span>] = <span class="st">"FAIL"</span>
+            result[<span class="st">"error"</span>]  = <span class="fn">f</span><span class="st">"Assertion: {e}"</span>
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ {name} — {e}"</span>)
+
+        <span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+            result[<span class="st">"status"</span>] = <span class="st">"ERROR"</span>
+            result[<span class="st">"error"</span>]  = <span class="fn">f</span><span class="st">"{type(e).__name__}: {e}"</span>
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ⚠ {name} — unexpected error: {e}"</span>)
+
+        results.<span class="fn">append</span>(result)
+
+    <span class="kw">return</span> results
+
+<span class="cm"># Define test actions as simple functions</span>
+<span class="kw">def</span> <span class="fn">test_login</span>():
+    assert <span class="kw">True</span>, <span class="st">"Login should succeed"</span>
+
+<span class="kw">def</span> <span class="fn">test_checkout</span>():
+    assert <span class="kw">False</span>, <span class="st">"Checkout button not found"</span>
+
+<span class="kw">def</span> <span class="fn">test_api</span>():
+    data = {}
+    _ = data[<span class="st">"email"</span>]   <span class="cm"># KeyError — unexpected crash</span>
+
+<span class="kw">def</span> <span class="fn">test_profile</span>():
+    assert <span class="nm">200</span> == <span class="nm">200</span>, <span class="st">"Status mismatch"</span>
+
+tests = [
+    {<span class="st">"name"</span>: <span class="st">"test_login"</span>,    <span class="st">"action"</span>: test_login},
+    {<span class="st">"name"</span>: <span class="st">"test_checkout"</span>, <span class="st">"action"</span>: test_checkout},
+    {<span class="st">"name"</span>: <span class="st">"test_api"</span>,      <span class="st">"action"</span>: test_api},
+    {<span class="st">"name"</span>: <span class="st">"test_profile"</span>,  <span class="st">"action"</span>: test_profile},
+    {<span class="st">"name"</span>: <span class="st">"test_no_action"</span>},   <span class="cm"># no action key</span>
+]
+
+<span class="fn">print</span>(<span class="st">"Running suite:"</span>)
+results = <span class="fn">run_resilient_suite</span>(tests)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nSummary: {sum(1 for r in results if r['status']=='PASS')}/{len(results)} passed"</span>)
+<span class="kw">for</span> r <span class="kw">in</span> results:
+    <span class="kw">if</span> r[<span class="st">"error"</span>]:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {r['name']}: {r['error']}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Running suite:</div>
+    <div class="ol">  ✓ test_login</div>
+    <div class="ol">  ✗ test_checkout — Checkout button not found</div>
+    <div class="ol">  ⚠ test_api — unexpected error: 'email'</div>
+    <div class="ol">  ✓ test_profile</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Summary: 2/5 passed</div>
+    <div class="ol">  test_checkout: Assertion: Checkout button not found</div>
+    <div class="ol">  test_api: KeyError: 'email'</div>
+    <div class="ol">  test_no_action: No action defined</div>
+  </div>
+
+  <div class="ok">Notice the suite ran ALL 5 tests despite test_checkout failing and test_api crashing. Without try/except, test_checkout's AssertionError would have stopped everything. This is how professional test frameworks work.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example 3 →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE 3 -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example 3 — Config loader with validation <span class="badge bp" style="margin-left:6px">files + JSON + custom errors</span></div>
+    <div class="card-b">A production-grade config loader that reads from a JSON file, validates all required keys, checks value types, and raises custom exceptions with clear messages. This is what every real automation project has in its <code>conftest.py</code>.</div>
+  </div>
+  <div class="try-lbl">Create day9_ex3.py</div>
+  <div class="code"><span class="kw">import</span> json
+<span class="kw">from</span> typing <span class="kw">import</span> Any, Dict
+
+<span class="kw">class</span> <span class="fn">ConfigError</span>(<span class="err">Exception</span>):
+    <span class="st">"""Raised when configuration is missing or invalid."""</span>
+    <span class="kw">pass</span>
+
+<span class="kw">def</span> <span class="fn">load_config</span>(filepath: <span class="fn">str</span>) -> Dict[<span class="fn">str</span>, Any]:
+    <span class="st">"""Load and validate test config from a JSON file.
+
+    Raises ConfigError for any problem found.
+    Returns validated config dict on success.
+    """</span>
+    <span class="cm"># Step 1: load the file</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(filepath, <span class="st">"r"</span>) <span class="kw">as</span> f:
+            config = json.<span class="fn">load</span>(f)
+    <span class="kw">except</span> <span class="err">FileNotFoundError</span>:
+        <span class="kw">raise</span> <span class="fn">ConfigError</span>(<span class="fn">f</span><span class="st">"Config file not found: '{filepath}'"</span>)
+    <span class="kw">except</span> json.<span class="err">JSONDecodeError</span> <span class="kw">as</span> e:
+        <span class="kw">raise</span> <span class="fn">ConfigError</span>(<span class="fn">f</span><span class="st">"Invalid JSON in '{filepath}': {e}"</span>)
+
+    <span class="cm"># Step 2: check required keys</span>
+    required = [<span class="st">"base_url"</span>, <span class="st">"env"</span>, <span class="st">"browser"</span>, <span class="st">"timeout"</span>]
+    missing  = [k <span class="kw">for</span> k <span class="kw">in</span> required <span class="kw">if</span> k <span class="kw">not in</span> config]
+    <span class="kw">if</span> missing:
+        <span class="kw">raise</span> <span class="fn">ConfigError</span>(<span class="fn">f</span><span class="st">"Missing required keys: {missing}"</span>)
+
+    <span class="cm"># Step 3: validate types</span>
+    <span class="kw">if not</span> <span class="fn">isinstance</span>(config[<span class="st">"timeout"</span>], <span class="fn">int</span>):
+        <span class="kw">raise</span> <span class="fn">ConfigError</span>(<span class="fn">f</span><span class="st">"'timeout' must be int, got {type(config['timeout']).__name__}"</span>)
+    <span class="kw">if not</span> config[<span class="st">"base_url"</span>].<span class="fn">startswith</span>(<span class="st">"http"</span>):
+        <span class="kw">raise</span> <span class="fn">ConfigError</span>(<span class="fn">f</span><span class="st">"'base_url' must start with http: {config['base_url']}"</span>)
+
+    <span class="kw">return</span> config
+
+<span class="cm"># Test with different scenarios</span>
+scenarios = [
+    (<span class="st">"test_data.json"</span>,   <span class="st">"real file (from page 4)"</span>),
+    (<span class="st">"missing.json"</span>,     <span class="st">"missing file"</span>),
+]
+
+<span class="kw">for</span> filepath, label <span class="kw">in</span> scenarios:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Loading: {label}"</span>)
+    <span class="kw">try</span>:
+        cfg = <span class="fn">load_config</span>(filepath)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ Loaded: env={cfg.get('env')} browser={cfg.get('browser')}"</span>)
+    <span class="kw">except</span> <span class="fn">ConfigError</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ ConfigError: {e}"</span>)
+    <span class="fn">print</span>()</div>
+
+  <div class="tip">Notice the pattern: catch a low-level exception (<code>FileNotFoundError</code>), then raise a high-level custom exception (<code>ConfigError</code>) with a clearer message. This is called exception wrapping — your code's callers deal with <code>ConfigError</code>, not raw file system errors.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 9 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 9 challenge — write it all from scratch</div>
+    <div class="card-b">New file: <b>day9_challenge.py</b>. This is the last Python challenge before Playwright begins on Day 15.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build a resilient test data manager</div>
+    <div class="ch-b">
+      Write these 4 functions — no looking back:<br><br>
+
+      <b>Function 1 — <code>safe_get(data, *keys, default=None)</code></b><br>
+      Safely navigate nested dicts using any number of keys. <code>safe_get(resp, "data", "email")</code> returns <code>resp["data"]["email"]</code> without crashing if any key is missing. Returns <code>default</code> on any failure. Uses <code>*args</code> and <code>try/except KeyError</code>.<br><br>
+
+      <b>Function 2 — <code>load_users(filepath)</code></b><br>
+      Load a JSON file, extract the <code>"users"</code> list, validate each user has <code>username</code>, <code>password</code>, and <code>role</code>. Raise a custom <code>TestDataError</code> with a clear message if anything is wrong. Return the validated list on success.<br><br>
+
+      <b>Function 3 — <code>safe_assert(condition, message, on_fail="log")</code></b><br>
+      A soft assertion wrapper. If <code>on_fail="raise"</code> — raise AssertionError. If <code>on_fail="log"</code> — print the failure but do not crash. Returns True if passed, False if failed. Use <code>try/except AssertionError</code>.<br><br>
+
+      <b>Function 4 — <code>run_with_teardown(test_fn, setup_fn=None, teardown_fn=None)</code></b><br>
+      Runs <code>setup_fn()</code> if provided, then <code>test_fn()</code>, then <code>teardown_fn()</code> in a <code>finally</code> block. Catches all exceptions from test_fn, prints them, and returns <code>(passed: bool, error: str | None)</code>. Teardown always runs.
+    </div>
+  </div>
+
+  <div class="ok">After Day 9 you have completed the core Python foundation. Days 10–14 are Git branching, reading documentation, and review. Day 15 is Playwright. You are one week away from writing real browser automation.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 9 Python try/except challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 9 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 9 Python challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 15 Playwright from scratch — I have completed Python Days 1-14 and I am ready to start browser automation')">Skip ahead to Day 15 — Playwright ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['Why error handling','Exception types','else+finally','raise','Files+JSON','Ex 1 API parser','Ex 2 Resilient runner','Ex 3 Config loader','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,681 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#E6F1FB;color:#0C447C;border-color:#85B7EB;font-weight:500}
+.btn-n:hover{background:#B5D4F4}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+.cg{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.cg-head{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.04em}
+.cg-body{background:var(--color-background-secondary);padding:9px 12px;font-family:var(--font-mono);font-size:12px;line-height:1.7;white-space:pre}
+.bad-head{background:#FAEEDA;color:#633806}
+.good-head{background:#EAF3DE;color:#27500A}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHY FUNCTIONS MATTER -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 8 — Functions in depth</div>
+    <div class="card-b">You have been writing functions since Day 8 of your <code>qa_toolkit.py</code>. Today you go deeper — <b>default arguments</b>, <b>multiple return values</b>, <b>*args</b>, <b>**kwargs</b>, and <b>type hints</b>. These are the patterns every professional automation engineer uses daily. After today, you can write any helper function a test project needs.</div>
+  </div>
+
+  <div class="sec">Quick recap — what you already know</div>
+  <div class="code"><span class="cm"># Basic function — you know this</span>
+<span class="kw">def</span> <span class="fn">build_url</span>(env, path):
+    <span class="kw">return</span> <span class="fn">f</span><span class="st">"https://{env}.myapp.com{path}"</span>
+
+<span class="cm"># Default argument — you know this</span>
+<span class="kw">def</span> <span class="fn">login</span>(username=<span class="st">"tomsmith"</span>, password=<span class="st">"SuperSecretPassword!"</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Logging in as {username}"</span>)
+
+<span class="cm"># Return multiple values — you used this in qa_toolkit</span>
+<span class="kw">def</span> <span class="fn">validate</span>(value):
+    <span class="kw">if not</span> value:
+        <span class="kw">return</span> <span class="kw">False</span>, <span class="st">"Value is empty"</span>
+    <span class="kw">return</span> <span class="kw">True</span>, <span class="st">"OK"</span>
+
+ok, msg = <span class="fn">validate</span>(<span class="st">""</span>)
+<span class="fn">print</span>(ok, msg)   <span class="cm"># False  Value is empty</span></div>
+
+  <div class="sec">What you learn today — 4 new patterns</div>
+  <div class="compare-grid">
+    <div class="cg"><div class="cg-head good-head">Pattern</div><div class="cg-body">Default args (deeper)
+*args — variable positional
+**kwargs — variable keyword
+Type hints</div></div>
+    <div class="cg"><div class="cg-head good-head">Used for</div><div class="cg-body">Flexible test helpers
+Accept any number of inputs
+Named options with defaults
+Self-documenting functions</div></div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">Default args deep dive →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: DEFAULT ARGS DEEP DIVE -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">Default arguments — the full picture</div>
+    <div class="card-b">You know the basics. Today you learn the rules that prevent bugs — <b>positional vs keyword calling</b>, the <b>mutable default trap</b>, and <b>None as a safe default</b>. These are the things that trip up intermediate Python developers.</div>
+  </div>
+
+  <div class="try-lbl">Type this — calling styles</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">run_test</span>(test_name, browser=<span class="st">"chromium"</span>, headless=<span class="kw">True</span>, timeout=<span class="nm">5000</span>):
+    <span class="st">"""Run a single test with configurable options."""</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"[{browser}] {test_name} | headless={headless} | timeout={timeout}ms"</span>)
+
+<span class="cm"># Positional — args matched by position</span>
+<span class="fn">run_test</span>(<span class="st">"test_login"</span>)
+<span class="fn">run_test</span>(<span class="st">"test_login"</span>, <span class="st">"firefox"</span>)
+<span class="fn">run_test</span>(<span class="st">"test_login"</span>, <span class="st">"webkit"</span>, <span class="kw">False</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Keyword — args matched by name, order doesn't matter</span>
+<span class="fn">run_test</span>(<span class="st">"test_login"</span>, timeout=<span class="nm">8000</span>)
+<span class="fn">run_test</span>(<span class="st">"test_login"</span>, headless=<span class="kw">False</span>, browser=<span class="st">"firefox"</span>)
+<span class="fn">run_test</span>(<span class="st">"test_login"</span>, timeout=<span class="nm">3000</span>, headless=<span class="kw">False</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">[chromium] test_login | headless=True | timeout=5000ms</div>
+    <div class="ol">[firefox] test_login | headless=True | timeout=5000ms</div>
+    <div class="ol">[webkit] test_login | headless=False | timeout=5000ms</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">[chromium] test_login | headless=True | timeout=8000ms</div>
+    <div class="ol">[firefox] test_login | headless=False | timeout=5000ms</div>
+    <div class="ol">[chromium] test_login | headless=False | timeout=3000ms</div>
+  </div>
+
+  <div class="sec">The mutable default trap — every Python developer hits this once</div>
+  <div class="code"><span class="cm"># WRONG — list as default argument is shared across ALL calls!</span>
+<span class="kw">def</span> <span class="fn">add_tag_bad</span>(tag, tags=[]):
+    tags.<span class="fn">append</span>(tag)
+    <span class="kw">return</span> tags
+
+<span class="fn">print</span>(<span class="fn">add_tag_bad</span>(<span class="st">"smoke"</span>))    <span class="cm"># ['smoke']</span>
+<span class="fn">print</span>(<span class="fn">add_tag_bad</span>(<span class="st">"regression"</span>)) <span class="cm"># ['smoke', 'regression'] ← BUG! carries over!</span>
+
+<span class="fn">print</span>()
+
+<span class="cm"># CORRECT — use None as default, create fresh list inside</span>
+<span class="kw">def</span> <span class="fn">add_tag_good</span>(tag, tags=<span class="kw">None</span>):
+    <span class="kw">if</span> tags <span class="kw">is None</span>:
+        tags = []
+    tags.<span class="fn">append</span>(tag)
+    <span class="kw">return</span> tags
+
+<span class="fn">print</span>(<span class="fn">add_tag_good</span>(<span class="st">"smoke"</span>))     <span class="cm"># ['smoke']</span>
+<span class="fn">print</span>(<span class="fn">add_tag_good</span>(<span class="st">"regression"</span>))  <span class="cm"># ['regression'] ← correct, fresh list</span></div>
+
+  <div class="warn"><b>Rule:</b> Never use a mutable value (list, dict) as a default argument. Always use <code>None</code> and create the object inside the function. This applies to lists, dicts, and any object you might modify.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">*args →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: *ARGS -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">*args — accept any number of positional arguments <span class="badge bb" style="margin-left:6px">very useful in QA</span></div>
+    <div class="card-b"><code>*args</code> lets a function accept <b>any number of positional arguments</b>. Inside the function, <code>args</code> is a tuple of everything passed. Use it when you do not know in advance how many items the caller will pass — like a function that logs multiple test steps, or one that accepts a variable number of URLs to check.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># Without *args — limited to fixed number of items</span>
+<span class="kw">def</span> <span class="fn">log_steps_bad</span>(step1, step2, step3):   <span class="cm"># what if there are 10 steps?</span>
+    <span class="kw">pass</span>
+
+<span class="cm"># With *args — any number of steps</span>
+<span class="kw">def</span> <span class="fn">log_steps</span>(*args):
+    <span class="st">"""Log any number of test steps."""</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Running {len(args)} steps:"</span>)
+    <span class="kw">for</span> i, step <span class="kw">in</span> <span class="fn">enumerate</span>(args, <span class="nm">1</span>):
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Step {i}: {step}"</span>)
+
+<span class="fn">log_steps</span>(<span class="st">"Open browser"</span>)
+<span class="fn">print</span>()
+<span class="fn">log_steps</span>(<span class="st">"Open browser"</span>, <span class="st">"Go to login"</span>, <span class="st">"Fill username"</span>, <span class="st">"Click submit"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Mix regular args with *args — regular args come FIRST</span>
+<span class="kw">def</span> <span class="fn">check_urls</span>(env, *urls):
+    <span class="st">"""Check multiple URLs in a given environment."""</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Checking {len(urls)} URLs on {env}:"</span>)
+    <span class="kw">for</span> url <span class="kw">in</span> urls:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  → {url}"</span>)
+
+<span class="fn">check_urls</span>(<span class="st">"staging"</span>, <span class="st">"/login"</span>, <span class="st">"/dashboard"</span>, <span class="st">"/checkout"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Unpack a list into *args with the * operator</span>
+pages = [<span class="st">"/login"</span>, <span class="st">"/profile"</span>, <span class="st">"/logout"</span>]
+<span class="fn">check_urls</span>(<span class="st">"prod"</span>, *pages)   <span class="cm"># * unpacks the list</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Running 1 steps:</div>
+    <div class="ol">  Step 1: Open browser</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Running 4 steps:</div>
+    <div class="ol">  Step 1: Open browser</div>
+    <div class="ol">  Step 2: Go to login</div>
+    <div class="ol">  Step 3: Fill username</div>
+    <div class="ol">  Step 4: Click submit</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Checking 3 URLs on staging:</div>
+    <div class="ol">  → /login</div>
+    <div class="ol">  → /dashboard</div>
+    <div class="ol">  → /checkout</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Checking 3 URLs on prod:</div>
+    <div class="ol">  → /login</div>
+    <div class="ol">  → /profile</div>
+    <div class="ol">  → /logout</div>
+  </div>
+
+  <div class="tip">The name <code>args</code> is just a convention — the <code>*</code> is what matters. You could write <code>*steps</code> or <code>*urls</code> and it works the same. Use a descriptive name when it makes the function clearer.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">**kwargs →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: **KWARGS -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">**kwargs — accept any number of keyword arguments <span class="badge bp" style="margin-left:6px">the most powerful pattern</span></div>
+    <div class="card-b"><code>**kwargs</code> lets a function accept <b>any number of named arguments</b>. Inside the function, <code>kwargs</code> is a dict of everything passed. Use it for functions that accept optional configuration — like a test runner that takes any combination of options, or a report generator that accepts arbitrary metadata.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># **kwargs receives named arguments as a dict</span>
+<span class="kw">def</span> <span class="fn">configure_test</span>(**kwargs):
+    <span class="st">"""Accept any configuration options."""</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Test configuration ({len(kwargs)} options):"</span>)
+    <span class="kw">for</span> key, value <span class="kw">in</span> kwargs.<span class="fn">items</span>():
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {key} = {value}"</span>)
+
+<span class="fn">configure_test</span>(browser=<span class="st">"chromium"</span>, headless=<span class="kw">True</span>)
+<span class="fn">print</span>()
+<span class="fn">configure_test</span>(browser=<span class="st">"firefox"</span>, timeout=<span class="nm">8000</span>, slow_mo=<span class="nm">500</span>, video=<span class="kw">True</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Mix regular + *args + **kwargs together</span>
+<span class="kw">def</span> <span class="fn">run_suite</span>(suite_name, *test_ids, **options):
+    <span class="st">"""Run a named suite with specific tests and options."""</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Suite: {suite_name}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Tests: {list(test_ids)}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Options: {options}"</span>)
+
+<span class="fn">run_suite</span>(<span class="st">"smoke"</span>, <span class="st">"TC01"</span>, <span class="st">"TC02"</span>, <span class="st">"TC03"</span>, browser=<span class="st">"chromium"</span>, retries=<span class="nm">2</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Unpack a dict into **kwargs with the ** operator</span>
+my_options = {<span class="st">"browser"</span>: <span class="st">"webkit"</span>, <span class="st">"headless"</span>: <span class="kw">False</span>, <span class="st">"timeout"</span>: <span class="nm">3000</span>}
+<span class="fn">configure_test</span>(**my_options)   <span class="cm"># ** unpacks the dict</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Test configuration (2 options):</div>
+    <div class="ol">  browser = chromium</div>
+    <div class="ol">  headless = True</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Test configuration (4 options):</div>
+    <div class="ol">  browser = firefox</div>
+    <div class="ol">  timeout = 8000</div>
+    <div class="ol">  slow_mo = 500</div>
+    <div class="ol">  video = True</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Suite: smoke</div>
+    <div class="ol">Tests: ['TC01', 'TC02', 'TC03']</div>
+    <div class="ol">Options: {'browser': 'chromium', 'retries': 2}</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Test configuration (3 options):</div>
+    <div class="ol">  browser = webkit</div>
+    <div class="ol">  headless = False</div>
+    <div class="ol">  timeout = 3000</div>
+  </div>
+
+  <div class="tip">The order rule for mixing all three: <code>def func(regular, *args, **kwargs)</code> — regular args first, then *args, then **kwargs. Python enforces this order.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">Type hints →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: TYPE HINTS -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">Type hints — self-documenting functions <span class="badge bg" style="margin-left:6px">professional standard</span></div>
+    <div class="card-b">Type hints tell readers what type each argument expects and what the function returns. Python does <b>not enforce</b> them at runtime — they are documentation. But VS Code uses them for autocomplete, and every professional Python codebase uses them. After today, write type hints on every function you create.</div>
+  </div>
+
+  <div class="try-lbl">Type this — before and after</div>
+  <div class="code"><span class="cm"># Without type hints — what does this accept? What does it return?</span>
+<span class="kw">def</span> <span class="fn">validate_email</span>(email, strict):
+    <span class="kw">pass</span>
+
+<span class="cm"># With type hints — crystal clear</span>
+<span class="kw">def</span> <span class="fn">validate_email</span>(email: <span class="fn">str</span>, strict: <span class="fn">bool</span> = <span class="kw">False</span>) -> <span class="fn">bool</span>:
+    <span class="st">"""Return True if email looks valid."""</span>
+    <span class="kw">if not</span> email.<span class="fn">strip</span>():
+        <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">not in</span> email:
+        <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">if</span> strict <span class="kw">and</span> <span class="st">"."</span> <span class="kw">not in</span> email.<span class="fn">split</span>(<span class="st">"@"</span>)[<span class="nm">-1</span>]:
+        <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">return</span> <span class="kw">True</span>
+
+<span class="fn">print</span>(<span class="fn">validate_email</span>(<span class="st">"tom@test.com"</span>))          <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="fn">validate_email</span>(<span class="st">"notanemail"</span>))             <span class="cm"># False</span>
+<span class="fn">print</span>(<span class="fn">validate_email</span>(<span class="st">"tom@test"</span>, strict=<span class="kw">True</span>))  <span class="cm"># False (strict: needs dot in domain)</span>
+
+<span class="fn">print</span>()
+
+<span class="cm"># Common type hints for QA automation</span>
+<span class="kw">from</span> typing <span class="kw">import</span> Optional, List, Dict, Tuple
+
+<span class="kw">def</span> <span class="fn">run_test</span>(
+    test_name:  <span class="fn">str</span>,
+    browser:    <span class="fn">str</span>             = <span class="st">"chromium"</span>,
+    retries:    <span class="fn">int</span>             = <span class="nm">3</span>,
+    tags:       Optional[<span class="fn">List</span>[<span class="fn">str</span>]] = <span class="kw">None</span>,   <span class="cm"># None = safe default</span>
+) -> Tuple[<span class="fn">bool</span>, <span class="fn">str</span>]:
+    <span class="st">"""Run a test. Returns (passed, message)."""</span>
+    tags = tags <span class="kw">or</span> []
+    <span class="kw">return</span> <span class="kw">True</span>, <span class="fn">f</span><span class="st">"Passed on {browser} with tags {tags}"</span>
+
+ok, msg = <span class="fn">run_test</span>(<span class="st">"test_login"</span>, tags=[<span class="st">"smoke"</span>, <span class="st">"P1"</span>])
+<span class="fn">print</span>(ok, msg)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">True</div>
+    <div class="ol">False</div>
+    <div class="ol">False</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">True  Passed on chromium with tags ['smoke', 'P1']</div>
+  </div>
+
+  <div class="tip">The syntax: <code>param: type = default</code> for parameters, <code>-> return_type</code> after the closing parenthesis. <code>Optional[str]</code> means "str or None". <code>List[str]</code> means "a list of strings". Start using these on every function from today.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">QA Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: QA EXAMPLE 1 -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">QA Example 1 — Flexible test config builder <span class="badge bg" style="margin-left:6px">**kwargs in action</span></div>
+    <div class="card-b">A config builder that accepts any combination of options, validates them, fills in sensible defaults, and returns a clean config dict. This is a pattern you will write in real projects.</div>
+  </div>
+  <div class="try-lbl">Create day8_ex1.py</div>
+  <div class="code"><span class="kw">from</span> typing <span class="kw">import</span> Dict, Any
+
+<span class="kw">def</span> <span class="fn">build_config</span>(**kwargs: Any) -> Dict[<span class="fn">str</span>, Any]:
+    <span class="st">"""Build a test session config from keyword arguments.
+    Unknown keys are accepted and stored as-is."""</span>
+
+    <span class="cm"># Sensible defaults</span>
+    config = {
+        <span class="st">"env"</span>:       <span class="st">"staging"</span>,
+        <span class="st">"browser"</span>:   <span class="st">"chromium"</span>,
+        <span class="st">"headless"</span>:  <span class="kw">True</span>,
+        <span class="st">"timeout"</span>:   <span class="nm">5000</span>,
+        <span class="st">"retries"</span>:   <span class="nm">2</span>,
+        <span class="st">"slow_mo"</span>:   <span class="nm">0</span>,
+    }
+
+    <span class="cm"># Override defaults with provided values</span>
+    config.<span class="fn">update</span>(kwargs)
+
+    <span class="cm"># Validate known keys</span>
+    valid_browsers = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+    valid_envs     = [<span class="st">"dev"</span>, <span class="st">"staging"</span>, <span class="st">"prod"</span>]
+
+    errors = []
+    <span class="kw">if</span> config[<span class="st">"browser"</span>] <span class="kw">not in</span> valid_browsers:
+        errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"Invalid browser '{config['browser']}' — use {valid_browsers}"</span>)
+    <span class="kw">if</span> config[<span class="st">"env"</span>] <span class="kw">not in</span> valid_envs:
+        errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"Invalid env '{config['env']}' — use {valid_envs}"</span>)
+    <span class="kw">if</span> config[<span class="st">"timeout"</span>] <span class="op">&lt;</span> <span class="nm">1000</span>:
+        errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"Timeout too low: {config['timeout']}ms (min 1000)"</span>)
+
+    <span class="kw">if</span> errors:
+        <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">"\n"</span>.<span class="fn">join</span>(errors))
+
+    <span class="kw">return</span> config
+
+<span class="cm"># Various ways to call it</span>
+c1 = <span class="fn">build_config</span>()
+<span class="fn">print</span>(<span class="st">"Defaults:"</span>, c1)
+
+c2 = <span class="fn">build_config</span>(browser=<span class="st">"firefox"</span>, headless=<span class="kw">False</span>, slow_mo=<span class="nm">500</span>)
+<span class="fn">print</span>(<span class="st">"Custom:"</span>, c2)
+
+c3 = <span class="fn">build_config</span>(env=<span class="st">"prod"</span>, browser=<span class="st">"webkit"</span>, retries=<span class="nm">5</span>, video=<span class="kw">True</span>)
+<span class="fn">print</span>(<span class="st">"Prod:"</span>, c3)
+
+<span class="cm"># Invalid — raises ValueError</span>
+<span class="kw">try</span>:
+    <span class="fn">build_config</span>(browser=<span class="st">"edge"</span>, timeout=<span class="nm">500</span>)
+<span class="kw">except</span> <span class="fn">ValueError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nConfig error:\n{e}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Defaults: {'env': 'staging', 'browser': 'chromium', ...}</div>
+    <div class="ol">Custom: {'env': 'staging', 'browser': 'firefox', 'headless': False, 'slow_mo': 500, ...}</div>
+    <div class="ol">Prod: {'env': 'prod', 'browser': 'webkit', 'retries': 5, 'video': True, ...}</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Config error:</div>
+    <div class="ol">Invalid browser 'edge' — use ['chromium', 'firefox', 'webkit']</div>
+    <div class="ol">Timeout too low: 500ms (min 1000)</div>
+  </div>
+
+  <div class="tip"><code>raise ValueError("message")</code> deliberately crashes the function with a clear error. Use this for invalid inputs — it is better than silently using bad values. The caller wraps it in <code>try/except</code> if they want to handle it gracefully.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">QA Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA EXAMPLE 2 -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">QA Example 2 — Multi-browser test runner <span class="badge bb" style="margin-left:6px">*args + **kwargs together</span></div>
+    <div class="card-b">A test runner that accepts any number of test IDs and any combination of run options. This mirrors how real pytest plugins work internally.</div>
+  </div>
+  <div class="try-lbl">Create day8_ex2.py</div>
+  <div class="code"><span class="kw">import</span> random
+<span class="kw">from</span> typing <span class="kw">import</span> List, Tuple
+random.<span class="fn">seed</span>(<span class="nm">42</span>)
+
+<span class="kw">def</span> <span class="fn">run_tests</span>(*test_ids: <span class="fn">str</span>, **options) -> List[Tuple[<span class="fn">str</span>, <span class="fn">str</span>, <span class="fn">str</span>]]:
+    <span class="st">"""Run any number of tests with any options.
+
+    Args:
+        *test_ids: any number of test ID strings
+        **options: browser, retries, verbose (all optional)
+
+    Returns:
+        list of (test_id, browser, status) tuples
+    """</span>
+    browser = options.<span class="fn">get</span>(<span class="st">"browser"</span>, <span class="st">"chromium"</span>)
+    retries = options.<span class="fn">get</span>(<span class="st">"retries"</span>, <span class="nm">1</span>)
+    verbose = options.<span class="fn">get</span>(<span class="st">"verbose"</span>, <span class="kw">True</span>)
+
+    <span class="kw">if not</span> test_ids:
+        <span class="fn">print</span>(<span class="st">"No test IDs provided — nothing to run"</span>)
+        <span class="kw">return</span> []
+
+    results = []
+
+    <span class="kw">for</span> tid <span class="kw">in</span> test_ids:
+        attempt = <span class="nm">0</span>
+        status  = <span class="st">"FAIL"</span>
+
+        <span class="kw">while</span> attempt <span class="op">&lt;</span> retries <span class="kw">and</span> status == <span class="st">"FAIL"</span>:
+            attempt <span class="op">+=</span> <span class="nm">1</span>
+            status  = <span class="st">"PASS"</span> <span class="kw">if</span> random.<span class="fn">random</span>() <span class="op">&gt;</span> <span class="nm">0.3</span> <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+        results.<span class="fn">append</span>((tid, browser, status))
+
+        <span class="kw">if</span> verbose:
+            icon = <span class="st">"✓"</span> <span class="kw">if</span> status == <span class="st">"PASS"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {icon} [{browser}] {tid} — {status}"</span>)
+
+    <span class="kw">return</span> results
+
+<span class="cm"># Call with just test IDs — uses all defaults</span>
+<span class="fn">print</span>(<span class="st">"--- Default run ---"</span>)
+r1 = <span class="fn">run_tests</span>(<span class="st">"TC01"</span>, <span class="st">"TC02"</span>, <span class="st">"TC03"</span>)
+
+<span class="cm"># Call with options</span>
+<span class="fn">print</span>(<span class="st">"\n--- Firefox with retries ---"</span>)
+r2 = <span class="fn">run_tests</span>(<span class="st">"TC01"</span>, <span class="st">"TC04"</span>, <span class="st">"TC05"</span>, browser=<span class="st">"firefox"</span>, retries=<span class="nm">3</span>)
+
+<span class="cm"># Unpack a list of IDs using *</span>
+<span class="fn">print</span>(<span class="st">"\n--- Unpacked list ---"</span>)
+all_tests = [<span class="st">"TC01"</span>, <span class="st">"TC02"</span>, <span class="st">"TC03"</span>, <span class="st">"TC04"</span>]
+r3 = <span class="fn">run_tests</span>(*all_tests, browser=<span class="st">"webkit"</span>, verbose=<span class="kw">False</span>)
+
+<span class="cm"># Summary</span>
+passed = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> _, _, s <span class="kw">in</span> r3 <span class="kw">if</span> s == <span class="st">"PASS"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Silent run: {passed}/{len(r3)} passed"</span>)</div>
+
+  <div class="ok">Notice <code>*all_tests</code> unpacks the list into individual positional arguments — exactly like calling <code>run_tests("TC01", "TC02", "TC03", "TC04")</code>. This is how you pass a dynamic list to a *args function.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example 3 →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE 3 -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example 3 — Assertion helper library <span class="badge bp" style="margin-left:6px">type hints + defaults + returns</span></div>
+    <div class="card-b">A set of custom assertion helpers that wrap Python's built-in assert with clearer messages. This is a real pattern — test frameworks like pytest have exactly this kind of helper library.</div>
+  </div>
+  <div class="try-lbl">Create day8_ex3.py</div>
+  <div class="code"><span class="kw">from</span> typing <span class="kw">import</span> Any, Optional
+
+<span class="kw">def</span> <span class="fn">assert_equals</span>(
+    actual:   Any,
+    expected: Any,
+    message:  <span class="fn">str</span> = <span class="st">""</span>
+) -> <span class="kw">None</span>:
+    <span class="st">"""Assert actual == expected with a clear failure message."""</span>
+    label = <span class="fn">f</span><span class="st">" — {message}"</span> <span class="kw">if</span> message <span class="kw">else</span> <span class="st">""</span>
+    assert actual == expected, (
+        <span class="fn">f</span><span class="st">"AssertionError{label}\n"</span>
+        <span class="fn">f</span><span class="st">"  Expected : {expected!r}\n"</span>
+        <span class="fn">f</span><span class="st">"  Actual   : {actual!r}"</span>
+    )
+
+<span class="kw">def</span> <span class="fn">assert_contains</span>(
+    text:     <span class="fn">str</span>,
+    keyword:  <span class="fn">str</span>,
+    case_sensitive: <span class="fn">bool</span> = <span class="kw">False</span>,
+    message:  <span class="fn">str</span> = <span class="st">""</span>
+) -> <span class="kw">None</span>:
+    <span class="st">"""Assert keyword is found in text."""</span>
+    haystack = text <span class="kw">if</span> case_sensitive <span class="kw">else</span> text.<span class="fn">lower</span>()
+    needle   = keyword <span class="kw">if</span> case_sensitive <span class="kw">else</span> keyword.<span class="fn">lower</span>()
+    label    = <span class="fn">f</span><span class="st">" — {message}"</span> <span class="kw">if</span> message <span class="kw">else</span> <span class="st">""</span>
+    assert needle <span class="kw">in</span> haystack, (
+        <span class="fn">f</span><span class="st">"AssertionError{label}\n"</span>
+        <span class="fn">f</span><span class="st">"  '{keyword}' not found in '{text}'"</span>
+    )
+
+<span class="kw">def</span> <span class="fn">assert_status</span>(
+    actual:   <span class="fn">int</span>,
+    expected: <span class="fn">int</span> = <span class="nm">200</span>,
+    message:  Optional[<span class="fn">str</span>] = <span class="kw">None</span>
+) -> <span class="kw">None</span>:
+    <span class="st">"""Assert HTTP status code with default of 200."""</span>
+    msg = message <span class="kw">or</span> <span class="fn">f</span><span class="st">"Expected status {expected}"</span>
+    assert actual == expected, <span class="fn">f</span><span class="st">"{msg} — got {actual}"</span>
+
+<span class="cm"># Use the helpers</span>
+<span class="fn">print</span>(<span class="st">"Running assertions...\n"</span>)
+
+<span class="cm"># These should all pass</span>
+<span class="fn">assert_equals</span>(<span class="nm">200</span>, <span class="nm">200</span>, <span class="st">"API status"</span>)
+<span class="fn">print</span>(<span class="st">"✓ assert_equals passed"</span>)
+
+<span class="fn">assert_contains</span>(<span class="st">"You logged into a secure area!"</span>, <span class="st">"secure area"</span>)
+<span class="fn">print</span>(<span class="st">"✓ assert_contains passed"</span>)
+
+<span class="fn">assert_status</span>(<span class="nm">201</span>, <span class="nm">201</span>)
+<span class="fn">print</span>(<span class="st">"✓ assert_status passed"</span>)
+
+<span class="cm"># This should fail — catch it</span>
+<span class="kw">try</span>:
+    <span class="fn">assert_equals</span>(<span class="nm">404</span>, <span class="nm">200</span>, <span class="st">"login redirect"</span>)
+<span class="kw">except</span> <span class="fn">AssertionError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n✗ Caught failure:\n{e}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Running assertions...</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">✓ assert_equals passed</div>
+    <div class="ol">✓ assert_contains passed</div>
+    <div class="ol">✓ assert_status passed</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">✗ Caught failure:</div>
+    <div class="ol">AssertionError — login redirect</div>
+    <div class="ol">  Expected : 200</div>
+    <div class="ol">  Actual   : 404</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 8 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 8 challenge — write it all from scratch</div>
+    <div class="card-b">New file: <b>day8_challenge.py</b>. Add it to your <code>qa-automation</code> folder and push to GitHub when done.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build a QA test reporter</div>
+    <div class="ch-b">
+      Write these 4 functions from scratch — no looking back:<br><br>
+
+      <b>Function 1 — <code>log_result(test_id, status, *details, **meta)</code></b><br>
+      Accepts a test ID, a status (PASS/FAIL), any number of detail strings (*args), and any metadata as keyword args. Prints a formatted log line. Example output:<br>
+      <code>[PASS] TC01 | Details: step1 passed, element found | browser=chromium env=staging</code><br><br>
+
+      <b>Function 2 — <code>build_report(title, *results, **options)</code></b></b><br>
+      Accepts a report title, any number of result dicts (each with "id", "status"), and options like <code>show_passed=True</code>, <code>max_failures=10</code>. Returns a formatted report string. Uses <code>all()</code> and <code>any()</code> for the summary.<br><br>
+
+      <b>Function 3 — <code>assert_response(status, body, expected_status=200, required_fields=None)</code></b><br>
+      Uses <code>None</code> as safe default for <code>required_fields</code>. Validates status code and checks all required fields exist in body dict. Returns <code>(bool, list_of_errors)</code> tuple. Type hint everything.<br><br>
+
+      <b>Function 4 — <code>retry(func, *args, max_attempts=3, **kwargs)</code></b><br>
+      Accepts any function, its args and kwargs, and a max_attempts count. Calls <code>func(*args, **kwargs)</code> up to max_attempts times. Returns the result on success or <code>None</code> after all failures. This is an advanced pattern — a function that wraps another function.
+    </div>
+  </div>
+
+  <div class="ok">Function 4 is the hardest — a function that accepts and calls another function. This is called a higher-order function. It appears in every real retry decorator and test framework. When you write it, you understand how pytest's retry plugin works internally.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 8 Python functions challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 8 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 8 Python challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 9 Python — try/except error handling in depth for QA automation with hands-on exercises')">Go to Day 9 — try/except ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['Why functions','Default args','*args','**kwargs','Type hints','Ex 1 Config','Ex 2 Runner','Ex 3 Assertions','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

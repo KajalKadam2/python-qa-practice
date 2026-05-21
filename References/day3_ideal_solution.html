@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.hl{background:#FFF3C4;border-radius:2px;padding:0 1px}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.od{color:var(--color-text-tertiary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part-head{font-size:13px;font-weight:500;color:var(--color-text-primary);background:var(--color-background-secondary);border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;padding:8px 14px;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:14px;display:flex;align-items:center;gap:8px}
+.part-num{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.p5{background:#FCEBEB;color:#791F1F}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-ok{background:#EAF3DE;color:#27500A}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.checklist{margin:8px 0}
+.ci{font-size:13px;line-height:1.8;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#27500A;border-color:#27500A}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:12px}
+.score-n{font-size:26px;font-weight:500;color:var(--color-text-primary);min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#639922;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="tabs">
+  <button class="tab on" onclick="sw('solution',this)">Full solution</button>
+  <button class="tab" onclick="sw('explain',this)">Part by part</button>
+  <button class="tab" onclick="sw('mistakes',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="solution">
+  <div class="tip">Read through and compare — do not copy. For every line that differs from yours, ask yourself why it's different before moving on.</div>
+
+<div class="code"><span class="cm"># ─────────────────────────────────────────────────
+# Day 3 Challenge — Ideal Solution
+# day3_challenge.py
+# ─────────────────────────────────────────────────</span>
+
+<span class="cm"># ── Starting data (given) ─────────────────────────</span>
+browsers   = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+test_pages = [<span class="st">"/login"</span>, <span class="st">"/dashboard"</span>, <span class="st">"/profile"</span>, <span class="st">"/checkout"</span>]
+env        = <span class="st">"staging"</span>
+base_url   = <span class="fn">f</span><span class="st">"https://{env}.myapp.com"</span>
+
+<span class="cm"># ── Part 1: build full URLs with list comprehension ─</span>
+full_urls = [<span class="fn">f</span><span class="st">"{base_url}{page}"</span> <span class="kw">for</span> page <span class="kw">in</span> test_pages]
+
+<span class="fn">print</span>(<span class="st">"URLs to test:"</span>)
+<span class="kw">for</span> url <span class="kw">in</span> full_urls:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {url}"</span>)
+
+<span class="cm"># ── Part 2: simulate test runs (loop inside loop) ───</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n--- Test Runs ---"</span>)
+results = []
+
+<span class="kw">for</span> i, browser <span class="kw">in</span> <span class="fn">enumerate</span>(browsers, start=<span class="nm">1</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nBrowser {i}/{len(browsers)}: {browser.upper()}"</span>)
+    <span class="kw">for</span> url <span class="kw">in</span> full_urls:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  [{browser}] Testing: {url}"</span>)
+        results.<span class="fn">append</span>(<span class="st">"PASS"</span>)   <span class="cm"># Part 3: collect as we go</span>
+
+<span class="cm"># ── Part 3: count results ───────────────────────────</span>
+total_runs = <span class="fn">len</span>(results)
+n_passed   = results.<span class="fn">count</span>(<span class="st">"PASS"</span>)
+n_failed   = results.<span class="fn">count</span>(<span class="st">"FAIL"</span>)
+
+<span class="cm"># ── Part 4: analyse the results list ────────────────</span>
+first_three = results[:<span class="nm">3</span>]
+last_three  = results[-<span class="nm">3</span>:]
+has_failure = <span class="st">"FAIL"</span> <span class="kw">in</span> results
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n--- Analysis ---"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"First 3 results : {first_three}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Last 3 results  : {last_three}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Any failures    : {has_failure}"</span>)
+
+<span class="cm"># ── Part 5: final summary ───────────────────────────</span>
+status = <span class="st">"ALL PASSED"</span> <span class="kw">if</span> n_failed == <span class="nm">0</span> <span class="kw">else</span> <span class="fn">f</span><span class="st">"{n_failed} FAILED"</span>
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n{'='*28}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Cross-browser Test Summary"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*28}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browsers tested : {len(browsers)}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Pages tested    : {len(test_pages)}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Total runs      : {total_runs}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Passed          : {n_passed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Failed          : {n_failed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Status          : {status}"</span>)</div>
+
+  <div class="sec">Expected output</div>
+  <div class="out">
+    <div class="out-lbl">Terminal</div>
+    <div class="ol">URLs to test:</div>
+    <div class="ol">  https://staging.myapp.com/login</div>
+    <div class="ol">  https://staging.myapp.com/dashboard</div>
+    <div class="ol">  https://staging.myapp.com/profile</div>
+    <div class="ol">  https://staging.myapp.com/checkout</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">--- Test Runs ---</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Browser 1/3: CHROMIUM</div>
+    <div class="ol">  [chromium] Testing: https://staging.myapp.com/login</div>
+    <div class="ol">  [chromium] Testing: https://staging.myapp.com/dashboard</div>
+    <div class="ol">  [chromium] Testing: https://staging.myapp.com/profile</div>
+    <div class="ol">  [chromium] Testing: https://staging.myapp.com/checkout</div>
+    <div class="ol">Browser 2/3: FIREFOX</div>
+    <div class="ol">  [firefox] Testing: ... (4 more lines)</div>
+    <div class="ol">Browser 3/3: WEBKIT</div>
+    <div class="ol">  [webkit] Testing: ... (4 more lines)</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">--- Analysis ---</div>
+    <div class="ol">First 3 results : ['PASS', 'PASS', 'PASS']</div>
+    <div class="ol">Last 3 results  : ['PASS', 'PASS', 'PASS']</div>
+    <div class="ol">Any failures    : False</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">============================</div>
+    <div class="ol">Cross-browser Test Summary</div>
+    <div class="ol">============================</div>
+    <div class="ol">Browsers tested : 3</div>
+    <div class="ol">Pages tested    : 4</div>
+    <div class="ol">Total runs      : 12</div>
+    <div class="ol">Passed          : 12</div>
+    <div class="ol">Failed          : 0</div>
+    <div class="ol">Status          : ALL PASSED</div>
+  </div>
+</div>
+
+<!-- PART BY PART -->
+<div class="pg" id="explain">
+  <div class="sec">Every key decision explained</div>
+  <div class="eb-grid">
+
+    <div class="part-head"><span class="part-num p1">Part 1</span> List comprehension for URLs</div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">full_urls</span> = [<span class="fn">f</span><span class="st">"{base_url}{page}"</span> <span class="kw">for</span> page <span class="kw">in</span> test_pages]</div>
+      <div class="eb-why"><b>Why comprehension, not a loop?</b> When you are building a new list by transforming every item in an existing list — comprehension is the right tool. Read it as: "give me <code>f"{base_url}{page}"</code> for each <code>page</code> in <code>test_pages</code>." One line instead of four. The result is identical to appending inside a loop — just cleaner.</div>
+    </div>
+
+    <div class="part-head"><span class="part-num p2">Part 2</span> Loop inside a loop — the critical pattern</div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">for</span> i, browser <span class="kw">in</span> <span class="fn">enumerate</span>(browsers, start=<span class="nm">1</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browser {i}/{len(browsers)}: {browser.upper()}"</span>)
+    <span class="kw">for</span> url <span class="kw">in</span> full_urls:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  [{browser}] Testing: {url}"</span>)
+        results.<span class="fn">append</span>(<span class="st">"PASS"</span>)</div>
+      <div class="eb-why"><b>Outer loop = browsers. Inner loop = URLs.</b> For every browser, we run through all 4 URLs. That gives 3 × 4 = 12 total runs. The <code>results.append()</code> is inside the inner loop — it fires once per test run. <code>enumerate(browsers, start=1)</code> counts from 1 so we print "Browser 1/3", not "Browser 0/3". <code>browser.upper()</code> on the header line makes the browser name stand out visually.</div>
+    </div>
+
+    <div class="part-head"><span class="part-num p3">Part 3</span> Collecting results inside the loop</div>
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># results list created BEFORE the loop</span>
+results = []
+
+<span class="cm"># append() called INSIDE the inner loop</span>
+results.<span class="fn">append</span>(<span class="st">"PASS"</span>)
+
+<span class="cm"># count() called AFTER both loops finish</span>
+n_passed = results.<span class="fn">count</span>(<span class="st">"PASS"</span>)
+n_failed = results.<span class="fn">count</span>(<span class="st">"FAIL"</span>)</div>
+      <div class="eb-why"><b>Order matters.</b> The empty list must exist before the loop starts. Append runs during the loop. Count runs after. Many people either create the list inside the loop (resets each iteration) or call count before the loop finishes (incomplete data). The pattern: create → fill → analyse — always in that order.</div>
+    </div>
+
+    <div class="part-head"><span class="part-num p4">Part 4</span> Slicing and membership check</div>
+    <div class="eb">
+      <div class="eb-code">first_three = results[:<span class="nm">3</span>]    <span class="cm"># items 0, 1, 2</span>
+last_three  = results[-<span class="nm">3</span>:]   <span class="cm"># last 3 items</span>
+has_failure = <span class="st">"FAIL"</span> <span class="kw">in</span> results</div>
+      <div class="eb-why"><b>These three lines are pure list mechanics.</b> <code>[:3]</code> gives first 3 — end index is excluded so it stops before index 3. <code>[-3:]</code> gives last 3 — negative index counts from end, empty end means "to the end of the list". <code>"FAIL" in results</code> returns a boolean — True if found anywhere, False if not. All three are O(n) operations Python handles internally — no loop needed.</div>
+    </div>
+
+    <div class="part-head"><span class="part-num p5">Part 5</span> Dynamic status with inline condition</div>
+    <div class="eb">
+      <div class="eb-code">status = <span class="st">"ALL PASSED"</span> <span class="kw">if</span> n_failed == <span class="nm">0</span> <span class="kw">else</span> <span class="fn">f</span><span class="st">"{n_failed} FAILED"</span>
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browsers tested : {len(browsers)}"</span>)   <span class="cm"># len(), not hardcoded 3</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Pages tested    : {len(test_pages)}"</span>)  <span class="cm"># len(), not hardcoded 4</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Total runs      : {total_runs}"</span>)        <span class="cm"># computed, not hardcoded 12</span></div>
+      <div class="eb-why"><b>Never hardcode values that can be computed.</b> Writing <code>print("Browsers tested : 3")</code> breaks the moment you add a 4th browser to the list. <code>len(browsers)</code> is always correct regardless of list size. The inline condition for status goes further: if failures exist, it says how many — "2 FAILED" is more useful than just "FAILED".</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mistakes">
+  <div class="sec">The 5 mistakes most people made on this challenge</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — creating results list inside the loop</div>
+    <div class="diff-body"><span class="cm"># Wrong — resets to empty every iteration</span>
+<span class="kw">for</span> browser <span class="kw">in</span> browsers:
+    results = []          <span class="cm"># ← INSIDE loop, resets each time</span>
+    <span class="kw">for</span> url <span class="kw">in</span> full_urls:
+        results.<span class="fn">append</span>(<span class="st">"PASS"</span>)
+
+<span class="cm"># Correct — create once, BEFORE the loop</span>
+results = []              <span class="cm"># ← OUTSIDE loop, persists</span>
+<span class="kw">for</span> browser <span class="kw">in</span> browsers:
+    <span class="kw">for</span> url <span class="kw">in</span> full_urls:
+        results.<span class="fn">append</span>(<span class="st">"PASS"</span>)</div>
+    <div class="diff-note"><b>Why it matters:</b> With the wrong version, <code>results</code> only ever holds 4 items (the last browser's runs) — never all 12. The list is silently overwritten each iteration. This is the most common loop bug and very hard to spot because no error is thrown.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — building URLs with a loop instead of comprehension</div>
+    <div class="diff-body"><span class="cm"># Works but verbose — 4 lines</span>
+full_urls = []
+<span class="kw">for</span> page <span class="kw">in</span> test_pages:
+    full_urls.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"{base_url}{page}"</span>)
+
+<span class="cm"># Preferred — 1 line, same result</span>
+full_urls = [<span class="fn">f</span><span class="st">"{base_url}{page}"</span> <span class="kw">for</span> page <span class="kw">in</span> test_pages]</div>
+    <div class="diff-note"><b>Both are correct.</b> The loop version is not wrong — it's just an opportunity to practise comprehension. When you are transforming every item in a list into something else, comprehension is the Python-preferred pattern. You'll see it in every professional codebase.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — hardcoding counts instead of computing them</div>
+    <div class="diff-body"><span class="cm"># Fragile — breaks if list changes size</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browsers tested : 3"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Pages tested    : 4"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Total runs      : 12"</span>)
+
+<span class="cm"># Correct — always accurate</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browsers tested : {len(browsers)}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Pages tested    : {len(test_pages)}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Total runs      : {len(results)}"</span>)</div>
+    <div class="diff-note"><b>Hardcoded numbers are a maintenance trap.</b> Add a 4th browser tomorrow and your summary still says "Browsers tested: 3". In real test suites this causes misleading reports. Always derive counts from the data itself — your code stays correct automatically.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — wrong slicing for last 3</div>
+    <div class="diff-body"><span class="cm"># Wrong — gets index 9,10,11 only if list has 12+ items</span>
+last_three = results[<span class="nm">9</span>:<span class="nm">12</span>]    <span class="cm"># fragile — hardcoded positions</span>
+
+<span class="cm"># Wrong — gets all items from index 3 onward</span>
+last_three = results[<span class="nm">3</span>:]        <span class="cm"># that's 9 items, not 3</span>
+
+<span class="cm"># Correct — always the last 3 regardless of list size</span>
+last_three = results[-<span class="nm">3</span>:]       <span class="cm"># negative index from the end</span></div>
+    <div class="diff-note"><b>Negative slicing is the safe pattern.</b> <code>[-3:]</code> means "start 3 from the end, go to the end." Works correctly for any list length. Hardcoded positions like <code>[9:12]</code> break if the list ever has fewer than 10 items.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — static status string instead of dynamic</div>
+    <div class="diff-body"><span class="cm"># Static — always says ALL PASSED even if tests fail</span>
+<span class="fn">print</span>(<span class="st">"Status : ALL PASSED"</span>)
+
+<span class="cm"># Dynamic — reflects actual results</span>
+status = <span class="st">"ALL PASSED"</span> <span class="kw">if</span> n_failed == <span class="nm">0</span> <span class="kw">else</span> <span class="fn">f</span><span class="st">"{n_failed} FAILED"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Status : {status}"</span>)</div>
+    <div class="diff-note"><b>A report that always says PASSED is useless.</b> Drive every output from actual computed data. Try it: manually add <code>"FAIL"</code> to your results list and confirm the status changes. If it doesn't — your status is hardcoded.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="checklist" id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 1 — Built <code>full_urls</code> using list comprehension (not a manual loop)</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 1 — Each URL correctly combines <code>base_url</code> + <code>page</code> using an f-string</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — Loop inside a loop: outer = browsers, inner = URLs — 12 lines printed total</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — Used <code>enumerate(browsers, start=1)</code> for "Browser 1/3" style output</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 3 — <code>results = []</code> created BEFORE the loops, <code>.append()</code> called INSIDE inner loop</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 3 — Used <code>.count("PASS")</code> and <code>.count("FAIL")</code> after loops finish</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 4 — Sliced first 3 with <code>[:3]</code> and last 3 with <code>[-3:]</code> correctly</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 4 — Used <code>"FAIL" in results</code> to get a boolean — not a manual loop</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — Summary counts use <code>len(browsers)</code>, <code>len(test_pages)</code>, <code>len(results)</code> — no hardcoded numbers</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — Status is computed dynamically — changes if you add a "FAIL" to results</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 4 Python — dictionaries in depth for QA automation with hands-on exercises')">Go to Day 4 — dictionaries ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me a harder Python lists challenge — beyond Day 3 level, using real QA automation scenarios')">Give me a harder lists challenge ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const checked=el.classList.contains('checked');
+  svg.style.display=checked?'block':'none';
+  box.style.background=checked?'#27500A':'';
+  box.style.borderColor=checked?'#27500A':'';
+  update();
+}
+function update(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const total=10;
+  const pct=Math.round(done/total*100);
+  document.getElementById('snum').textContent=done+'/'+total;
+  document.getElementById('sbar').style.width=pct+'%';
+  const msg=document.getElementById('smsg');
+  const lbl=document.getElementById('slbl');
+  lbl.textContent=pct+'% — '+done+' of '+total+' concepts correct';
+  if(done===total){
+    msg.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. The loop-inside-a-loop pattern and results-before-loop placement are the two hardest things in this challenge — you got them both. Move to Day 4 with confidence.</div>';
+  }else if(done>=7){
+    msg.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong result. Check the Common Mistakes tab for any unchecked items, fix those parts, then move to Day 4.</div>';
+  }else if(done>=4){
+    msg.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway there. Read the Part by Part tab carefully for the concepts you missed, rewrite those sections, then move on.</div>';
+  }else if(done>0){
+    msg.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Go back to the Full Solution, read every line carefully, then rewrite the whole challenge from scratch before Day 4.</div>';
+  }
+}
+</script>
+</body>
+</html>

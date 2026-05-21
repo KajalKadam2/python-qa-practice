@@ -1,0 +1,445 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{font-family:var(--font-sans);padding:1rem 0}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.tab{font-size:13px;padding:6px 14px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;font-weight:500}
+.panel{display:none}
+.panel.active{display:block}
+.section-lbl{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 7px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:14px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.8;color:var(--color-text-primary);overflow-x:auto;white-space:pre;margin:8px 0}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:10px 14px;font-size:13px;color:var(--color-text-info);line-height:1.6;margin:10px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:10px 14px;font-size:13px;color:var(--color-text-warning);line-height:1.6;margin:10px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:10px 14px;font-size:13px;color:var(--color-text-success);line-height:1.6;margin:10px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;border:0.5px solid var(--color-border-tertiary)}
+.ct{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.cd{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.badge{font-size:10px;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:5px;font-weight:500}
+.bp{background:#EEEDFE;color:#3C3489}
+.bg{background:#EAF3DE;color:#27500A}
+.ba{background:#FAEEDA;color:#633806}
+.br{background:#FCEBEB;color:#791F1F}
+.ask{font-size:12px;padding:5px 14px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin-top:10px;display:inline-block}
+.ask:hover{opacity:.8}
+.quiz-area{margin:12px 0}
+.q-text{font-size:14px;color:var(--color-text-primary);margin-bottom:10px;line-height:1.6}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{font-size:13px;padding:8px 14px;border-radius:var(--border-radius-md);cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-primary);text-align:left;transition:all .15s;font-family:var(--font-mono)}
+.opt:hover{background:var(--color-background-secondary)}
+.opt.correct{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.opt.wrong{background:#FCEBEB;color:#791F1F;border-color:#F09595}
+.feedback{font-size:13px;margin-top:10px;padding:8px 12px;border-radius:var(--border-radius-md);line-height:1.5}
+.fb-ok{background:#EAF3DE;color:#27500A}
+.fb-no{background:#FCEBEB;color:#791F1F}
+.next-btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);margin-top:12px;display:none}
+.next-btn:hover{background:var(--color-background-tertiary)}
+.progress{font-size:12px;color:var(--color-text-tertiary);margin-bottom:14px}
+.inline-code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 6px;border-radius:4px;color:var(--color-text-primary)}
+</style>
+
+<div class="app">
+<h2 class="sr-only">Interactive Python for QA automation — variables, functions, loops, and OOP with exercises</h2>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('vars')">Variables &amp; types</button>
+  <button class="tab" onclick="show('loops')">Conditions &amp; loops</button>
+  <button class="tab" onclick="show('funcs')">Functions</button>
+  <button class="tab" onclick="show('oop')">OOP &amp; classes</button>
+  <button class="tab" onclick="show('qa')">QA patterns</button>
+  <button class="tab" onclick="show('quiz')">Quiz yourself</button>
+</div>
+
+<!-- VARIABLES -->
+<div id="vars" class="panel active">
+  <div class="section-lbl">Variables — storing test data</div>
+  <div class="code"><span class="cm"># No need to declare type — Python figures it out</span>
+base_url = <span class="st">"https://staging.myapp.com"</span>        <span class="cm"># str</span>
+timeout  = <span class="nm">5000</span>                               <span class="cm"># int (milliseconds)</span>
+headless = <span class="kw">True</span>                                <span class="cm"># bool</span>
+retry_count = <span class="nm">3</span>
+
+<span class="cm"># Check type anytime</span>
+<span class="fn">print</span>(<span class="fn">type</span>(base_url))   <span class="cm"># &lt;class 'str'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(timeout))    <span class="cm"># &lt;class 'int'&gt;</span></div>
+
+  <div class="section-lbl">Strings — you'll use these constantly</div>
+  <div class="code">user  = <span class="st">"tomsmith"</span>
+env   = <span class="st">"staging"</span>
+base  = <span class="st">"https://myapp.com"</span>
+
+<span class="cm"># f-strings: build dynamic URLs and messages</span>
+url     = <span class="fn">f</span><span class="st">"https://{env}.myapp.com/login"</span>
+message = <span class="fn">f</span><span class="st">"Logging in as {user} on {env}"</span>
+<span class="fn">print</span>(url)      <span class="cm"># https://staging.myapp.com/login</span>
+<span class="fn">print</span>(message)  <span class="cm"># Logging in as tomsmith on staging</span>
+
+<span class="cm"># Useful string methods</span>
+error = <span class="st">"  Invalid email address  "</span>
+error.<span class="fn">strip</span>()       <span class="cm"># "Invalid email address"  — remove spaces</span>
+error.<span class="fn">lower</span>()       <span class="cm"># "  invalid email address  "</span>
+error.<span class="fn">contains</span>     <span class="cm"># use  "invalid" in error.lower()</span>
+url.<span class="fn">startswith</span>(<span class="st">"https"</span>)   <span class="cm"># True</span></div>
+
+  <div class="section-lbl">Lists &amp; dicts — test data structures</div>
+  <div class="code"><span class="cm"># List — ordered collection, great for test cases</span>
+browsers     = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+invalid_emails = [<span class="st">"noatsign"</span>, <span class="st">"@nodomain"</span>, <span class="st">""</span>, <span class="st">"a@b"</span>]
+
+browsers[<span class="nm">0</span>]       <span class="cm"># "chromium"  (first item)</span>
+browsers[-<span class="nm">1</span>]      <span class="cm"># "webkit"    (last item)</span>
+<span class="fn">len</span>(browsers)     <span class="cm"># 3</span>
+
+<span class="cm"># Dict — key/value pairs, great for test user data</span>
+user = {
+    <span class="st">"username"</span>: <span class="st">"tomsmith"</span>,
+    <span class="st">"password"</span>: <span class="st">"SuperSecretPassword!"</span>,
+    <span class="st">"role"</span>:     <span class="st">"admin"</span>
+}
+user[<span class="st">"username"</span>]         <span class="cm"># "tomsmith"</span>
+user.<span class="fn">get</span>(<span class="st">"email"</span>, <span class="st">"N/A"</span>) <span class="cm"># safe — returns "N/A" if key missing</span></div>
+
+  <div class="tip">f-strings and dicts are the two things you'll use most in test automation. f-strings build dynamic URLs and log messages. Dicts store test user data and config.</div>
+  <button class="ask" onclick="sendPrompt('Show me how to store test configuration like base URL, credentials, and timeouts in a Python dict and use it in a Playwright test')">See a config dict in a real test ↗</button>
+</div>
+
+<!-- LOOPS -->
+<div id="loops" class="panel">
+  <div class="section-lbl">if / elif / else — test logic</div>
+  <div class="code">status_code = <span class="nm">404</span>
+
+<span class="kw">if</span> status_code == <span class="nm">200</span>:
+    <span class="fn">print</span>(<span class="st">"Pass: page loaded"</span>)
+<span class="kw">elif</span> status_code == <span class="nm">404</span>:
+    <span class="fn">print</span>(<span class="st">"Fail: page not found"</span>)
+<span class="kw">elif</span> status_code == <span class="nm">500</span>:
+    <span class="fn">print</span>(<span class="st">"Fail: server error"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Unknown status: {status_code}"</span>)
+
+<span class="cm"># Membership check — very useful in QA</span>
+allowed_roles = [<span class="st">"admin"</span>, <span class="st">"editor"</span>, <span class="st">"viewer"</span>]
+user_role = <span class="st">"admin"</span>
+
+<span class="kw">if</span> user_role <span class="kw">in</span> allowed_roles:
+    <span class="fn">print</span>(<span class="st">"Access granted"</span>)
+
+<span class="cm"># None checks — element not found scenarios</span>
+element = <span class="kw">None</span>
+<span class="kw">if</span> element <span class="kw">is None</span>:
+    <span class="fn">print</span>(<span class="st">"Element not found — test should fail"</span>)</div>
+
+  <div class="section-lbl">for loops — running tests over multiple data sets</div>
+  <div class="code"><span class="cm"># Loop over a list — test each invalid email</span>
+invalid_emails = [<span class="st">"noatsign"</span>, <span class="st">"@nodomain"</span>, <span class="st">""</span>, <span class="st">"toolong@"</span>]
+
+<span class="kw">for</span> email <span class="kw">in</span> invalid_emails:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Testing invalid email: {email}"</span>)
+    <span class="cm"># page.fill("#email", email) ← this is what you'd do in Playwright</span>
+
+<span class="cm"># enumerate — get index AND value together</span>
+browsers = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+<span class="kw">for</span> i, browser <span class="kw">in</span> <span class="fn">enumerate</span>(browsers):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browser {i+1}: {browser}"</span>)
+
+<span class="cm"># Loop over dict items — read test config</span>
+config = {<span class="st">"env"</span>: <span class="st">"staging"</span>, <span class="st">"timeout"</span>: <span class="nm">5000</span>, <span class="st">"retries"</span>: <span class="nm">3</span>}
+<span class="kw">for</span> key, value <span class="kw">in</span> config.<span class="fn">items</span>():
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"{key} = {value}"</span>)
+
+<span class="cm"># range() — repeat something N times</span>
+<span class="kw">for</span> attempt <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>):          <span class="cm"># 0, 1, 2</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Retry attempt {attempt + 1}"</span>)</div>
+
+  <div class="section-lbl">while loop — retry logic</div>
+  <div class="code">max_retries = <span class="nm">3</span>
+attempt     = <span class="nm">0</span>
+success     = <span class="kw">False</span>
+
+<span class="kw">while</span> attempt < max_retries <span class="kw">and not</span> success:
+    attempt += <span class="nm">1</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Attempt {attempt}..."</span>)
+    <span class="cm"># try the action here</span>
+    <span class="kw">if</span> attempt == <span class="nm">2</span>:   <span class="cm"># simulate success on attempt 2</span>
+        success = <span class="kw">True</span>
+        <span class="fn">print</span>(<span class="st">"Succeeded!"</span>)
+
+<span class="kw">if not</span> success:
+    <span class="fn">print</span>(<span class="st">"Failed after all retries"</span>)</div>
+
+  <div class="tip">The <span class="inline-code">for item in list</span> pattern is how pytest parametrize works under the hood. When you write <span class="inline-code">@pytest.mark.parametrize</span>, pytest runs your test function once for each item — exactly like a for loop.</div>
+  <button class="ask" onclick="sendPrompt('Show me how pytest parametrize works with a real login test example testing 5 different invalid credentials')">See parametrize in action ↗</button>
+</div>
+
+<!-- FUNCTIONS -->
+<div id="funcs" class="panel">
+  <div class="section-lbl">Defining functions — reusable test steps</div>
+  <div class="code"><span class="cm"># Basic function</span>
+<span class="kw">def</span> <span class="fn">say_hello</span>(name):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Hello, {name}!"</span>)
+
+<span class="fn">say_hello</span>(<span class="st">"Priya"</span>)   <span class="cm"># Hello, Priya!</span>
+
+<span class="cm"># Function that RETURNS a value</span>
+<span class="kw">def</span> <span class="fn">build_url</span>(env, path):
+    <span class="kw">return</span> <span class="fn">f</span><span class="st">"https://{env}.myapp.com{path}"</span>
+
+login_url   = <span class="fn">build_url</span>(<span class="st">"staging"</span>, <span class="st">"/login"</span>)
+profile_url = <span class="fn">build_url</span>(<span class="st">"staging"</span>, <span class="st">"/profile"</span>)
+<span class="fn">print</span>(login_url)    <span class="cm"># https://staging.myapp.com/login</span></div>
+
+  <div class="section-lbl">Default arguments — flexible helpers</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">login</span>(page, username=<span class="st">"tomsmith"</span>, password=<span class="st">"SuperSecretPassword!"</span>):
+    <span class="st">"""Fills and submits the login form."""</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+<span class="cm"># Happy path — uses defaults</span>
+<span class="fn">login</span>(page)
+
+<span class="cm"># Override for negative tests</span>
+<span class="fn">login</span>(page, username=<span class="st">"baduser"</span>, password=<span class="st">"wrongpass"</span>)</div>
+
+  <div class="section-lbl">Functions that return data — helper pattern</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">get_error_message</span>(page):
+    <span class="st">"""Returns the error text from the flash message."""</span>
+    <span class="kw">return</span> page.<span class="fn">locator</span>(<span class="st">"#flash"</span>).<span class="fn">inner_text</span>().<span class="fn">strip</span>()
+
+<span class="kw">def</span> <span class="fn">is_logged_in</span>(page):
+    <span class="st">"""Returns True if the secure area is visible."""</span>
+    <span class="kw">return</span> page.<span class="fn">locator</span>(<span class="st">".flash.success"</span>).<span class="fn">is_visible</span>()
+
+<span class="cm"># Using them in tests</span>
+<span class="kw">def</span> <span class="fn">test_login_error_message</span>(page):
+    <span class="fn">login</span>(page, username=<span class="st">"wrong"</span>, password=<span class="st">"wrong"</span>)
+    error = <span class="fn">get_error_message</span>(page)
+    <span class="kw">assert</span> <span class="st">"invalid"</span> <span class="kw">in</span> error.<span class="fn">lower</span>()  <span class="cm"># flexible check</span></div>
+
+  <div class="grid2">
+    <div class="card"><div class="ct">def keyword</div><div class="cd">Defines a reusable block of code. Give it a clear verb name: <span class="inline-code">login()</span>, <span class="inline-code">get_error()</span>, <span class="inline-code">is_visible()</span></div><span class="badge bp">Always use</span></div>
+    <div class="card"><div class="ct">return</div><div class="cd">Sends a value back to the caller. Functions without return give back <span class="inline-code">None</span></div><span class="badge bg">For helpers</span></div>
+    <div class="card"><div class="ct">default args</div><div class="cd">Set defaults with <span class="inline-code">param=value</span>. Callers can override — perfect for happy vs negative path</div><span class="badge bg">Very useful</span></div>
+    <div class="card"><div class="ct">docstring</div><div class="cd">The triple-quoted string right after <span class="inline-code">def</span>. Explains what the function does. Write these always.</div><span class="badge ba">Good habit</span></div>
+  </div>
+  <div class="warn">If you find yourself copying and pasting the same 3 lines in multiple tests — stop and put them in a function. That's the single most important coding habit for QA automation.</div>
+  <button class="ask" onclick="sendPrompt('Show me how to organise helper functions for Playwright tests into a separate helpers.py file')">How to organise helper functions ↗</button>
+</div>
+
+<!-- OOP -->
+<div id="oop" class="panel">
+  <div class="section-lbl">Why OOP matters for QA — the Page Object Model</div>
+  <div class="tip">The #1 use of OOP in test automation is the Page Object Model (POM). You create one class per page of your app. The class holds all locators and actions for that page. Tests just call methods — they never touch raw selectors.</div>
+
+  <div class="section-lbl">Step 1 — a class is a blueprint</div>
+  <div class="code"><span class="cm"># Class = blueprint.  Instance = the actual object you use.</span>
+<span class="kw">class</span> <span class="fn">LoginPage</span>:
+    <span class="cm"># __init__ runs when you create an instance</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, page):
+        <span class="kw">self</span>.page = page              <span class="cm"># store the page object</span>
+
+    <span class="cm"># Method = a function that belongs to this class</span>
+    <span class="kw">def</span> <span class="fn">navigate</span>(<span class="kw">self</span>):
+        <span class="kw">self</span>.page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+
+    <span class="kw">def</span> <span class="fn">login</span>(<span class="kw">self</span>, username, password):
+        <span class="kw">self</span>.page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+        <span class="kw">self</span>.page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+        <span class="kw">self</span>.page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+    <span class="kw">def</span> <span class="fn">get_error_message</span>(<span class="kw">self</span>):
+        <span class="kw">return</span> <span class="kw">self</span>.page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>).<span class="fn">inner_text</span>().<span class="fn">strip</span>()</div>
+
+  <div class="section-lbl">Step 2 — use the class in your tests</div>
+  <div class="code"><span class="cm"># test_login.py</span>
+<span class="kw">from</span> pages.login_page <span class="kw">import</span> LoginPage
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(page: Page):
+    login = <span class="fn">LoginPage</span>(page)  <span class="cm"># create an instance</span>
+    login.<span class="fn">navigate</span>()
+    login.<span class="fn">login</span>(<span class="st">"tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>)
+    expect(page.<span class="fn">get_by_text</span>(<span class="st">"You logged into a secure area!"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_invalid_login</span>(page: Page):
+    login = <span class="fn">LoginPage</span>(page)
+    login.<span class="fn">navigate</span>()
+    login.<span class="fn">login</span>(<span class="st">"baduser"</span>, <span class="st">"badpass"</span>)
+    <span class="kw">assert</span> <span class="st">"invalid"</span> <span class="kw">in</span> login.<span class="fn">get_error_message</span>().<span class="fn">lower</span>()</div>
+
+  <div class="section-lbl">Step 3 — inheritance (when pages share behaviour)</div>
+  <div class="code"><span class="cm"># Base class — things every page has</span>
+<span class="kw">class</span> <span class="fn">BasePage</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, page):
+        <span class="kw">self</span>.page = page
+
+    <span class="kw">def</span> <span class="fn">wait_for_spinner</span>(<span class="kw">self</span>):
+        <span class="kw">self</span>.page.<span class="fn">locator</span>(<span class="st">".loading-spinner"</span>).<span class="fn">wait_for</span>(state=<span class="st">"hidden"</span>)
+
+    <span class="kw">def</span> <span class="fn">get_page_title</span>(<span class="kw">self</span>):
+        <span class="kw">return</span> <span class="kw">self</span>.page.<span class="fn">title</span>()
+
+<span class="cm"># Child class inherits everything from BasePage</span>
+<span class="kw">class</span> <span class="fn">LoginPage</span>(<span class="fn">BasePage</span>):    <span class="cm"># ← inherits from BasePage</span>
+    <span class="kw">def</span> <span class="fn">login</span>(<span class="kw">self</span>, username, password):
+        <span class="kw">self</span>.page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+        <span class="kw">self</span>.page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+        <span class="kw">self</span>.page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+        <span class="kw">self</span>.<span class="fn">wait_for_spinner</span>()  <span class="cm"># ← inherited from BasePage!</span>
+
+<span class="cm"># Now every page class you write gets wait_for_spinner() for free</span></div>
+
+  <div class="grid2">
+    <div class="card"><div class="ct">self</div><div class="cd">Refers to the current instance. Think of it as "this object's own data". Always the first parameter of any method.</div><span class="badge bp">Essential</span></div>
+    <div class="card"><div class="ct">__init__</div><div class="cd">The constructor — runs automatically when you create an instance with <span class="inline-code">LoginPage(page)</span></div><span class="badge bp">Essential</span></div>
+    <div class="card"><div class="ct">inheritance</div><div class="cd"><span class="inline-code">class Child(Parent)</span> — Child gets all Parent methods. Use for a BasePage every page inherits from.</div><span class="badge bg">POM pattern</span></div>
+    <div class="card"><div class="ct">instance</div><div class="cd">The actual object you create: <span class="inline-code">login = LoginPage(page)</span>. You can create many instances from one class.</div><span class="badge ba">Know this</span></div>
+  </div>
+  <button class="ask" onclick="sendPrompt('Show me a complete Playwright project folder structure using Page Object Model with BasePage, LoginPage, DashboardPage and conftest.py')">Show me a full POM project ↗</button>
+</div>
+
+<!-- QA PATTERNS -->
+<div id="qa" class="panel">
+  <div class="section-lbl">Reading test data from a file</div>
+  <div class="code"><span class="kw">import</span> json
+
+<span class="cm"># test_data.json contains your users, expected messages, etc.</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"test_data.json"</span>) <span class="kw">as</span> f:
+    data = json.<span class="fn">load</span>(f)
+
+<span class="cm"># test_data.json looks like:</span>
+<span class="cm"># { "valid_user": {"username": "tomsmith", "password": "SuperSecretPassword!"} }</span>
+
+user = data[<span class="st">"valid_user"</span>]
+<span class="fn">print</span>(user[<span class="st">"username"</span>])  <span class="cm"># tomsmith</span></div>
+
+  <div class="section-lbl">Exception handling — graceful test failures</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> TimeoutError <span class="kw">as</span> PlaywrightTimeout
+
+<span class="kw">def</span> <span class="fn">safe_click</span>(page, selector):
+    <span class="st">"""Click element, skip gracefully if not found."""</span>
+    <span class="kw">try</span>:
+        page.<span class="fn">click</span>(selector, timeout=<span class="nm">3000</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Clicked: {selector}"</span>)
+    <span class="kw">except</span> PlaywrightTimeout:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Element not found: {selector} — skipping"</span>)
+
+<span class="cm"># Useful for: cookie banners, popups, optional UI elements</span>
+<span class="fn">safe_click</span>(page, <span class="st">"#cookie-accept"</span>)   <span class="cm"># won't crash if no cookie banner</span></div>
+
+  <div class="section-lbl">List comprehension — compact data building</div>
+  <div class="code"><span class="cm"># Long way</span>
+urls = []
+<span class="kw">for</span> path <span class="kw">in</span> [<span class="st">"/login"</span>, <span class="st">"/dashboard"</span>, <span class="st">"/profile"</span>]:
+    urls.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"https://staging.app.com{path}"</span>)
+
+<span class="cm"># Short way (same result)</span>
+urls = [<span class="fn">f</span><span class="st">"https://staging.app.com{p}"</span> <span class="kw">for</span> p <span class="kw">in</span> [<span class="st">"/login"</span>, <span class="st">"/dash"</span>, <span class="st">"/profile"</span>]]
+
+<span class="cm"># Filter while building — only https URLs</span>
+all_urls = [<span class="st">"https://good.com"</span>, <span class="st">"http://bad.com"</span>, <span class="st">"https://also-good.com"</span>]
+secure   = [u <span class="kw">for</span> u <span class="kw">in</span> all_urls <span class="kw">if</span> u.<span class="fn">startswith</span>(<span class="st">"https"</span>)]
+<span class="cm"># ['https://good.com', 'https://also-good.com']</span></div>
+
+  <div class="section-lbl">Assert with messages — better failure output</div>
+  <div class="code"><span class="cm"># Without message — pytest just says "AssertionError"</span>
+<span class="kw">assert</span> title == <span class="st">"Dashboard"</span>
+
+<span class="cm"># With message — you know exactly what failed and why</span>
+<span class="kw">assert</span> title == <span class="st">"Dashboard"</span>, <span class="fn">f</span><span class="st">"Expected 'Dashboard' but got '{title}'"</span>
+<span class="kw">assert</span> <span class="fn">len</span>(results) > <span class="nm">0</span>,    <span class="fn">f</span><span class="st">"Search returned no results for query: {query}"</span>
+<span class="kw">assert</span> status == <span class="nm">200</span>,       <span class="fn">f</span><span class="st">"API call failed with status {status}"</span></div>
+
+  <div class="ok">You now have all the Python building blocks for automation. Variables hold data. Functions hold actions. Loops run tests over multiple inputs. Classes organise everything into Page Objects.</div>
+  <button class="ask" onclick="sendPrompt('Give me 5 Python exercises specifically for QA automation practice — from beginner to intermediate')">Give me practice exercises ↗</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="panel">
+  <div id="quiz-container"></div>
+</div>
+
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const questions=[
+  {q:"What does this print?\n\nenv = 'staging'\nprint(f'URL: https://{env}.app.com')",opts:["URL: https://{env}.app.com","URL: https://staging.app.com","URL: https://.app.com","SyntaxError"],ans:1,fb:"f-strings replace {variable_name} with the variable's value. This is how you build dynamic URLs in test scripts."},
+  {q:"Which locator is BEST practice in Playwright?",opts:["page.locator('div > form > input:nth-child(2)')","page.locator(\"//input[@type='text']\")","page.get_by_label('Email')","page.locator('.form input')"],ans:2,fb:"get_by_label() is accessibility-based and the most resilient. It still works even if the HTML structure changes."},
+  {q:"What does this function return?\n\ndef build_url(path):\n    base = 'https://app.com'\n    return base + path\n\nresult = build_url('/login')",opts:["'/login'","'https://app.com'","'https://app.com/login'","None"],ans:2,fb:"The function concatenates base + path and returns the result. String + string in Python joins them together."},
+  {q:"In a Page Object Model class, what does 'self' refer to?",opts:["The test file","The Playwright page object","The current instance of the class","The browser"],ans:2,fb:"self always refers to the current instance of the class. self.page means 'this object's page attribute'. It lets each instance keep its own data."},
+  {q:"What does this print?\n\nusers = ['admin', 'editor', 'viewer']\nprint(users[-1])",opts:["'admin'","'editor'","'viewer'","IndexError"],ans:2,fb:"Negative indexing counts from the end. -1 is the last item, -2 is second-to-last, etc. Very useful in QA when you need the last item in a results list."},
+  {q:"Which is the correct way to loop over a list of test emails?",opts:["for invalid_emails in email:","for email in invalid_emails:","while invalid_emails:","loop email in invalid_emails:"],ans:1,fb:"'for item in collection' is standard Python. Read it as: 'for each email in the invalid_emails list, run the block'."},
+  {q:"What's wrong with this test?\n\npage.click('#submit')\ntime.sleep(3)\nassert page.title() == 'Dashboard'",opts:["The selector is wrong","time.sleep() makes tests slow and fragile — use expect() instead","assert syntax is incorrect","page.title() doesn't exist"],ans:1,fb:"time.sleep() is hardcoded — too long wastes time, too short is flaky. Playwright's expect() auto-waits up to 5 seconds, retrying until true. Always prefer expect(page).to_have_title('Dashboard')."},
+  {q:"What does __init__ do in a Python class?",opts:["Imports the class from another file","Runs automatically when you create a new instance","Deletes the instance when done","Tests the class methods"],ans:1,fb:"__init__ is the constructor. When you write LoginPage(page), Python automatically calls __init__(self, page). You store setup data here like self.page = page."},
+];
+
+let cur=0,answered=false;
+
+function renderQ(){
+  const q=questions[cur];
+  const pct=Math.round((cur/questions.length)*100);
+  document.getElementById('quiz-container').innerHTML=`
+    <div class="progress">Question ${cur+1} of ${questions.length}</div>
+    <div style="height:4px;background:var(--color-background-tertiary);border-radius:2px;margin-bottom:16px"><div style="height:4px;width:${pct}%;background:#534AB7;border-radius:2px;transition:width .3s"></div></div>
+    <div class="quiz-area">
+      <div class="q-text"><span style="font-family:var(--font-mono);font-size:13px;white-space:pre-line">${q.q}</span></div>
+      <div class="opts" id="opts">
+        ${q.opts.map((o,i)=>`<button class="opt" onclick="answer(${i})" style="text-align:left">${o}</button>`).join('')}
+      </div>
+      <div id="feedback" class="feedback" style="display:none"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQ()">${cur<questions.length-1?'Next question →':'See results'}</button>
+    </div>`;
+  answered=false;
+}
+
+function answer(i){
+  if(answered)return;
+  answered=true;
+  const q=questions[cur];
+  const opts=document.querySelectorAll('.opt');
+  opts.forEach((o,idx)=>{
+    o.disabled=true;
+    if(idx===q.ans)o.classList.add('correct');
+    else if(idx===i)o.classList.add('wrong');
+  });
+  const fb=document.getElementById('feedback');
+  fb.style.display='block';
+  fb.className='feedback '+(i===q.ans?'fb-ok':'fb-no');
+  fb.textContent=(i===q.ans?'Correct! ':'Not quite — ')+q.fb;
+  document.getElementById('next-btn').style.display='inline-block';
+}
+
+function nextQ(){
+  cur++;
+  if(cur>=questions.length){
+    document.getElementById('quiz-container').innerHTML=`
+      <div style="text-align:center;padding:2rem 0">
+        <div style="font-size:32px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Quiz complete!</div>
+        <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:20px">You covered all ${questions.length} core Python concepts for QA.</div>
+        <button class="ask" onclick="cur=0;renderQ()">Restart quiz</button>
+        <button class="ask" style="margin-left:8px" onclick="sendPrompt('Give me a Python coding challenge — write a Page Object Model class for the checkout page of an e-commerce site')">Try a coding challenge ↗</button>
+      </div>`;
+  } else renderQ();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const qpanel=document.getElementById('quiz');
+  if(qpanel) renderQ();
+});
+setTimeout(renderQ,100);
+</script>

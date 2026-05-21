@@ -1,0 +1,274 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .roadmap { padding: 1rem 0; }
+  .phase { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 1rem; overflow: hidden; }
+  .phase-header { padding: 14px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
+  .phase-header:hover { background: var(--color-background-secondary); }
+  .phase-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .phase-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+  .phase-time { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; }
+  .phase-arrow { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+  .phase-arrow.open { transform: rotate(90deg); }
+  .phase-body { display: none; padding: 0 18px 16px; border-top: 0.5px solid var(--color-border-tertiary); }
+  .phase-body.open { display: block; }
+  .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  .skill-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; cursor: pointer; border: 0.5px solid transparent; transition: border-color 0.15s; }
+  .skill-card:hover { border-color: var(--color-border-secondary); }
+  .skill-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+  .skill-why { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; }
+  .skill-tag { font-size: 10px; padding: 2px 7px; border-radius: 10px; display: inline-block; margin-top: 5px; font-weight: 500; }
+  .section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 6px; }
+  .tip-box { background: var(--color-background-info); border-left: 2px solid var(--color-border-info); border-radius: var(--border-radius-md); padding: 10px 14px; margin-top: 12px; font-size: 12px; color: var(--color-text-info); line-height: 1.5; }
+  .p1 .phase-badge { background: #EAF3DE; color: #3B6D11; }
+  .p2 .phase-badge { background: #E6F1FB; color: #185FA5; }
+  .p3 .phase-badge { background: #EEEDFE; color: #534AB7; }
+  .p4 .phase-badge { background: #FAEEDA; color: #854F0B; }
+  .tag-must { background: #FCEBEB; color: #A32D2D; }
+  .tag-hot { background: #FAEEDA; color: #854F0B; }
+  .tag-bonus { background: #EAF3DE; color: #3B6D11; }
+  .progress-bar { height: 3px; background: var(--color-background-tertiary); border-radius: 2px; margin-top: 6px; }
+  .progress-fill { height: 100%; border-radius: 2px; }
+  .header-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .header-stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; flex: 1; text-align: center; }
+  .stat-num { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .stat-lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+</style>
+<div class="roadmap">
+  <div class="header-row">
+    <div class="header-stat"><div class="stat-num">4</div><div class="stat-lbl">Learning phases</div></div>
+    <div class="header-stat"><div class="stat-num">3–5</div><div class="stat-lbl">Months to job-ready</div></div>
+    <div class="header-stat"><div class="stat-num">7.4yr</div><div class="stat-lbl">QA edge you already have</div></div>
+  </div>
+
+  <!-- Phase 1 -->
+  <div class="phase p1">
+    <div class="phase-header" onclick="toggle(this)">
+      <span class="phase-badge">Phase 1</span>
+      <span class="phase-title">Programming foundation</span>
+      <span class="phase-time">Weeks 1–4</span>
+      <span class="phase-arrow">▶</span>
+    </div>
+    <div class="phase-body open">
+      <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#639922"></div></div>
+      <div class="section-label">Core language — pick one</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('Teach me Python basics for test automation — variables, functions, loops, OOP')">
+          <div class="skill-name">Python</div>
+          <div class="skill-why">Most in-demand for automation. Selenium, Pytest, Robot Framework all use it.</div>
+          <span class="skill-tag tag-must">Must learn</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('Teach me JavaScript basics for test automation — async/await, functions, OOP')">
+          <div class="skill-name">JavaScript / TypeScript</div>
+          <div class="skill-why">Required for Playwright & Cypress. TypeScript is increasingly expected.</div>
+          <span class="skill-tag tag-must">Must learn</span>
+        </div>
+      </div>
+      <div class="tip-box">💡 Pick Python if you lean toward backend/API testing. Pick JS/TS if you want frontend/E2E roles. Most senior roles expect both eventually — start with one.</div>
+      <div class="section-label">Foundation topics (both languages)</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('Explain variables, data types, loops and conditionals in Python for QA automation')">
+          <div class="skill-name">Syntax & data types</div>
+          <div class="skill-why">Strings, lists, dicts, loops, conditionals</div>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('Explain functions and OOP basics — classes, objects, inheritance — for test automation')">
+          <div class="skill-name">Functions & OOP basics</div>
+          <div class="skill-why">Classes, objects, methods — needed for Page Object Model</div>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('How do I work with files and handle exceptions in Python for automation scripts?')">
+          <div class="skill-name">File I/O & exceptions</div>
+          <div class="skill-why">Reading test data, handling errors gracefully</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="phase p2">
+    <div class="phase-header" onclick="toggle(this)">
+      <span class="phase-badge">Phase 2</span>
+      <span class="phase-title">Automation frameworks</span>
+      <span class="phase-time">Weeks 5–10</span>
+      <span class="phase-arrow">▶</span>
+    </div>
+    <div class="phase-body">
+      <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#185FA5"></div></div>
+      <div class="section-label">UI / E2E testing — market leaders 2024–25</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('Teach me Playwright from scratch — installation, writing first test, locators, assertions')">
+          <div class="skill-name">Playwright</div>
+          <div class="skill-why">Fastest growing. Supports Python + JS. Built-in reporter, parallel runs.</div>
+          <span class="skill-tag tag-hot">🔥 Hottest right now</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('Teach me Selenium WebDriver with Python — setup, locators, waits, Page Object Model')">
+          <div class="skill-name">Selenium</div>
+          <div class="skill-why">Still in 60%+ job postings. Legacy systems depend on it heavily.</div>
+          <span class="skill-tag tag-must">Must know</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('Teach me Cypress basics — how it works, writing tests, assertions, network stubbing')">
+          <div class="skill-name">Cypress</div>
+          <div class="skill-why">Popular in JS-heavy frontend shops. Great developer experience.</div>
+          <span class="skill-tag tag-bonus">Good bonus</span>
+        </div>
+      </div>
+      <div class="section-label">API testing — very high demand</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('Teach me API testing with Python requests library — GET, POST, auth, assertions')">
+          <div class="skill-name">REST API testing</div>
+          <div class="skill-why">requests library (Python) or axios (JS). Test endpoints, status codes, payloads.</div>
+          <span class="skill-tag tag-must">Must know</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('How do I use Postman for API testing and write automated test scripts in it?')">
+          <div class="skill-name">Postman + Newman</div>
+          <div class="skill-why">Quick wins, widely used. Newman runs Postman collections in CI.</div>
+          <span class="skill-tag tag-must">Must know</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('What is GraphQL API testing and how is it different from REST testing?')">
+          <div class="skill-name">GraphQL basics</div>
+          <div class="skill-why">Increasing in modern apps. Know how queries and mutations work.</div>
+          <span class="skill-tag tag-hot">Growing fast</span>
+        </div>
+      </div>
+      <div class="section-label">Test framework & design patterns</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('Teach me the Page Object Model design pattern with a real example using Selenium or Playwright')">
+          <div class="skill-name">Page Object Model (POM)</div>
+          <div class="skill-why">Industry-standard pattern. Every interview will ask about this.</div>
+          <span class="skill-tag tag-must">Must know</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('Teach me pytest from scratch — fixtures, parametrize, conftest, markers, reporting')">
+          <div class="skill-name">pytest (Python) / Jest (JS)</div>
+          <div class="skill-why">Test runners. Learn fixtures, parametrize, conftest, hooks.</div>
+          <span class="skill-tag tag-must">Must know</span>
+        </div>
+      </div>
+      <div class="tip-box">💡 Focus: Playwright + pytest + API testing. This combination covers 80% of job requirements in 2025.</div>
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="phase p3">
+    <div class="phase-header" onclick="toggle(this)">
+      <span class="phase-badge">Phase 3</span>
+      <span class="phase-title">DevOps & CI/CD integration</span>
+      <span class="phase-time">Weeks 11–14</span>
+      <span class="phase-arrow">▶</span>
+    </div>
+    <div class="phase-body">
+      <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#534AB7"></div></div>
+      <div class="section-label">Version control — day 1 requirement</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('Teach me Git basics for testers — clone, commit, push, pull, branches, pull requests')">
+          <div class="skill-name">Git & GitHub</div>
+          <div class="skill-why">Non-negotiable. Every automation job requires Git. Learn branching, PRs, merge conflicts.</div>
+          <span class="skill-tag tag-must">Non-negotiable</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('How do I structure a test automation project on GitHub — folder structure, README, .gitignore')">
+          <div class="skill-name">Project structure & README</div>
+          <div class="skill-why">Your GitHub portfolio is your resume. Learn to write clean repos.</div>
+          <span class="skill-tag tag-must">For portfolio</span>
+        </div>
+      </div>
+      <div class="section-label">CI/CD pipelines</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('How do I set up GitHub Actions to run my Playwright or pytest tests automatically on every PR?')">
+          <div class="skill-name">GitHub Actions</div>
+          <div class="skill-why">Most beginner-friendly CI tool. Free for public repos. Widely used.</div>
+          <span class="skill-tag tag-must">Start here</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('Jenkins basics for QA — how to create a pipeline job that runs automated tests')">
+          <div class="skill-name">Jenkins</div>
+          <div class="skill-why">Legacy enterprises still use Jenkins heavily. Good to have.</div>
+          <span class="skill-tag tag-bonus">Enterprise need</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('Docker basics for testers — what is a container, how to run tests inside Docker')">
+          <div class="skill-name">Docker basics</div>
+          <div class="skill-why">Run tests in containers = consistent environments. Very common in 2025.</div>
+          <span class="skill-tag tag-hot">Growing fast</span>
+        </div>
+      </div>
+      <div class="tip-box">💡 Goal: Push your test project to GitHub and make it run automatically on every commit using GitHub Actions. This alone differentiates you from 70% of candidates.</div>
+    </div>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="phase p4">
+    <div class="phase-header" onclick="toggle(this)">
+      <span class="phase-badge">Phase 4</span>
+      <span class="phase-title">Advanced skills & job prep</span>
+      <span class="phase-time">Weeks 15–20</span>
+      <span class="phase-arrow">▶</span>
+    </div>
+    <div class="phase-body">
+      <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#854F0B"></div></div>
+      <div class="section-label">Performance & security testing</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('Teach me JMeter basics — how to create a load test, add users, set ramp-up time, read results')">
+          <div class="skill-name">JMeter / k6</div>
+          <div class="skill-why">Performance testing is a separate skill many automation engineers lack. Instant differentiator.</div>
+          <span class="skill-tag tag-hot">Differentiator</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('What is OWASP ZAP and how do I do basic security testing as a QA engineer?')">
+          <div class="skill-name">OWASP ZAP basics</div>
+          <div class="skill-why">Security testing basics. SDET roles increasingly ask for this.</div>
+          <span class="skill-tag tag-bonus">SDET roles</span>
+        </div>
+      </div>
+      <div class="section-label">AI-powered testing (2025 market trend)</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('What are the top AI-powered testing tools in 2025 — Copilot for testing, Testim, Mabl, Applitools?')">
+          <div class="skill-name">AI testing tools</div>
+          <div class="skill-why">Testim, Mabl, Applitools, Copilot for writing tests. Growing demand rapidly.</div>
+          <span class="skill-tag tag-hot">2025 trend</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('How do I use GitHub Copilot or ChatGPT to write test automation scripts faster?')">
+          <div class="skill-name">AI-assisted test writing</div>
+          <div class="skill-why">Using LLMs to generate test cases, fix scripts, review coverage.</div>
+          <span class="skill-tag tag-hot">In demand</span>
+        </div>
+      </div>
+      <div class="section-label">Mobile testing (optional but valuable)</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('Teach me Appium basics — how to automate Android apps, set up desired capabilities, write a basic test')">
+          <div class="skill-name">Appium</div>
+          <div class="skill-why">If mobile apps are in scope. Adds $10–15k to salary bands.</div>
+          <span class="skill-tag tag-bonus">Salary boost</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('What is BDD with Cucumber and how do I write Gherkin scenarios for automation?')">
+          <div class="skill-name">BDD / Cucumber</div>
+          <div class="skill-why">Many enterprise teams use Gherkin. Connects your manual test case writing to automation.</div>
+          <span class="skill-tag tag-bonus">Enterprise need</span>
+        </div>
+      </div>
+      <div class="section-label">Portfolio & interview prep</div>
+      <div class="skill-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="skill-card" onclick="sendPrompt('What should a QA automation portfolio on GitHub look like? Give me project ideas.')">
+          <div class="skill-name">GitHub portfolio</div>
+          <div class="skill-why">3 projects minimum: UI tests, API tests, CI/CD pipeline. This is your proof of work.</div>
+          <span class="skill-tag tag-must">Critical</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('Top 30 SDET and automation testing interview questions with answers')">
+          <div class="skill-name">Interview prep</div>
+          <div class="skill-why">POM, test pyramid, flaky tests, parallel execution, CI integration.</div>
+          <span class="skill-tag tag-must">Critical</span>
+        </div>
+        <div class="skill-card" onclick="sendPrompt('How should I update my QA resume to highlight automation skills and transition from manual QA?')">
+          <div class="skill-name">Resume rewrite</div>
+          <div class="skill-why">Reframe manual experience: test design, coverage strategy, edge cases = automation thinking.</div>
+          <span class="skill-tag tag-must">Critical</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggle(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.phase-arrow');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+</script>

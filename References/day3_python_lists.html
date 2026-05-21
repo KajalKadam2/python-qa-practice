@@ -1,0 +1,654 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b,.ch-b b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#E6F1FB;color:#0C447C;border-color:#85B7EB;font-weight:500}
+.btn-n:hover{background:#B5D4F4}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.visual-list{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.vl-row{display:grid;grid-template-columns:50px 1fr 80px;gap:0;border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.vl-idx{background:#E6F1FB;color:#0C447C;font-family:var(--font-mono);font-size:12px;font-weight:500;padding:8px 10px;display:flex;align-items:center;justify-content:center;border-right:0.5px solid var(--color-border-tertiary)}
+.vl-val{background:var(--color-background-secondary);font-family:var(--font-mono);font-size:12px;padding:8px 12px;display:flex;align-items:center;color:var(--color-text-primary)}
+.vl-neg{background:#FAEEDA;color:#633806;font-family:var(--font-mono);font-size:12px;font-weight:500;padding:8px 10px;display:flex;align-items:center;justify-content:center;border-left:0.5px solid var(--color-border-tertiary)}
+.method-table{width:100%;border-collapse:collapse;margin:9px 0;font-size:13px}
+.method-table th{background:var(--color-background-secondary);padding:7px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;border-bottom:0.5px solid var(--color-border-tertiary)}
+.method-table td{padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5}
+.method-table tr:last-child td{border-bottom:none}
+.method-table tr:hover td{background:var(--color-background-secondary)}
+.mn{font-family:var(--font-mono);font-size:12px;color:var(--color-text-info);font-weight:500}
+.me{font-family:var(--font-mono);font-size:11px;color:var(--color-text-tertiary)}
+.md{font-size:12px;color:var(--color-text-secondary)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT IS A LIST -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">What is a list — and why QA engineers use them constantly</div>
+    <div class="card-b">A list is an <b>ordered collection of items</b> stored in one variable. Instead of creating <code>email1</code>, <code>email2</code>, <code>email3</code> separately — you put them all in one list and loop over them.<br><br>In QA automation, lists hold: <b>test data sets</b> (invalid emails to test), <b>browsers to run on</b>, <b>URLs to check</b>, <b>API response items</b>, <b>elements found on a page</b>. Playwright returns lists when you find multiple elements — understanding lists is understanding test data.</div>
+  </div>
+
+  <div class="sec">Anatomy of a list</div>
+  <div class="visual-list">
+    <div class="vl-row" style="background:var(--color-background-secondary);border:none;border-radius:0;display:grid;grid-template-columns:50px 1fr 80px">
+      <div style="font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;padding:4px 10px;text-align:center">index</div>
+      <div style="font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;padding:4px 12px">value</div>
+      <div style="font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;padding:4px 10px;text-align:center">neg idx</div>
+    </div>
+    <div class="vl-row"><div class="vl-idx">0</div><div class="vl-val">"chromium"</div><div class="vl-neg">-3</div></div>
+    <div class="vl-row"><div class="vl-idx">1</div><div class="vl-val">"firefox"</div><div class="vl-neg">-2</div></div>
+    <div class="vl-row"><div class="vl-idx">2</div><div class="vl-val">"webkit"</div><div class="vl-neg">-1</div></div>
+  </div>
+  <div class="tip">Index always starts at <b>0</b>, not 1. The first item is <code>list[0]</code>. The last item is always <code>list[-1]</code> — negative indexing counts from the end. This trips up almost every beginner on the first day of lists.</div>
+
+  <div class="try-lbl">Type this into day3.py</div>
+  <div class="code">browsers = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+
+<span class="cm"># Access by position</span>
+<span class="fn">print</span>(browsers[<span class="nm">0</span>])    <span class="cm"># chromium  — first</span>
+<span class="fn">print</span>(browsers[<span class="nm">1</span>])    <span class="cm"># firefox   — second</span>
+<span class="fn">print</span>(browsers[<span class="nm">2</span>])    <span class="cm"># webkit    — third</span>
+<span class="fn">print</span>(browsers[-<span class="nm">1</span>])   <span class="cm"># webkit    — last</span>
+<span class="fn">print</span>(browsers[-<span class="nm">2</span>])   <span class="cm"># firefox   — second from end</span>
+
+<span class="cm"># Length</span>
+<span class="fn">print</span>(<span class="fn">len</span>(browsers))   <span class="cm"># 3</span>
+
+<span class="cm"># Membership check</span>
+<span class="fn">print</span>(<span class="st">"firefox"</span> <span class="kw">in</span> browsers)   <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="st">"safari"</span> <span class="kw">in</span> browsers)    <span class="cm"># False</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">chromium</div>
+    <div class="ol">firefox</div>
+    <div class="ol">webkit</div>
+    <div class="ol">webkit</div>
+    <div class="ol">firefox</div>
+    <div class="ol">3</div>
+    <div class="ol">True</div>
+    <div class="ol">False</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">Modifying lists →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: MODIFYING LISTS -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">Modifying lists — add, remove, change</div>
+    <div class="card-b">Lists are <b>mutable</b> — you can change them after creating them. You'll use this when building up test results, removing a tested item, or updating expected values.</div>
+  </div>
+
+  <div class="sec">The methods you'll actually use</div>
+  <table class="method-table">
+    <tr><th>Method</th><th>What it does</th><th>Example</th></tr>
+    <tr><td><div class="mn">.append(x)</div></td><td><div class="md">Add x to the end</div></td><td><div class="me">list.append("edge")</div></td></tr>
+    <tr><td><div class="mn">.insert(i, x)</div></td><td><div class="md">Add x at position i</div></td><td><div class="me">list.insert(0, "safari")</div></td></tr>
+    <tr><td><div class="mn">.remove(x)</div></td><td><div class="md">Remove first occurrence of x</div></td><td><div class="me">list.remove("firefox")</div></td></tr>
+    <tr><td><div class="mn">.pop()</div></td><td><div class="md">Remove and return last item</div></td><td><div class="me">last = list.pop()</div></td></tr>
+    <tr><td><div class="mn">.sort()</div></td><td><div class="md">Sort in place A→Z or 0→9</div></td><td><div class="me">list.sort()</div></td></tr>
+    <tr><td><div class="mn">.reverse()</div></td><td><div class="md">Reverse order in place</div></td><td><div class="me">list.reverse()</div></td></tr>
+    <tr><td><div class="mn">.count(x)</div></td><td><div class="md">Count occurrences of x</div></td><td><div class="me">list.count("FAIL")</div></td></tr>
+    <tr><td><div class="mn">list[i] = x</div></td><td><div class="md">Replace item at index i</div></td><td><div class="me">list[0] = "edge"</div></td></tr>
+  </table>
+
+  <div class="try-lbl">Type this — watch the list change step by step</div>
+  <div class="code"><span class="cm"># Start: tracking test results as they come in</span>
+results = [<span class="st">"PASS"</span>, <span class="st">"PASS"</span>, <span class="st">"FAIL"</span>]
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Start:   {results}"</span>)
+
+<span class="cm"># Add more results as tests finish</span>
+results.<span class="fn">append</span>(<span class="st">"PASS"</span>)
+results.<span class="fn">append</span>(<span class="st">"FAIL"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Added:   {results}"</span>)
+
+<span class="cm"># Count failures</span>
+fail_count = results.<span class="fn">count</span>(<span class="st">"FAIL"</span>)
+pass_count = results.<span class="fn">count</span>(<span class="st">"PASS"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Passed: {pass_count} | Failed: {fail_count}"</span>)
+
+<span class="cm"># Fix a wrong result — replace by index</span>
+results[<span class="nm">2</span>] = <span class="st">"PASS"</span>   <span class="cm"># that FAIL was a false positive</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Fixed:   {results}"</span>)
+
+<span class="cm"># Remove a specific value</span>
+results.<span class="fn">remove</span>(<span class="st">"FAIL"</span>)   <span class="cm"># removes first FAIL found</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Removed: {results}"</span>)
+
+<span class="cm"># Pop the last result off</span>
+last = results.<span class="fn">pop</span>()
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Popped '{last}', remaining: {results}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Start:   ['PASS', 'PASS', 'FAIL']</div>
+    <div class="ol">Added:   ['PASS', 'PASS', 'FAIL', 'PASS', 'FAIL']</div>
+    <div class="ol">Passed: 3 | Failed: 2</div>
+    <div class="ol">Fixed:   ['PASS', 'PASS', 'PASS', 'PASS', 'FAIL']</div>
+    <div class="ol">Removed: ['PASS', 'PASS', 'PASS', 'PASS']</div>
+    <div class="ol">Popped 'PASS', remaining: ['PASS', 'PASS', 'PASS']</div>
+  </div>
+
+  <div class="warn">A common mistake: <code>results.remove("FAIL")</code> only removes the <b>first</b> FAIL it finds — not all of them. If you have 3 FAILs and call remove once, 2 remain. To remove all, you need a loop (Day 6).</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">Slicing →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: SLICING -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">Slicing — grabbing a portion of a list <span class="badge bb" style="margin-left:6px">very useful in QA</span></div>
+    <div class="card-b">Slicing lets you grab a <b>sub-section</b> of a list with <code>list[start:end]</code>. The start index is <b>included</b>, the end index is <b>excluded</b>. Use this when an API returns 100 results and you want to test only the first 5, or when you want the last 3 failed tests.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code">tests = [<span class="st">"login"</span>, <span class="st">"register"</span>, <span class="st">"checkout"</span>, <span class="st">"payment"</span>, <span class="st">"logout"</span>]
+<span class="cm">#          0          1           2           3          4</span>
+
+<span class="cm"># Grab a range — [start : end]  (end is NOT included)</span>
+<span class="fn">print</span>(tests[<span class="nm">0</span>:<span class="nm">2</span>])    <span class="cm"># ['login', 'register']</span>
+<span class="fn">print</span>(tests[<span class="nm">1</span>:<span class="nm">4</span>])    <span class="cm"># ['register', 'checkout', 'payment']</span>
+
+<span class="cm"># Omit start or end — shorthand</span>
+<span class="fn">print</span>(tests[:<span class="nm">3</span>])     <span class="cm"># first 3:  ['login', 'register', 'checkout']</span>
+<span class="fn">print</span>(tests[<span class="nm">3</span>:])     <span class="cm"># from 3 on: ['payment', 'logout']</span>
+<span class="fn">print</span>(tests[:])      <span class="cm"># entire list (a copy)</span>
+
+<span class="cm"># Negative slicing — last N items</span>
+<span class="fn">print</span>(tests[-<span class="nm">2</span>:])    <span class="cm"># last 2: ['payment', 'logout']</span>
+<span class="fn">print</span>(tests[-<span class="nm">3</span>:])    <span class="cm"># last 3: ['checkout', 'payment', 'logout']</span>
+
+<span class="cm"># QA use case: API returns 50 users, test only first 5</span>
+all_user_ids = [<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>,<span class="nm">7</span>,<span class="nm">8</span>,<span class="nm">9</span>,<span class="nm">10</span>]
+sample       = all_user_ids[:<span class="nm">5</span>]
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Testing sample: {sample}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">['login', 'register']</div>
+    <div class="ol">['register', 'checkout', 'payment']</div>
+    <div class="ol">['login', 'register', 'checkout']</div>
+    <div class="ol">['payment', 'logout']</div>
+    <div class="ol">['login', 'register', 'checkout', 'payment', 'logout']</div>
+    <div class="ol">['payment', 'logout']</div>
+    <div class="ol">['checkout', 'payment', 'logout']</div>
+    <div class="ol">Testing sample: [1, 2, 3, 4, 5]</div>
+  </div>
+
+  <div class="tip">Memory trick: <code>list[:3]</code> — think "give me up to index 3, not including 3". So items at 0, 1, 2. Always the count you wrote, starting from 0.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">Looping lists →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: LOOPING -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">Looping over a list <span class="badge bg" style="margin-left:6px">the most important list skill</span></div>
+    <div class="card-b">The real power of a list is running the <b>same action on every item</b>. You'll loop over test data, browsers, URLs, API results, and page elements. This is the foundation of data-driven testing — and the same thing <code>pytest.mark.parametrize</code> does under the hood.</div>
+  </div>
+
+  <div class="try-lbl">Type this — 4 looping patterns</div>
+  <div class="code"><span class="cm"># Pattern 1: basic — item only</span>
+browsers = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+<span class="kw">for</span> browser <span class="kw">in</span> browsers:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Running tests on: {browser}"</span>)
+
+<span class="fn">print</span>()   <span class="cm"># blank line separator</span>
+
+<span class="cm"># Pattern 2: enumerate — index AND item together</span>
+<span class="kw">for</span> i, browser <span class="kw">in</span> <span class="fn">enumerate</span>(browsers):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browser {i+1} of {len(browsers)}: {browser}"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Pattern 3: with a condition inside the loop</span>
+invalid_emails = [<span class="st">"noatsign"</span>, <span class="st">"@nodomain"</span>, <span class="st">""</span>, <span class="st">"a@b"</span>, <span class="st">"ok@test.com"</span>]
+<span class="kw">for</span> email <span class="kw">in</span> invalid_emails:
+    <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">in</span> email <span class="kw">and</span> <span class="st">"."</span> <span class="kw">in</span> email:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  PASS: {email} looks valid"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  FAIL: {email!r} is invalid"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Pattern 4: building a new list inside a loop</span>
+urls   = [<span class="st">"https://app.com"</span>, <span class="st">"http://old.com"</span>, <span class="st">"https://api.com"</span>]
+secure = []
+<span class="kw">for</span> url <span class="kw">in</span> urls:
+    <span class="kw">if</span> url.<span class="fn">startswith</span>(<span class="st">"https"</span>):
+        secure.<span class="fn">append</span>(url)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Secure URLs: {secure}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Running tests on: chromium</div>
+    <div class="ol">Running tests on: firefox</div>
+    <div class="ol">Running tests on: webkit</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Browser 1 of 3: chromium</div>
+    <div class="ol">Browser 2 of 3: firefox</div>
+    <div class="ol">Browser 3 of 3: webkit</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">  FAIL: 'noatsign' is invalid</div>
+    <div class="ol">  FAIL: '@nodomain' is invalid</div>
+    <div class="ol">  FAIL: '' is invalid</div>
+    <div class="ol">  FAIL: 'a@b' is invalid</div>
+    <div class="ol">  PASS: ok@test.com looks valid</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Secure URLs: ['https://app.com', 'https://api.com']</div>
+  </div>
+
+  <div class="tip"><code>enumerate(list)</code> gives you the index AND the value together. Use <code>i+1</code> to display as 1-based counting (humans count from 1, Python indexes from 0). The <code>!r</code> in <code>{email!r}</code> adds quotes around the value in the output — useful when the value might be an empty string.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">List comprehension →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: LIST COMPREHENSION -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">List comprehension — compact list building <span class="badge bp" style="margin-left:6px">looks scary, very useful</span></div>
+    <div class="card-b">List comprehension builds a new list in one line by combining a loop and optional condition. It's the Python way to transform or filter a list. You'll see it everywhere in test code — learning to read it is just as important as writing it.</div>
+  </div>
+
+  <div class="sec">The pattern — read it left to right</div>
+  <div class="code"><span class="cm"># Full loop — 4 lines</span>
+results = []
+<span class="kw">for</span> r <span class="kw">in</span> [<span class="st">"PASS"</span>,<span class="st">"FAIL"</span>,<span class="st">"PASS"</span>]:
+    results.<span class="fn">append</span>(r.<span class="fn">lower</span>())
+
+<span class="cm"># Same thing — 1 line (list comprehension)</span>
+results = [r.<span class="fn">lower</span>() <span class="kw">for</span> r <span class="kw">in</span> [<span class="st">"PASS"</span>,<span class="st">"FAIL"</span>,<span class="st">"PASS"</span>]]
+<span class="cm"># Read as: "r.lower(), for each r in this list"</span></div>
+
+  <div class="try-lbl">Type these QA examples</div>
+  <div class="code"><span class="cm"># 1. Build all test URLs from a list of paths</span>
+base = <span class="st">"https://staging.myapp.com"</span>
+paths = [<span class="st">"/login"</span>, <span class="st">"/dashboard"</span>, <span class="st">"/profile"</span>, <span class="st">"/logout"</span>]
+urls = [<span class="fn">f</span><span class="st">"{base}{path}"</span> <span class="kw">for</span> path <span class="kw">in</span> paths]
+<span class="fn">print</span>(urls)
+
+<span class="cm"># 2. Filter — keep only FAIL results</span>
+all_results = [<span class="st">"PASS"</span>,<span class="st">"FAIL"</span>,<span class="st">"PASS"</span>,<span class="st">"FAIL"</span>,<span class="st">"PASS"</span>]
+failures    = [r <span class="kw">for</span> r <span class="kw">in</span> all_results <span class="kw">if</span> r == <span class="st">"FAIL"</span>]
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Failures: {failures}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Count: {len(failures)}"</span>)
+
+<span class="cm"># 3. Transform — uppercase all browser names</span>
+browsers = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+upper    = [b.<span class="fn">upper</span>() <span class="kw">for</span> b <span class="kw">in</span> browsers]
+<span class="fn">print</span>(upper)
+
+<span class="cm"># 4. Filter + transform together</span>
+response_times = [<span class="nm">120</span>, <span class="nm">3500</span>, <span class="nm">89</span>, <span class="nm">4100</span>, <span class="nm">250</span>]
+slow = [t <span class="kw">for</span> t <span class="kw">in</span> response_times <span class="kw">if</span> t > <span class="nm">2000</span>]
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Slow responses (>2s): {slow}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">['https://staging.myapp.com/login', 'https://staging.myapp.com/dashboard', ...]</div>
+    <div class="ol">Failures: ['FAIL', 'FAIL']</div>
+    <div class="ol">Count: 2</div>
+    <div class="ol">['CHROMIUM', 'FIREFOX', 'WEBKIT']</div>
+    <div class="ol">Slow responses (>2s): [3500, 4100]</div>
+  </div>
+
+  <div class="tip">If list comprehension looks confusing, always write the full loop version first — make it work — then compress it into one line. Both produce identical results. Comprehension is just shorter to write and faster to run.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">QA Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: QA EXAMPLE 1 -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">QA Example 1 — Invalid email test data runner <span class="badge bg" style="margin-left:6px">data-driven testing</span></div>
+    <div class="card-b">This is the foundation of data-driven testing. One list of inputs, one loop, automatic validation of every item. In Week 3 you'll replace the <code>print</code> with real Playwright actions — the structure is identical.</div>
+  </div>
+  <div class="try-lbl">Create day3_ex1.py</div>
+  <div class="code"><span class="cm"># All the invalid emails your login form should reject</span>
+invalid_emails = [
+    <span class="st">"noatsign"</span>,
+    <span class="st">"@nodomain.com"</span>,
+    <span class="st">""</span>,
+    <span class="st">"spaces in@email.com"</span>,
+    <span class="st">"double@@at.com"</span>,
+    <span class="st">"toolong" * <span class="nm">50</span> + "@x.com"</span>,
+]
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Testing {len(invalid_emails)} invalid email inputs\n"</span>)
+
+<span class="kw">for</span> i, email <span class="kw">in</span> <span class="fn">enumerate</span>(invalid_emails, start=<span class="nm">1</span>):
+    <span class="cm"># In real Playwright test — this is where you'd do:</span>
+    <span class="cm"># page.get_by_label("Email").fill(email)</span>
+    <span class="cm"># page.get_by_role("button", name="Submit").click()</span>
+    <span class="cm"># expect(page.locator(".error")).to_be_visible()</span>
+
+    display = <span class="fn">repr</span>(email[:<span class="nm">30</span>])   <span class="cm"># show first 30 chars safely</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Test {i}: filling email → {display}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"         expecting error message to appear"</span>)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nAll {len(invalid_emails)} invalid inputs tested."</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Testing 6 invalid email inputs</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Test 1: filling email → 'noatsign'</div>
+    <div class="ol">         expecting error message to appear</div>
+    <div class="ol">Test 2: filling email → '@nodomain.com'</div>
+    <div class="ol">         expecting error message to appear</div>
+    <div class="ol">Test 3: filling email → ''</div>
+    <div class="ol">         expecting error message to appear</div>
+    <div class="ol">... (continues for all 6)</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">All 6 invalid inputs tested.</div>
+  </div>
+
+  <div class="tip"><code>enumerate(list, start=1)</code> starts counting from 1 instead of 0 — cleaner for human-readable output like "Test 1", "Test 2". <code>repr()</code> wraps the value in quotes and shows special characters — safe way to display any string including empty ones.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">QA Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA EXAMPLE 2 -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">QA Example 2 — Test result tracker <span class="badge bb" style="margin-left:6px">append + count + summary</span></div>
+    <div class="card-b">Simulates collecting test results as a suite runs — adding each outcome to a list, then producing a summary report at the end. This is exactly what pytest does internally.</div>
+  </div>
+  <div class="try-lbl">Create day3_ex2.py</div>
+  <div class="code"><span class="cm"># Simulated test suite — each tuple is (test_name, result)</span>
+test_suite = [
+    (<span class="st">"test_login_valid"</span>,       <span class="st">"PASS"</span>),
+    (<span class="st">"test_login_invalid"</span>,     <span class="st">"PASS"</span>),
+    (<span class="st">"test_login_empty"</span>,       <span class="st">"FAIL"</span>),
+    (<span class="st">"test_dashboard_loads"</span>,   <span class="st">"PASS"</span>),
+    (<span class="st">"test_profile_update"</span>,    <span class="st">"FAIL"</span>),
+    (<span class="st">"test_logout"</span>,            <span class="st">"PASS"</span>),
+]
+
+passed = []
+failed = []
+
+<span class="kw">for</span> test_name, result <span class="kw">in</span> test_suite:
+    <span class="kw">if</span> result == <span class="st">"PASS"</span>:
+        passed.<span class="fn">append</span>(test_name)
+    <span class="kw">else</span>:
+        failed.<span class="fn">append</span>(test_name)
+
+<span class="cm"># Summary</span>
+total    = <span class="fn">len</span>(test_suite)
+n_passed = <span class="fn">len</span>(passed)
+n_failed = <span class="fn">len</span>(failed)
+rate     = <span class="fn">round</span>(n_passed / total * <span class="nm">100</span>, <span class="nm">1</span>)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*30}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Results: {n_passed}/{total} passed ({rate}%)"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*30}"</span>)
+
+<span class="kw">if</span> failed:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nFailed tests ({n_failed}):"</span>)
+    <span class="kw">for</span> name <span class="kw">in</span> failed:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ {name}"</span>)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nPassed tests ({n_passed}):"</span>)
+<span class="kw">for</span> name <span class="kw">in</span> passed:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ {name}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">==============================</div>
+    <div class="ol"> Results: 4/6 passed (66.7%)</div>
+    <div class="ol">==============================</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Failed tests (2):</div>
+    <div class="ol">  ✗ test_login_empty</div>
+    <div class="ol">  ✗ test_profile_update</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Passed tests (4):</div>
+    <div class="ol">  ✓ test_login_valid</div>
+    <div class="ol">  ✓ test_login_invalid</div>
+    <div class="ol">  ✓ test_dashboard_loads</div>
+    <div class="ol">  ✓ test_logout</div>
+  </div>
+
+  <div class="tip"><code>if failed:</code> is shorthand for <code>if len(failed) > 0</code> — an empty list is "falsy" in Python, a non-empty list is "truthy". You'll use this pattern constantly: only print the failures section if there are actual failures.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example 3 →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE 3 -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example 3 — API response list checker <span class="badge bp" style="margin-left:6px">real-world pattern</span></div>
+    <div class="card-b">When an API returns a list of items, you need to check each one meets expectations. This is a core Week 4 pattern — written now in pure Python so you understand the logic before adding the requests library.</div>
+  </div>
+  <div class="try-lbl">Create day3_ex3.py</div>
+  <div class="code"><span class="cm"># Simulating: data = response.json()["data"]  from reqres.in</span>
+api_users = [
+    {<span class="st">"id"</span>: <span class="nm">1</span>, <span class="st">"email"</span>: <span class="st">"george.bluth@reqres.in"</span>,    <span class="st">"active"</span>: <span class="kw">True</span>},
+    {<span class="st">"id"</span>: <span class="nm">2</span>, <span class="st">"email"</span>: <span class="st">"janet.weaver@reqres.in"</span>,   <span class="st">"active"</span>: <span class="kw">True</span>},
+    {<span class="st">"id"</span>: <span class="nm">3</span>, <span class="st">"email"</span>: <span class="st">"emma.wong"</span>,               <span class="st">"active"</span>: <span class="kw">False</span>},  <span class="cm"># bad email</span>
+    {<span class="st">"id"</span>: <span class="nm">4</span>, <span class="st">"email"</span>: <span class="st">"eve.holt@reqres.in"</span>,      <span class="st">"active"</span>: <span class="kw">True</span>},
+    {<span class="st">"id"</span>: <span class="nm">5</span>, <span class="st">"email"</span>: <span class="st">""</span>,                       <span class="st">"active"</span>: <span class="kw">True</span>},  <span class="cm"># empty!</span>
+]
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Checking {len(api_users)} users from API response\n"</span>)
+
+issues   = []
+valid_emails = []
+
+<span class="kw">for</span> user <span class="kw">in</span> api_users:
+    uid   = user[<span class="st">"id"</span>]
+    email = user[<span class="st">"email"</span>]
+    valid = <span class="st">"@"</span> <span class="kw">in</span> email <span class="kw">and</span> <span class="st">"."</span> <span class="kw">in</span> email <span class="kw">and</span> <span class="fn">len</span>(email) > <span class="nm">0</span>
+
+    <span class="kw">if</span> valid:
+        valid_emails.<span class="fn">append</span>(email)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ User {uid}: {email}"</span>)
+    <span class="kw">else</span>:
+        issues.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"User {uid} has invalid email: {repr(email)}"</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ User {uid}: {repr(email)} — INVALID"</span>)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n--- Summary ---"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Valid:  {len(valid_emails)}/{len(api_users)}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Issues: {len(issues)}"</span>)
+<span class="kw">for</span> issue <span class="kw">in</span> issues:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  → {issue}"</span>)
+
+<span class="cm"># Final assertion — what a real test would do</span>
+assert <span class="fn">len</span>(issues) == <span class="nm">0</span>, <span class="fn">f</span><span class="st">"{len(issues)} users failed email validation"</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output (then crashes on assert — intentional!)</div>
+    <div class="ol">Checking 5 users from API response</div>
+    <div class="ol">  ✓ User 1: george.bluth@reqres.in</div>
+    <div class="ol">  ✓ User 2: janet.weaver@reqres.in</div>
+    <div class="ol">  ✗ User 3: 'emma.wong' — INVALID</div>
+    <div class="ol">  ✓ User 4: eve.holt@reqres.in</div>
+    <div class="ol">  ✗ User 5: '' — INVALID</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">--- Summary ---</div>
+    <div class="ol">Valid:  3/5</div>
+    <div class="ol">Issues: 2</div>
+    <div class="ol">  → User 3 has invalid email: 'emma.wong'</div>
+    <div class="ol">  → User 5 has invalid email: ''</div>
+    <div class="ol">AssertionError: 2 users failed email validation</div>
+  </div>
+
+  <div class="ok">The crash is correct — that is exactly what a test SHOULD do when it finds a bug. The assert fires because 2 users have invalid emails. Fix the data (make all emails valid) and the assert passes. This is a real API test pattern.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 3 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 3 challenge — write it all from scratch</div>
+    <div class="card-b">New file: <b>day3_challenge.py</b>. No looking back. This is the biggest challenge so far — it combines lists, loops, conditions, f-strings, and string methods.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build a browser cross-testing report</div>
+    <div class="ch-b">
+      You have this starting data — copy only these variables, write everything else yourself:<br><br>
+      <code>browsers = ["chromium", "firefox", "webkit"]</code><br>
+      <code>test_pages = ["/login", "/dashboard", "/profile", "/checkout"]</code><br>
+      <code>env = "staging"</code><br>
+      <code>base_url = f"https://{env}.myapp.com"</code><br><br>
+
+      <b>Do all of this:</b><br><br>
+
+      <b>Part 1 — Build URLs</b><br>
+      Using list comprehension, build a <code>full_urls</code> list of all 4 full URLs (base_url + each path). Print each URL.<br><br>
+
+      <b>Part 2 — Simulate test runs</b><br>
+      Loop over browsers with enumerate. For each browser, loop over full_urls. Print:<br>
+      <code>[chromium] Testing: https://staging.myapp.com/login</code><br>
+      (every browser × every URL = 12 lines total)<br><br>
+
+      <b>Part 3 — Collect results</b><br>
+      Create a <code>results</code> list. As you loop, append <code>"PASS"</code> for every test (all 12). After the loop, count passes and failures.<br><br>
+
+      <b>Part 4 — Analyse</b><br>
+      From the results list:<br>
+      • Count how many PASSed using <code>.count()</code><br>
+      • Use slicing to get the first 3 results and the last 3 results — print both<br>
+      • Check if <code>"FAIL"</code> is in results using <code>in</code> — print True/False<br><br>
+
+      <b>Part 5 — Summary</b><br>
+      Print a formatted report:<br>
+      <code>============================</code><br>
+      <code>Cross-browser Test Summary</code><br>
+      <code>============================</code><br>
+      <code>Browsers tested : 3</code><br>
+      <code>Pages tested    : 4</code><br>
+      <code>Total runs      : 12</code><br>
+      <code>Passed          : 12</code><br>
+      <code>Failed          : 0</code><br>
+      <code>Status          : ALL PASSED</code>
+    </div>
+  </div>
+
+  <div class="ok">If you can write all 5 parts without looking back — you are genuinely ready for Day 4 (dictionaries). The loop-inside-a-loop in Part 2 is the same structure pytest uses to run parametrized tests across multiple browsers.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 3 Python lists challenge. Show me the ideal solution so I can compare mine')">Show me the Day 3 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 3 Python challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 4 Python — dictionaries in depth for QA automation with hands-on exercises')">Go to Day 4 — dictionaries ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const total=9;
+const labs=['What is a list','Modifying','Slicing','Looping','Comprehension','Ex 1','Ex 2','Ex 3','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

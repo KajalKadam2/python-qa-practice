@@ -1,0 +1,257 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.pw { font-family: var(--font-sans); padding: 1rem 0; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.tab { font-size: 13px; padding: 6px 14px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); background: transparent; transition: all 0.15s; }
+.tab:hover { background: var(--color-background-secondary); }
+.tab.active { background: #E6F1FB; color: #0C447C; border-color: #85B7EB; font-weight: 500; }
+.panel { display: none; }
+.panel.active { display: block; }
+.code-block { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 14px 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; color: var(--color-text-primary); overflow-x: auto; white-space: pre; margin: 10px 0; }
+.kw { color: #534AB7; font-weight: 500; }
+.str { color: #0F6E56; }
+.comment { color: var(--color-text-tertiary); font-style: italic; }
+.fn { color: #185FA5; }
+.tip { background: var(--color-background-info); border-left: 2px solid var(--color-border-info); border-radius: 0; padding: 10px 14px; font-size: 13px; color: var(--color-text-info); line-height: 1.6; margin: 10px 0; }
+.warn { background: var(--color-background-warning); border-left: 2px solid var(--color-border-warning); border-radius: 0; padding: 10px 14px; font-size: 13px; color: var(--color-text-warning); line-height: 1.6; margin: 10px 0; }
+.success { background: var(--color-background-success); border-left: 2px solid var(--color-border-success); border-radius: 0; padding: 10px 14px; font-size: 13px; color: var(--color-text-success); line-height: 1.6; margin: 10px 0; }
+.label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 6px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; border: 0.5px solid var(--color-border-tertiary); }
+.card-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.card-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 5px; font-weight: 500; }
+.b-blue { background: #E6F1FB; color: #0C447C; }
+.b-green { background: #EAF3DE; color: #27500A; }
+.b-amber { background: #FAEEDA; color: #633806; }
+.b-red { background: #FCEBEB; color: #791F1F; }
+.ask-btn { font-size: 12px; padding: 5px 12px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-info); background: var(--color-background-info); margin-top: 8px; display: inline-block; }
+.ask-btn:hover { opacity: 0.8; }
+</style>
+
+<div class="pw">
+<h2 class="sr-only">Interactive Playwright reference guide covering actions, locators, assertions, and waits</h2>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('actions')">Page actions</button>
+  <button class="tab" onclick="show('locators')">Locators</button>
+  <button class="tab" onclick="show('assertions')">Assertions</button>
+  <button class="tab" onclick="show('waits')">Waits</button>
+  <button class="tab" onclick="show('structure')">Test structure</button>
+  <button class="tab" onclick="show('cheatsheet')">Quick reference</button>
+</div>
+
+<div id="actions" class="panel active">
+  <div class="label">What you can do on a page</div>
+  <div class="code-block"><span class="comment"># Navigate to a URL</span>
+page.<span class="fn">goto</span>(<span class="str">"https://example.com"</span>)
+
+<span class="comment"># Click a button or link</span>
+page.<span class="fn">click</span>(<span class="str">"button[type='submit']"</span>)
+
+<span class="comment"># Type into an input field</span>
+page.<span class="fn">fill</span>(<span class="str">"#email"</span>, <span class="str">"test@example.com"</span>)
+
+<span class="comment"># Press a keyboard key</span>
+page.<span class="fn">press</span>(<span class="str">"#search"</span>, <span class="str">"Enter"</span>)
+
+<span class="comment"># Select dropdown option</span>
+page.<span class="fn">select_option</span>(<span class="str">"#country"</span>, <span class="str">"India"</span>)
+
+<span class="comment"># Check a checkbox</span>
+page.<span class="fn">check</span>(<span class="str">"#agree-terms"</span>)
+
+<span class="comment"># Hover over an element</span>
+page.<span class="fn">hover</span>(<span class="str">".menu-item"</span>)
+
+<span class="comment"># Take a screenshot</span>
+page.<span class="fn">screenshot</span>(path=<span class="str">"screenshot.png"</span>)</div>
+  <div class="tip">As a manual QA, you already know these actions — you do them manually every day. Playwright just does them in code.</div>
+  <button class="ask-btn" onclick="sendPrompt('Show me a complete Playwright test that fills a login form and submits it')">Show me a login form test ↗</button>
+</div>
+
+<div id="locators" class="panel">
+  <div class="label">How to find elements on the page</div>
+  <div class="code-block"><span class="comment"># 1. By role — BEST PRACTICE (accessibility-based)</span>
+page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Submit"</span>)
+page.<span class="fn">get_by_role</span>(<span class="str">"textbox"</span>, name=<span class="str">"Email"</span>)
+page.<span class="fn">get_by_role</span>(<span class="str">"link"</span>, name=<span class="str">"Sign in"</span>)
+
+<span class="comment"># 2. By text content — great for headings, labels</span>
+page.<span class="fn">get_by_text</span>(<span class="str">"Welcome back"</span>)
+
+<span class="comment"># 3. By placeholder text — good for inputs</span>
+page.<span class="fn">get_by_placeholder</span>(<span class="str">"Enter your email"</span>)
+
+<span class="comment"># 4. By label — links input to its label</span>
+page.<span class="fn">get_by_label</span>(<span class="str">"Password"</span>)
+
+<span class="comment"># 5. By test ID — most stable for automation</span>
+page.<span class="fn">get_by_test_id</span>(<span class="str">"submit-btn"</span>)  <span class="comment"># data-testid="submit-btn"</span>
+
+<span class="comment"># 6. CSS selector — fallback when above won't work</span>
+page.<span class="fn">locator</span>(<span class="str">"#login-form .submit-button"</span>)
+
+<span class="comment"># 7. XPath — last resort, avoid if possible</span>
+page.<span class="fn">locator</span>(<span class="str">"//button[@type='submit']"</span>)</div>
+
+  <div class="label">Priority order to use</div>
+  <div class="row">
+    <div class="card"><div class="card-title">Use first</div><div class="card-desc">get_by_role, get_by_label, get_by_placeholder</div><span class="badge b-green">Stable &amp; readable</span></div>
+    <div class="card"><div class="card-title">Use second</div><div class="card-desc">get_by_test_id (needs dev to add data-testid)</div><span class="badge b-blue">Most stable</span></div>
+    <div class="card"><div class="card-title">Use third</div><div class="card-desc">CSS selectors with IDs or unique classes</div><span class="badge b-amber">OK fallback</span></div>
+    <div class="card"><div class="card-title">Avoid</div><div class="card-desc">XPath, positional CSS like nth-child(3)</div><span class="badge b-red">Brittle</span></div>
+  </div>
+  <div class="warn">Your manual QA instinct applies here too — a locator based on visible text ("Submit") is better than a deep CSS path. If the text changes, the test should fail. If only the structure changes, the test shouldn't.</div>
+  <button class="ask-btn" onclick="sendPrompt('What is Playwright codegen and how do I use it to auto-generate locators?')">How to auto-generate locators ↗</button>
+</div>
+
+<div id="assertions" class="panel">
+  <div class="label">Verifying things are correct — this is where your QA brain shines</div>
+  <div class="code-block"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="comment"># Page-level assertions</span>
+expect(page).<span class="fn">to_have_title</span>(<span class="str">"Dashboard"</span>)
+expect(page).<span class="fn">to_have_url</span>(<span class="str">"https://app.com/dashboard"</span>)
+
+<span class="comment"># Element visibility</span>
+expect(page.<span class="fn">get_by_text</span>(<span class="str">"Welcome!"</span>)).<span class="fn">to_be_visible</span>()
+expect(page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Delete"</span>)).<span class="fn">to_be_hidden</span>()
+
+<span class="comment"># Element state</span>
+expect(page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Submit"</span>)).<span class="fn">to_be_enabled</span>()
+expect(page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Save"</span>)).<span class="fn">to_be_disabled</span>()
+expect(page.<span class="fn">get_by_role</span>(<span class="str">"checkbox"</span>)).<span class="fn">to_be_checked</span>()
+
+<span class="comment"># Text content</span>
+expect(page.<span class="fn">locator</span>(<span class="str">".error-msg"</span>)).<span class="fn">to_have_text</span>(<span class="str">"Invalid email"</span>)
+expect(page.<span class="fn">locator</span>(<span class="str">".welcome"</span>)).<span class="fn">to_contain_text</span>(<span class="str">"Hello"</span>)
+
+<span class="comment"># Input value</span>
+expect(page.<span class="fn">get_by_label</span>(<span class="str">"Email"</span>)).<span class="fn">to_have_value</span>(<span class="str">"user@test.com"</span>)
+
+<span class="comment"># Count of elements</span>
+expect(page.<span class="fn">locator</span>(<span class="str">".product-card"</span>)).<span class="fn">to_have_count</span>(<span class="str">12</span>)
+
+<span class="comment"># Negate any assertion with NOT</span>
+expect(page.<span class="fn">locator</span>(<span class="str">".spinner"</span>)).<span class="fn">not_to_be_visible</span>()</div>
+  <div class="success">All Playwright assertions have auto-wait built in. They retry for up to 5 seconds before failing. You don't need explicit sleep() calls!</div>
+  <button class="ask-btn" onclick="sendPrompt('Show me how to test a form validation — wrong email format shows error message')">Test form validation example ↗</button>
+</div>
+
+<div id="waits" class="panel">
+  <div class="label">Handling timing and dynamic content</div>
+  <div class="code-block"><span class="comment"># Auto-wait — Playwright does this automatically</span>
+<span class="comment"># Every action waits for element to be ready</span>
+page.<span class="fn">click</span>(<span class="str">"#submit"</span>)  <span class="comment"># waits until clickable</span>
+
+<span class="comment"># Wait for a specific element to appear</span>
+page.<span class="fn">wait_for_selector</span>(<span class="str">".success-message"</span>)
+
+<span class="comment"># Wait for navigation after click</span>
+<span class="kw">with</span> page.<span class="fn">expect_navigation</span>():
+    page.<span class="fn">click</span>(<span class="str">"#login-btn"</span>)
+
+<span class="comment"># Wait for a network request to finish</span>
+<span class="kw">with</span> page.<span class="fn">expect_response</span>(<span class="str">"**/api/users"</span>):
+    page.<span class="fn">click</span>(<span class="str">"#load-users"</span>)
+
+<span class="comment"># Wait for page to reach a load state</span>
+page.<span class="fn">wait_for_load_state</span>(<span class="str">"networkidle"</span>)
+
+<span class="comment"># Only use sleep as last resort!</span>
+<span class="kw">import</span> time
+time.<span class="fn">sleep</span>(<span class="str">2</span>)  <span class="comment"># BAD — makes tests slow and fragile</span></div>
+  <div class="warn">Never use time.sleep() in Playwright tests. It makes tests slow and still flaky. Use expect() assertions instead — they wait smartly until the condition is true.</div>
+  <button class="ask-btn" onclick="sendPrompt('What causes flaky tests in Playwright and how do I fix them?')">How to fix flaky tests ↗</button>
+</div>
+
+<div id="structure" class="panel">
+  <div class="label">A complete, well-structured test file</div>
+  <div class="code-block"><span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="comment"># ---- Setup: runs before EACH test ----</span>
+<span class="fn">@pytest.fixture</span>(autouse=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">go_to_login</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="str">"https://the-internet.herokuapp.com/login"</span>)
+
+<span class="comment"># ---- Test 1: happy path ----</span>
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(page: Page):
+    page.<span class="fn">get_by_label</span>(<span class="str">"Username"</span>).<span class="fn">fill</span>(<span class="str">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="str">"Password"</span>).<span class="fn">fill</span>(<span class="str">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Login"</span>).<span class="fn">click</span>()
+    expect(page.<span class="fn">get_by_text</span>(<span class="str">"You logged into a secure area!"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="comment"># ---- Test 2: negative case ----</span>
+<span class="kw">def</span> <span class="fn">test_invalid_login</span>(page: Page):
+    page.<span class="fn">get_by_label</span>(<span class="str">"Username"</span>).<span class="fn">fill</span>(<span class="str">"wronguser"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="str">"Password"</span>).<span class="fn">fill</span>(<span class="str">"wrongpass"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Login"</span>).<span class="fn">click</span>()
+    expect(page.<span class="fn">locator</span>(<span class="str">"#flash.error"</span>)).<span class="fn">to_contain_text</span>(<span class="str">"Your username is invalid!"</span>)
+
+<span class="comment"># ---- Test 3: parametrize = same test, multiple data ----</span>
+<span class="fn">@pytest.mark.parametrize</span>(<span class="str">"username,password"</span>, [
+    (<span class="str">""</span>, <span class="str">"pass"</span>),
+    (<span class="str">"user"</span>, <span class="str">""</span>),
+    (<span class="str">""</span>, <span class="str">""</span>),
+])
+<span class="kw">def</span> <span class="fn">test_empty_fields</span>(page: Page, username, password):
+    page.<span class="fn">get_by_label</span>(<span class="str">"Username"</span>).<span class="fn">fill</span>(username)
+    page.<span class="fn">get_by_label</span>(<span class="str">"Password"</span>).<span class="fn">fill</span>(password)
+    page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Login"</span>).<span class="fn">click</span>()
+    expect(page.<span class="fn">locator</span>(<span class="str">"#flash"</span>)).<span class="fn">to_be_visible</span>()</div>
+  <div class="tip">The site https://the-internet.herokuapp.com is a free practice site made exactly for automation practice. Use it for all your exercises.</div>
+  <button class="ask-btn" onclick="sendPrompt('Teach me the Page Object Model pattern in Playwright with a real example')">Next: Page Object Model ↗</button>
+</div>
+
+<div id="cheatsheet" class="panel">
+  <div class="label">Locators</div>
+  <div class="code-block">page.get_by_role("button", name="Submit")
+page.get_by_label("Email")
+page.get_by_placeholder("Search...")
+page.get_by_text("Welcome")
+page.get_by_test_id("submit-btn")
+page.locator("#id")  .locator(".class")  .locator("tag")</div>
+
+  <div class="label">Actions</div>
+  <div class="code-block">page.goto(url)         page.click(selector)
+page.fill(sel, text)   page.press(sel, "Enter")
+page.check(sel)        page.hover(sel)
+page.select_option(sel, value)
+page.screenshot(path="shot.png")</div>
+
+  <div class="label">Assertions (all auto-wait)</div>
+  <div class="code-block">expect(page).to_have_title("...")
+expect(page).to_have_url("...")
+expect(locator).to_be_visible()
+expect(locator).to_be_hidden()
+expect(locator).to_be_enabled()
+expect(locator).to_be_disabled()
+expect(locator).to_have_text("...")
+expect(locator).to_contain_text("...")
+expect(locator).to_have_value("...")
+expect(locator).to_have_count(n)
+expect(locator).not_to_be_visible()</div>
+
+  <div class="label">Useful run commands</div>
+  <div class="code-block">pytest test_login.py              # run file
+pytest test_login.py --headed     # show browser
+pytest test_login.py -v           # verbose output
+pytest test_login.py -k "valid"   # run matching tests
+pytest --browser firefox          # use Firefox
+pytest --slowmo 500               # slow down 500ms</div>
+
+  <button class="ask-btn" onclick="sendPrompt('Give me 5 Playwright practice exercises I can do today on the-internet.herokuapp.com')">Give me practice exercises ↗</button>
+</div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>

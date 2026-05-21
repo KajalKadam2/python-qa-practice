@@ -1,0 +1,661 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#FFF3C4;color:#7A5000;border-color:#E8B84B}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b,.ch-b b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#FFF3C4;color:#7A5000;border-color:#E8B84B;font-weight:500}
+.btn-n:hover{background:#FFE680}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.by{background:#FFF3C4;color:#7A5000}
+.br{background:#FCEBEB;color:#791F1F}
+.pattern-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+.pc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 12px;border:0.5px solid var(--color-border-tertiary)}
+.pc-t{font-size:12px;font-weight:500;margin-bottom:4px}
+.pc-d{font-size:11px;color:var(--color-text-secondary);line-height:1.45}
+.pc-ex{font-size:11px;font-family:var(--font-mono);color:var(--color-text-tertiary);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: FOR LOOP DEEP DIVE -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 6 — Loops in depth</div>
+    <div class="card-b">You have used <code>for</code> loops since Day 3. Today you go deeper — <b>every loop pattern used in professional QA automation</b>: for/else, while with retry logic, break and continue, zip to pair datasets, and nested loops. After today, you know every loop construct Python has.</div>
+  </div>
+
+  <div class="sec">The for loop — everything you need to know</div>
+  <div class="pattern-grid">
+    <div class="pc"><div class="pc-t">Basic iteration</div><div class="pc-ex">for item in list:</div><div class="pc-d">Loop over every item</div></div>
+    <div class="pc"><div class="pc-t">With index</div><div class="pc-ex">for i, item in enumerate(list):</div><div class="pc-d">Get position AND value</div></div>
+    <div class="pc"><div class="pc-t">Over dict</div><div class="pc-ex">for k, v in dict.items():</div><div class="pc-d">Key and value together</div></div>
+    <div class="pc"><div class="pc-t">Range</div><div class="pc-ex">for i in range(start, stop, step):</div><div class="pc-d">Numeric sequence</div></div>
+    <div class="pc"><div class="pc-t">Zip two lists</div><div class="pc-ex">for a, b in zip(list1, list2):</div><div class="pc-d">Pair items by position</div></div>
+    <div class="pc"><div class="pc-t">Nested</div><div class="pc-ex">for x in a:\n  for y in b:</div><div class="pc-d">Every combination</div></div>
+  </div>
+
+  <div class="try-lbl">Type this — all range() patterns you will use</div>
+  <div class="code"><span class="cm"># range(stop) — 0 to stop-1</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Retry attempt {i + 1}"</span>)    <span class="cm"># 1, 2, 3</span>
+
+<span class="fn">print</span>()
+
+<span class="cm"># range(start, stop) — start to stop-1</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Test case {i}"</span>)             <span class="cm"># 1, 2, 3, 4, 5</span>
+
+<span class="fn">print</span>()
+
+<span class="cm"># range(start, stop, step) — every 2nd number</span>
+<span class="kw">for</span> port <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">8080</span>, <span class="nm">8090</span>, <span class="nm">2</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Checking port: {port}"</span>)      <span class="cm"># 8080, 8082, 8084...</span>
+
+<span class="fn">print</span>()
+
+<span class="cm"># reversed range — count down</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>, <span class="nm">0</span>, -<span class="nm">1</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Countdown: {i}"</span>)             <span class="cm"># 3, 2, 1</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Retry attempt 1 / Retry attempt 2 / Retry attempt 3</div>
+    <div class="ol">Test case 1 ... Test case 5</div>
+    <div class="ol">Checking port: 8080 / 8082 / 8084 / 8086 / 8088</div>
+    <div class="ol">Countdown: 3 / 2 / 1</div>
+  </div>
+
+  <div class="tip"><code>range()</code> never includes the stop value — <code>range(1, 6)</code> gives 1, 2, 3, 4, 5. Think of stop as "stop before this number". The step argument lets you skip — <code>range(0, 10, 2)</code> gives even numbers 0 through 8.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">break + continue →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: BREAK + CONTINUE -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">break and continue — controlling loop flow <span class="badge by" style="margin-left:6px">used constantly in QA</span></div>
+    <div class="card-b"><b>break</b> exits the loop immediately — stop searching once found. <b>continue</b> skips to the next iteration — skip invalid items, process valid ones. Both appear in almost every real automation script you will write.</div>
+  </div>
+
+  <div class="try-lbl">break — stop as soon as you find what you need</div>
+  <div class="code"><span class="cm"># Find first failing test — stop searching after finding it</span>
+results = [
+    {<span class="st">"name"</span>: <span class="st">"test_login"</span>,     <span class="st">"status"</span>: <span class="st">"PASS"</span>},
+    {<span class="st">"name"</span>: <span class="st">"test_register"</span>,  <span class="st">"status"</span>: <span class="st">"PASS"</span>},
+    {<span class="st">"name"</span>: <span class="st">"test_checkout"</span>,  <span class="st">"status"</span>: <span class="st">"FAIL"</span>},
+    {<span class="st">"name"</span>: <span class="st">"test_payment"</span>,   <span class="st">"status"</span>: <span class="st">"FAIL"</span>},
+    {<span class="st">"name"</span>: <span class="st">"test_logout"</span>,    <span class="st">"status"</span>: <span class="st">"PASS"</span>},
+]
+
+first_failure = <span class="kw">None</span>
+<span class="kw">for</span> result <span class="kw">in</span> results:
+    <span class="kw">if</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+        first_failure = result
+        <span class="kw">break</span>   <span class="cm"># stop — no need to check the rest</span>
+
+<span class="kw">if</span> first_failure:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"First failure: {first_failure['name']}"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"All tests passed!"</span>)
+
+<span class="cm"># Find a user by ID — stop once found</span>
+users = [{<span class="st">"id"</span>:<span class="nm">1</span>,<span class="st">"name"</span>:<span class="st">"George"</span>},{<span class="st">"id"</span>:<span class="nm">2</span>,<span class="st">"name"</span>:<span class="st">"Janet"</span>},{<span class="st">"id"</span>:<span class="nm">3</span>,<span class="st">"name"</span>:<span class="st">"Emma"</span>}]
+target = <span class="kw">None</span>
+<span class="kw">for</span> u <span class="kw">in</span> users:
+    <span class="kw">if</span> u[<span class="st">"id"</span>] == <span class="nm">2</span>:
+        target = u
+        <span class="kw">break</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Found: {target['name'] if target else 'not found'}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">First failure: test_checkout</div>
+    <div class="ol">Found: Janet</div>
+  </div>
+
+  <div class="try-lbl">continue — skip invalid items, process valid ones</div>
+  <div class="code"><span class="cm"># Skip empty or invalid emails — process only valid ones</span>
+emails = [<span class="st">"george@reqres.in"</span>, <span class="st">""</span>, <span class="st">"notanemail"</span>, <span class="st">"janet@reqres.in"</span>, <span class="kw">None</span>]
+
+<span class="fn">print</span>(<span class="st">"Processing valid emails:"</span>)
+<span class="kw">for</span> email <span class="kw">in</span> emails:
+    <span class="kw">if not</span> email:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Skipping empty/None value"</span>)
+        <span class="kw">continue</span>   <span class="cm"># skip to next item</span>
+    <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">not in</span> email:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Skipping invalid: {email}"</span>)
+        <span class="kw">continue</span>   <span class="cm"># skip to next item</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ Processing: {email}"</span>)   <span class="cm"># only valid emails reach here</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Processing valid emails:</div>
+    <div class="ol">  ✓ Processing: george@reqres.in</div>
+    <div class="ol">  Skipping empty/None value</div>
+    <div class="ol">  Skipping invalid: notanemail</div>
+    <div class="ol">  ✓ Processing: janet@reqres.in</div>
+    <div class="ol">  Skipping empty/None value</div>
+  </div>
+
+  <div class="tip"><code>continue</code> with guard clauses is the cleanest loop pattern. Check failure cases first, <code>continue</code> past them, and the actual processing logic sits at the bottom — unindented, readable, only reached by valid items. Same philosophy as function guard clauses from Day 5.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">for / else →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: FOR/ELSE -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">for / else — Python's secret weapon <span class="badge bp" style="margin-left:6px">almost nobody knows this</span></div>
+    <div class="card-b">Python's <code>for</code> loop has an optional <code>else</code> clause. The <code>else</code> block runs <b>only if the loop completed without hitting a break</b>. If <code>break</code> fired, <code>else</code> is skipped. This is exactly what you need for "search and report not found" patterns in QA.</div>
+  </div>
+
+  <div class="try-lbl">Type this — feel how elegant it is</div>
+  <div class="code"><span class="cm"># Without for/else — needs a flag variable</span>
+users = [{<span class="st">"id"</span>:<span class="nm">1</span>,<span class="st">"name"</span>:<span class="st">"George"</span>},{<span class="st">"id"</span>:<span class="nm">2</span>,<span class="st">"name"</span>:<span class="st">"Janet"</span>}]
+found = <span class="kw">False</span>
+<span class="kw">for</span> u <span class="kw">in</span> users:
+    <span class="kw">if</span> u[<span class="st">"id"</span>] == <span class="nm">99</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Found: {u['name']}"</span>)
+        found = <span class="kw">True</span>
+        <span class="kw">break</span>
+<span class="kw">if not</span> found:
+    <span class="fn">print</span>(<span class="st">"User 99 not found"</span>)   <span class="cm"># clunky</span>
+
+<span class="fn">print</span>()
+
+<span class="cm"># With for/else — no flag needed</span>
+<span class="kw">for</span> u <span class="kw">in</span> users:
+    <span class="kw">if</span> u[<span class="st">"id"</span>] == <span class="nm">99</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Found: {u['name']}"</span>)
+        <span class="kw">break</span>
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"User 99 not found"</span>)   <span class="cm"># runs because break never fired</span>
+
+<span class="fn">print</span>()
+
+<span class="cm"># QA example — check a required element exists in a list</span>
+required_fields = [<span class="st">"id"</span>, <span class="st">"email"</span>, <span class="st">"first_name"</span>]
+api_response    = {<span class="st">"id"</span>: <span class="nm">1</span>, <span class="st">"email"</span>: <span class="st">"a@b.com"</span>}   <span class="cm"># missing first_name!</span>
+
+<span class="kw">for</span> field <span class="kw">in</span> required_fields:
+    <span class="kw">if</span> field <span class="kw">not in</span> api_response:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"FAIL: missing required field '{field}'"</span>)
+        <span class="kw">break</span>
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"PASS: all required fields present"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">User 99 not found</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">User 99 not found</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">FAIL: missing required field 'first_name'</div>
+  </div>
+
+  <div class="tip">Read <code>for/else</code> as: "loop through everything — <b>else</b> (if nothing triggered break) run this." It eliminates the need for a boolean flag variable in search loops. Whenever you find yourself writing <code>found = False</code> before a loop, consider <code>for/else</code> instead.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">while loops →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: WHILE LOOPS -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">while loops — retry logic and polling <span class="badge by" style="margin-left:6px">critical for automation</span></div>
+    <div class="card-b">A <code>while</code> loop runs as long as a condition is True. In QA automation, you use <code>while</code> for: <b>retry logic</b> (retry a flaky action up to N times), <b>polling</b> (wait until a condition becomes true), and <b>processing until done</b>. Playwright's built-in waits handle most timing — but retry logic still needs <code>while</code>.</div>
+  </div>
+
+  <div class="try-lbl">Pattern 1 — retry with max attempts</div>
+  <div class="code"><span class="cm"># Retry a flaky action — stop on success or max attempts</span>
+<span class="kw">import</span> random
+random.<span class="fn">seed</span>(<span class="nm">42</span>)   <span class="cm"># makes random predictable for practice</span>
+
+max_retries = <span class="nm">5</span>
+attempt     = <span class="nm">0</span>
+success     = <span class="kw">False</span>
+
+<span class="kw">while</span> attempt <span class="op">&lt;</span> max_retries <span class="kw">and not</span> success:
+    attempt <span class="op">+=</span> <span class="nm">1</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Attempt {attempt}/{max_retries}..."</span>)
+
+    <span class="cm"># Simulate: succeeds ~50% of the time</span>
+    success = random.<span class="fn">random</span>() <span class="op">&gt;</span> <span class="nm">0.5</span>
+
+    <span class="kw">if</span> success:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ Succeeded on attempt {attempt}"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Failed — retrying..."</span>)
+
+<span class="kw">if not</span> success:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"FAIL: action failed after {max_retries} attempts"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output (your output varies — random)</div>
+    <div class="ol">Attempt 1/5...</div>
+    <div class="ol">  ✗ Failed — retrying...</div>
+    <div class="ol">Attempt 2/5...</div>
+    <div class="ol">  ✓ Succeeded on attempt 2</div>
+  </div>
+
+  <div class="try-lbl">Pattern 2 — polling until ready (with timeout)</div>
+  <div class="code"><span class="cm"># Poll until a condition is met — with a timeout safety net</span>
+<span class="kw">import</span> time
+
+max_wait_seconds = <span class="nm">5</span>
+poll_interval    = <span class="nm">1</span>    <span class="cm"># check every 1 second</span>
+elapsed          = <span class="nm">0</span>
+is_ready         = <span class="kw">False</span>
+
+<span class="fn">print</span>(<span class="st">"Waiting for element to appear..."</span>)
+
+<span class="kw">while</span> elapsed <span class="op">&lt;</span> max_wait_seconds <span class="kw">and not</span> is_ready:
+    time.<span class="fn">sleep</span>(poll_interval)     <span class="cm"># wait before checking</span>
+    elapsed <span class="op">+=</span> poll_interval
+
+    <span class="cm"># Simulate: element appears after 3 seconds</span>
+    is_ready = elapsed <span class="op">&gt;=</span> <span class="nm">3</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {elapsed}s — element ready: {is_ready}"</span>)
+
+<span class="kw">if</span> is_ready:
+    <span class="fn">print</span>(<span class="st">"✓ Element found — continuing test"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✗ FAIL: element not found after {max_wait_seconds}s"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output (takes ~3 seconds)</div>
+    <div class="ol">Waiting for element to appear...</div>
+    <div class="ol">  1s — element ready: False</div>
+    <div class="ol">  2s — element ready: False</div>
+    <div class="ol">  3s — element ready: True</div>
+    <div class="ol">✓ Element found — continuing test</div>
+  </div>
+
+  <div class="warn">Never use <code>while True:</code> without a guaranteed exit — it runs forever and hangs your tests. Always pair a <code>while</code> loop with a maximum count or timeout. Playwright's <code>expect()</code> handles UI waits better than manual polling — use <code>while</code> for retry logic on actions, not element waits.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">zip →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: ZIP -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">zip — pairing two lists together <span class="badge bg" style="margin-left:6px">data-driven testing</span></div>
+    <div class="card-b"><code>zip()</code> pairs items from two lists by position — first with first, second with second. You use it when you have <b>inputs and expected outputs</b> as separate lists and want to loop over them together. It is how data-driven tests connect test data to expected results.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># Inputs and expected outputs as paired lists</span>
+inputs   = [<span class="st">"tomsmith"</span>, <span class="st">"wronguser"</span>, <span class="st">""</span>,       <span class="st">"tomsmith"</span>]
+passwords= [<span class="st">"SuperSecretPassword!"</span>, <span class="st">"wrongpass"</span>, <span class="st">"pass"</span>, <span class="st">"wrongpass"</span>]
+expected = [<span class="st">"secure area"</span>, <span class="st">"invalid"</span>, <span class="st">"invalid"</span>, <span class="st">"invalid"</span>]
+
+<span class="fn">print</span>(<span class="st">"Login test cases:"</span>)
+<span class="kw">for</span> i, (user, pw, exp) <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="fn">zip</span>(inputs, passwords, expected), <span class="nm">1</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Test {i}: user={user!r:<span class="nm">12</span>} expects='{exp}'"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># Zip two lists to compare expected vs actual</span>
+expected_statuses = [<span class="nm">200</span>, <span class="nm">201</span>, <span class="nm">404</span>, <span class="nm">200</span>]
+actual_statuses   = [<span class="nm">200</span>, <span class="nm">201</span>, <span class="nm">500</span>, <span class="nm">200</span>]   <span class="cm"># 3rd is wrong!</span>
+endpoints         = [<span class="st">"/users"</span>, <span class="st">"/users"</span>, <span class="st">"/users/99"</span>, <span class="st">"/users/1"</span>]
+
+<span class="fn">print</span>(<span class="st">"API status checks:"</span>)
+<span class="kw">for</span> endpoint, expected, actual <span class="kw">in</span> <span class="fn">zip</span>(endpoints, expected_statuses, actual_statuses):
+    icon   = <span class="st">"✓"</span> <span class="kw">if</span> actual == expected <span class="kw">else</span> <span class="st">"✗"</span>
+    detail = <span class="st">""</span> <span class="kw">if</span> actual == expected <span class="kw">else</span> <span class="fn">f</span><span class="st">" (expected {expected}, got {actual})"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {icon} {endpoint}{detail}"</span>)
+
+<span class="fn">print</span>()
+
+<span class="cm"># zip stops at the shortest list</span>
+a = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>]
+b = [<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>]             <span class="cm"># shorter list</span>
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="fn">zip</span>(a, b)))           <span class="cm"># [(1,'a'), (2,'b'), (3,'c')]</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Login test cases:</div>
+    <div class="ol">  Test 1: user='tomsmith'   expects='secure area'</div>
+    <div class="ol">  Test 2: user='wronguser'  expects='invalid'</div>
+    <div class="ol">  Test 3: user=''           expects='invalid'</div>
+    <div class="ol">  Test 4: user='tomsmith'   expects='invalid'</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">API status checks:</div>
+    <div class="ol">  ✓ /users</div>
+    <div class="ol">  ✓ /users</div>
+    <div class="ol">  ✗ /users/99 (expected 404, got 500)</div>
+    <div class="ol">  ✓ /users/1</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">[(1, 'a'), (2, 'b'), (3, 'c')]</div>
+  </div>
+
+  <div class="tip">In Week 3, you will replace separate <code>inputs</code> and <code>expected</code> lists with a list of dicts — cleaner for complex data. But <code>zip</code> is perfect for simple paired data and appears constantly in professional test code.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">Nested loops →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: NESTED LOOPS -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">Nested loops — every combination <span class="badge by" style="margin-left:6px">cross-browser testing</span></div>
+    <div class="card-b">A loop inside a loop runs the inner loop fully for every iteration of the outer loop. In QA this means: test every page on every browser, test every user with every permission, test every endpoint with every method. You already used this in the Day 3 challenge — today you master it properly.</div>
+  </div>
+
+  <div class="try-lbl">Type this — cross-browser × cross-page matrix</div>
+  <div class="code">browsers  = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+pages     = [<span class="st">"/login"</span>, <span class="st">"/dashboard"</span>, <span class="st">"/checkout"</span>]
+base_url  = <span class="st">"https://staging.myapp.com"</span>
+
+total_runs = <span class="nm">0</span>
+results    = []
+
+<span class="kw">for</span> browser <span class="kw">in</span> browsers:
+    <span class="kw">for</span> page <span class="kw">in</span> pages:
+        total_runs <span class="op">+=</span> <span class="nm">1</span>
+        url = <span class="fn">f</span><span class="st">"{base_url}{page}"</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  [{browser:<span class="nm">10</span>}] Testing {url}"</span>)
+        results.<span class="fn">append</span>(<span class="st">"PASS"</span>)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nTotal: {total_runs} runs ({len(browsers)} browsers × {len(pages)} pages)"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"All passed: {all(r == 'PASS' for r in results)}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">  [chromium  ] Testing https://staging.myapp.com/login</div>
+    <div class="ol">  [chromium  ] Testing https://staging.myapp.com/dashboard</div>
+    <div class="ol">  [chromium  ] Testing https://staging.myapp.com/checkout</div>
+    <div class="ol">  [firefox   ] Testing https://staging.myapp.com/login</div>
+    <div class="ol">  ... (9 lines total)</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Total: 9 runs (3 browsers × 3 pages)</div>
+    <div class="ol">All passed: True</div>
+  </div>
+
+  <div class="sec">New built-in — all() and any()</div>
+  <div class="code"><span class="cm"># all() — True only if every item is truthy</span>
+statuses = [<span class="nm">200</span>, <span class="nm">200</span>, <span class="nm">201</span>, <span class="nm">200</span>]
+<span class="fn">print</span>(<span class="fn">all</span>(s <span class="op">&lt;</span> <span class="nm">300</span> <span class="kw">for</span> s <span class="kw">in</span> statuses))   <span class="cm"># True — all are success</span>
+
+results = [<span class="st">"PASS"</span>, <span class="st">"PASS"</span>, <span class="st">"FAIL"</span>, <span class="st">"PASS"</span>]
+<span class="fn">print</span>(<span class="fn">all</span>(r == <span class="st">"PASS"</span> <span class="kw">for</span> r <span class="kw">in</span> results))  <span class="cm"># False — one FAIL</span>
+
+<span class="cm"># any() — True if at least one item is truthy</span>
+<span class="fn">print</span>(<span class="fn">any</span>(r == <span class="st">"FAIL"</span> <span class="kw">for</span> r <span class="kw">in</span> results))  <span class="cm"># True — at least one FAIL</span>
+<span class="fn">print</span>(<span class="fn">any</span>(s <span class="op">&gt;=</span> <span class="nm">500</span> <span class="kw">for</span> s <span class="kw">in</span> statuses))    <span class="cm"># False — no server errors</span></div>
+
+  <div class="tip"><code>all()</code> and <code>any()</code> take a generator expression — like a one-line loop that produces True/False values. <code>all(r == "PASS" for r in results)</code> reads: "are all results PASS?". These replace manual loops with flags in most check-all / check-any scenarios.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">QA Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA EXAMPLE 1 -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">QA Example 1 — Retry engine <span class="badge by" style="margin-left:6px">while + break + counter</span></div>
+    <div class="card-b">Flaky tests — tests that sometimes pass and sometimes fail due to timing — are the #1 pain in automation. A retry engine wraps actions in a while loop with exponential-style backoff. This is exactly what real test frameworks implement.</div>
+  </div>
+  <div class="try-lbl">Create day6_ex1.py</div>
+  <div class="code"><span class="kw">import</span> random
+random.<span class="fn">seed</span>(<span class="nm">7</span>)
+
+<span class="kw">def</span> <span class="fn">retry</span>(action_name, max_attempts=<span class="nm">3</span>, success_rate=<span class="nm">0.6</span>):
+    <span class="st">"""Retry an action up to max_attempts times."""</span>
+    attempt = <span class="nm">0</span>
+
+    <span class="kw">while</span> attempt <span class="op">&lt;</span> max_attempts:
+        attempt <span class="op">+=</span> <span class="nm">1</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  [{action_name}] Attempt {attempt}/{max_attempts}"</span>)
+
+        <span class="cm"># Simulate action success/failure</span>
+        succeeded = random.<span class="fn">random</span>() <span class="op">&lt;</span> success_rate
+
+        <span class="kw">if</span> succeeded:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ Succeeded on attempt {attempt}"</span>)
+            <span class="kw">return</span> <span class="kw">True</span>
+
+        <span class="kw">if</span> attempt <span class="op">&lt;</span> max_attempts:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Failed — waiting before retry..."</span>)
+
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ GAVE UP after {max_attempts} attempts"</span>)
+    <span class="kw">return</span> <span class="kw">False</span>
+
+<span class="cm"># Run several actions through the retry engine</span>
+actions = [
+    (<span class="st">"click_submit"</span>,    <span class="nm">3</span>, <span class="nm">0.7</span>),
+    (<span class="st">"wait_for_modal"</span>,  <span class="nm">5</span>, <span class="nm">0.4</span>),
+    (<span class="st">"verify_toast"</span>,    <span class="nm">2</span>, <span class="nm">0.9</span>),
+]
+
+passed = []
+failed = []
+
+<span class="kw">for</span> name, attempts, rate <span class="kw">in</span> actions:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nRunning: {name}"</span>)
+    ok = <span class="fn">retry</span>(name, attempts, rate)
+    (passed <span class="kw">if</span> ok <span class="kw">else</span> failed).<span class="fn">append</span>(name)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n--- Retry Summary ---"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Succeeded: {passed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Failed:    {failed}"</span>)</div>
+
+  <div class="tip">Line <code>(passed if ok else failed).append(name)</code> is a one-line conditional append — pick which list to append to based on the result. It is terse but readable once you know the pattern. Perfectly valid Python.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE 2 -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example 2 — Test matrix runner <span class="badge bg" style="margin-left:6px">nested + zip + all/any</span></div>
+    <div class="card-b">The complete cross-browser, cross-environment, cross-page matrix. Simulates what a real test runner does — iterates all combinations, collects results, produces a matrix report. This is the most production-like code you have written so far.</div>
+  </div>
+  <div class="try-lbl">Create day6_ex2.py</div>
+  <div class="code">browsers  = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>]
+envs      = [<span class="st">"staging"</span>, <span class="st">"prod"</span>]
+pages     = [<span class="st">"/login"</span>, <span class="st">"/dashboard"</span>]
+
+<span class="cm"># Results matrix — dict of dicts</span>
+matrix = {}
+
+<span class="kw">import</span> random
+random.<span class="fn">seed</span>(<span class="nm">1</span>)
+
+<span class="kw">for</span> env <span class="kw">in</span> envs:
+    matrix[env] = {}
+    <span class="kw">for</span> browser <span class="kw">in</span> browsers:
+        matrix[env][browser] = {}
+        <span class="kw">for</span> page <span class="kw">in</span> pages:
+            <span class="cm"># Simulate: prod has more failures</span>
+            rate   = <span class="nm">0.7</span> <span class="kw">if</span> env == <span class="st">"prod"</span> <span class="kw">else</span> <span class="nm">0.9</span>
+            result = <span class="st">"PASS"</span> <span class="kw">if</span> random.<span class="fn">random</span>() <span class="op">&lt;</span> rate <span class="kw">else</span> <span class="st">"FAIL"</span>
+            matrix[env][browser][page] = result
+
+<span class="cm"># Print matrix report</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*50}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Test Matrix Report"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*50}"</span>)
+
+all_results = []
+<span class="kw">for</span> env, browsers_data <span class="kw">in</span> matrix.<span class="fn">items</span>():
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n  Environment: {env.upper()}"</span>)
+    <span class="kw">for</span> browser, pages_data <span class="kw">in</span> browsers_data.<span class="fn">items</span>():
+        env_results = <span class="fn">list</span>(pages_data.<span class="fn">values</span>())
+        all_results.<span class="fn">extend</span>(env_results)
+        status = <span class="st">"✓ all pass"</span> <span class="kw">if</span> <span class="fn">all</span>(r == <span class="st">"PASS"</span> <span class="kw">for</span> r <span class="kw">in</span> env_results) <span class="kw">else</span> <span class="st">"✗ has failures"</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"    {browser:<span class="nm">10</span>}: {status}"</span>)
+        <span class="kw">for</span> page, result <span class="kw">in</span> pages_data.<span class="fn">items</span>():
+            icon = <span class="st">"✓"</span> <span class="kw">if</span> result == <span class="st">"PASS"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"      {icon} {page} — {result}"</span>)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n{'─'*50}"</span>)
+total  = <span class="fn">len</span>(all_results)
+passed = all_results.<span class="fn">count</span>(<span class="st">"PASS"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Total: {passed}/{total} passed"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Any failures: {any(r == 'FAIL' for r in all_results)}"</span>)</div>
+
+  <div class="ok">This is a three-level nested loop — envs → browsers → pages — producing a matrix of results stored in a nested dict. The reporting loop mirrors the data structure exactly. This pattern scales to any number of dimensions and is how real cross-browser test reports are generated.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 6 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 6 challenge — the Week 1+2 final boss</div>
+    <div class="card-b">New file: <b>day6_challenge.py</b>. This is the last Python-only challenge before Day 7's mini project and then Playwright begins. It uses every concept from Days 1–6.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build a complete test suite simulator</div>
+    <div class="ch-b">
+      Copy only this starting data:<br><br>
+      <code>import random</code><br>
+      <code>random.seed(99)</code><br><br>
+      <code>test_cases = [</code><br>
+      &nbsp;&nbsp;<code>{"id":"TC01","name":"valid_login","priority":"P1","retries":3},</code><br>
+      &nbsp;&nbsp;<code>{"id":"TC02","name":"invalid_login","priority":"P1","retries":2},</code><br>
+      &nbsp;&nbsp;<code>{"id":"TC03","name":"empty_fields","priority":"P2","retries":1},</code><br>
+      &nbsp;&nbsp;<code>{"id":"TC04","name":"checkout_flow","priority":"P1","retries":3},</code><br>
+      &nbsp;&nbsp;<code>{"id":"TC05","name":"profile_update","priority":"P2","retries":2},</code><br>
+      &nbsp;&nbsp;<code>{"id":"TC06","name":"logout","priority":"P3","retries":1},</code><br>
+      <code>]</code><br>
+      <code>browsers = ["chromium", "firefox"]</code><br><br>
+
+      <b>Part 1 — Run the suite</b><br>
+      Nested loop: browsers × test_cases. For each combination, simulate running with <code>random.random() > 0.3</code> as the pass condition. Store results as a list of dicts: <code>{"browser","test_id","test_name","status"}</code>.<br><br>
+
+      <b>Part 2 — Retry failures</b><br>
+      Loop over your results. For each FAIL, retry up to the test's <code>retries</code> count using a <code>while</code> loop. Use <code>random.random() > 0.5</code> as retry success. Update the status if retry succeeds. Print each retry attempt.<br><br>
+
+      <b>Part 3 — Skip P3 tests</b><br>
+      Loop over test_cases. Use <code>continue</code> to skip any test with priority "P3". Print "Skipped: {name}" for those, and "Would run: {name}" for others.<br><br>
+
+      <b>Part 4 — Find first P1 failure</b><br>
+      Use <code>for/else</code> to find the first P1 test that failed. Print it or print "All P1 tests passed" using the else clause.<br><br>
+
+      <b>Part 5 — Summary</b><br>
+      Use <code>all()</code> and <code>any()</code>. Print: total runs, passed, failed, whether all P1 tests passed, whether any test failed across both browsers.
+    </div>
+  </div>
+
+  <div class="ok">This challenge uses every loop construct from today: nested for, while retry, continue, for/else, all(), any(). When it runs clean you have completed the Python foundation. Day 7 is a consolidation mini project, then Day 15 is Playwright.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 6 Python loops challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 6 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 6 Python challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 7 Python — the consolidation mini project combining everything from Days 1 to 6')">Go to Day 7 — final mini project ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['for + range','break + continue','for/else','while','zip','Nested + all/any','Ex 1 Retry','Ex 2 Matrix','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

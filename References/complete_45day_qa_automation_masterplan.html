@@ -1,0 +1,1001 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+
+.nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px}
+.nb{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap}
+.nb:hover{background:var(--color-background-secondary)}
+.nb.on{font-weight:500}
+.nb.c0.on{background:#F1EFE8;color:#2C2C2A;border-color:#B4B2A9}
+.nb.c1.on{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.nb.c2.on{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.nb.c3.on{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.nb.c4.on{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.nb.c5.on{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.nb.c6.on{background:#FAEEDA;color:#633806;border-color:#EF9F27}
+
+.pg{display:none}.pg.on{display:block}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center}
+.sn{font-size:19px;font-weight:500}
+.sl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+
+.wk-label{font-size:12px;font-weight:500;padding:3px 12px;border-radius:20px;display:inline-block;margin-bottom:6px}
+.wk-title{font-size:16px;font-weight:500;margin-bottom:3px}
+.wk-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.5}
+
+.day-block{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:10px;overflow:hidden}
+.day-hdr{padding:10px 14px;background:var(--color-background-secondary);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.day-hdr:hover{background:var(--color-background-tertiary)}
+.day-hdr-left{display:flex;align-items:center;gap:10px}
+.day-num{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.day-topic{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.day-time{font-size:11px;color:var(--color-text-tertiary)}
+.day-arr{font-size:11px;color:var(--color-text-tertiary);transition:transform .2s}
+.day-arr.open{transform:rotate(90deg)}
+.day-body{display:none;padding:14px 16px;border-top:0.5px solid var(--color-border-tertiary)}
+.day-body.open{display:block}
+
+.section{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 7px}
+.section:first-child{margin-top:0}
+
+.learn-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 13px;margin-bottom:8px;border:0.5px solid var(--color-border-tertiary)}
+.lc-title{font-size:13px;font-weight:500;margin-bottom:4px}
+.lc-body{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.lc-body code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0}
+.res-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:9px 12px}
+.res-type{font-size:10px;font-weight:500;padding:2px 7px;border-radius:8px;display:inline-block;margin-bottom:5px}
+.res-free{background:#EAF3DE;color:#27500A}
+.res-tool{background:#E6F1FB;color:#0C447C}
+.res-practice{background:#EEEDFE;color:#3C3489}
+.res-name{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.res-desc{font-size:11px;color:var(--color-text-secondary);line-height:1.4}
+
+.ex-block{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 13px;margin:8px 0;border-left:2px solid var(--color-border-success)}
+.ex-title{font-size:12px;font-weight:500;color:var(--color-text-success);margin-bottom:5px}
+.ex-body{font-size:13px;color:var(--color-text-primary);line-height:1.6}
+.ex-body code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary)}
+
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.5;margin:8px 0;border-radius:0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.5;margin:8px 0;border-radius:0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.5;margin:8px 0;border-radius:0}
+
+.chk-list{margin:6px 0}
+.chk{font-size:13px;color:var(--color-text-primary);line-height:1.8;display:flex;gap:7px;align-items:baseline}
+.chk::before{content:"✓";color:var(--color-text-success);font-size:11px;flex-shrink:0;margin-top:2px}
+
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block}
+.ask:hover{opacity:.8}
+
+.overview-row{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.ov-item{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 13px;border:0.5px solid var(--color-border-tertiary)}
+.ov-wk{font-size:12px;font-weight:500}
+.ov-desc{font-size:13px;color:var(--color-text-secondary);line-height:1.4}
+.ov-badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:10px;white-space:nowrap}
+</style>
+
+<div>
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Complete 45-day QA automation learning plan with daily schedule, resources, and exercises</h2>
+
+<div class="stats">
+  <div class="stat"><div class="sn">45</div><div class="sl">total days</div></div>
+  <div class="stat"><div class="sn">~2.5h</div><div class="sl">daily average</div></div>
+  <div class="stat"><div class="sn">3</div><div class="sl">GitHub projects</div></div>
+  <div class="stat"><div class="sn">Day 36</div><div class="sl">start applying</div></div>
+</div>
+
+<div class="nav">
+  <button class="nb c0 on" onclick="go('p0',this)">Overview</button>
+  <button class="nb c1" onclick="go('p1',this)">Week 1 — Python basics</button>
+  <button class="nb c2" onclick="go('p2',this)">Week 2 — Python OOP + Git</button>
+  <button class="nb c3" onclick="go('p3',this)">Week 3 — Playwright</button>
+  <button class="nb c4" onclick="go('p4',this)">Week 4 — API + SQL</button>
+  <button class="nb c5" onclick="go('p5',this)">Week 5 — CI/CD + Portfolio</button>
+  <button class="nb c6" onclick="go('p6',this)">Week 6 — Interview sprint</button>
+</div>
+
+<!-- OVERVIEW -->
+<div id="p0" class="pg on">
+  <div class="tip">Everything below is accounted for from Day 1 — Python setup, Playwright from scratch, API testing, Git, CI/CD, portfolio, and interview prep. Nothing is assumed. Each day tells you exactly what to learn, where to learn it, and what to build.</div>
+  <div class="overview-row">
+    <div class="ov-item"><div class="ov-wk" style="color:#27500A">Week 1<br><span style="font-weight:400;font-size:11px;color:var(--color-text-tertiary)">Days 1–7</span></div><div class="ov-desc"><strong style="font-weight:500">Python from absolute zero.</strong> Variables, strings, lists, dicts, conditions, loops. Every exercise uses QA scenarios — no abstract CS problems.</div><div class="ov-badge" style="background:#EAF3DE;color:#27500A">~2h/day</div></div>
+    <div class="ov-item"><div class="ov-wk" style="color:#27500A">Week 2<br><span style="font-weight:400;font-size:11px;color:var(--color-text-tertiary)">Days 8–14</span></div><div class="ov-desc"><strong style="font-weight:500">Functions, OOP, Git.</strong> Write reusable functions, build your first class, push code to GitHub. This is the hardest Python week — foundation of Page Object Model.</div><div class="ov-badge" style="background:#EAF3DE;color:#27500A">~2h/day</div></div>
+    <div class="ov-item"><div class="ov-wk" style="color:#0C447C">Week 3<br><span style="font-weight:400;font-size:11px;color:var(--color-text-tertiary)">Days 15–21</span></div><div class="ov-desc"><strong style="font-weight:500">Playwright from scratch.</strong> Install, first test, locators, assertions, fixtures, POM applied. Daily practice on a real site. Portfolio Project #1 by weekend.</div><div class="ov-badge" style="background:#E6F1FB;color:#0C447C">~2.5h/day</div></div>
+    <div class="ov-item"><div class="ov-wk" style="color:#0C447C">Week 4<br><span style="font-weight:400;font-size:11px;color:var(--color-text-tertiary)">Days 22–28</span></div><div class="ov-desc"><strong style="font-weight:500">API testing + SQL basics.</strong> Postman, Python requests, assert JSON, status codes, basic SQL. Portfolio Project #2 by weekend.</div><div class="ov-badge" style="background:#E6F1FB;color:#0C447C">~2.5h/day</div></div>
+    <div class="ov-item"><div class="ov-wk" style="color:#3C3489">Week 5<br><span style="font-weight:400;font-size:11px;color:var(--color-text-tertiary)">Days 29–35</span></div><div class="ov-desc"><strong style="font-weight:500">CI/CD + portfolio + start applying.</strong> GitHub Actions pipeline, 3 clean repos, resume rewrite, LinkedIn update. First applications go out on Day 33.</div><div class="ov-badge" style="background:#EEEDFE;color:#3C3489">~3h/day</div></div>
+    <div class="ov-item"><div class="ov-wk" style="color:#633806">Week 6<br><span style="font-weight:400;font-size:11px;color:var(--color-text-tertiary)">Days 36–45</span></div><div class="ov-desc"><strong style="font-weight:500">Interview prep + aggressive applying.</strong> Top 25 SDET questions, mock interviews, coding rounds, 5+ applications/day. Your 7.4yr QA experience is your weapon.</div><div class="ov-badge" style="background:#FAEEDA;color:#633806">~3h/day</div></div>
+  </div>
+  <div class="warn">The first two weeks are Python only — no Playwright yet. This feels slow. It is not. Every person who skips to frameworks early gets stuck in week 3 and has to come back. Do it in order.</div>
+  <div class="section">The one rule</div>
+  <div class="learn-card"><div class="lc-body">Open your code editor <strong style="font-weight:500">before</strong> anything else every day. Even 20 minutes on a bad day. Skipping one day makes the next day harder. Consistency over marathon sessions — every time.</div></div>
+</div>
+
+<!-- WEEK 1 -->
+<div id="p1" class="pg">
+  <span class="wk-label" style="background:#EAF3DE;color:#27500A">Week 1 — Days 1–7</span>
+  <div class="wk-title">Python from absolute zero</div>
+  <div class="wk-sub">No tools, no frameworks, no browser automation yet. Just Python. Every exercise is a QA scenario.</div>
+
+  <div class="section">Where to learn Python (free, no account needed)</div>
+  <div class="res-grid">
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">Python.org official tutorial</div><div class="res-desc">python.org/doc — read sections 3–5. Dry but accurate. Use for reference, not primary learning.</div></div>
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">W3Schools Python</div><div class="res-desc">w3schools.com/python — best for quick syntax lookups. Has a built-in "Try it" editor. Bookmark this.</div></div>
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">Programiz Python</div><div class="res-desc">programiz.com/python-programming — friendliest beginner explanations. Start here for each new concept.</div></div>
+    <div class="res-card"><span class="res-type res-tool">Tool</span><div class="res-name">VS Code + Python extension</div><div class="res-desc">code.visualstudio.com — install Python extension. This is your daily editor for the entire 45 days.</div></div>
+  </div>
+  <div class="tip">Primary flow for every concept this week: read Programiz → try the example → modify it for a QA scenario → ask me if stuck.</div>
+
+  <div class="section">Day by day</div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 1</span><span class="day-topic">Setup + variables + print</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="section">What to install first</div>
+      <div class="learn-card"><div class="lc-body">1. Download Python from <code>python.org/downloads</code> — install the latest 3.x version, tick "Add to PATH"<br>2. Download VS Code from <code>code.visualstudio.com</code><br>3. Open VS Code → Extensions → search "Python" → install Microsoft's Python extension<br>4. Create a folder called <code>qa-automation</code> on your desktop → open it in VS Code<br>5. Create <code>day1.py</code> → type <code>print("Hello QA")</code> → press F5 or right-click → Run Python File<br>If you see "Hello QA" in the terminal — you're set up correctly.</div></div>
+      <div class="section">What to learn (60 min — Programiz)</div>
+      <div class="learn-card"><div class="lc-body">Read: programiz.com/python-programming/variables-constants-literals<br>Read: programiz.com/python-programming/statement-indentation-comments<br>Concepts: variables, strings, integers, booleans, <code>print()</code>, <code>type()</code></div></div>
+      <div class="section">Exercise (60 min — write this yourself)</div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — QA config variables</div>
+        <div class="ex-body">Create <code>day1.py</code> and write these from scratch (no copy-paste):<br><br>
+          • A variable <code>base_url</code> storing <code>"https://staging.myapp.com"</code><br>
+          • A variable <code>username</code> storing your test username<br>
+          • A variable <code>timeout</code> storing the number 5000<br>
+          • A variable <code>headless</code> storing True or False<br>
+          • Print all 4 variables with <code>print()</code><br>
+          • Print the type of each with <code>print(type(timeout))</code><br><br>
+          Goal: see output in terminal. Fix any errors yourself first — errors teach you more than success.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('I am on Day 1 of Python. Teach me variables, strings, integers and booleans with 5 QA automation examples I can type and run right now')">Teach me Day 1 concepts ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 2</span><span class="day-topic">Strings + f-strings</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="section">What to learn</div>
+      <div class="learn-card"><div class="lc-body">Read: programiz.com/python-programming/string<br>Focus on: f-strings, <code>.strip()</code>, <code>.lower()</code>, <code>.upper()</code>, <code>.startswith()</code>, <code>.endswith()</code>, <code>in</code> keyword, string concatenation with <code>+</code></div></div>
+      <div class="section">Exercise</div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — dynamic URLs and messages</div>
+        <div class="ex-body">
+          • Create variables: <code>env = "staging"</code>, <code>username = "testuser"</code><br>
+          • Use f-string to build: <code>url = f"https://{env}.myapp.com/login"</code> — print it<br>
+          • Build a login message: <code>f"Attempting login as {username} on {env}"</code><br>
+          • Take the string <code>"  Invalid Email Address  "</code> and: strip spaces, convert to lowercase, check if "invalid" is in it — print results of each<br>
+          • Check if a URL starts with "https" — print "Secure" or "Not secure"
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python f-strings and string methods for test automation with 6 hands-on exercises using QA scenarios like URLs, error messages, usernames')">Teach me f-strings with QA examples ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 3</span><span class="day-topic">Lists</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="section">What to learn</div>
+      <div class="learn-card"><div class="lc-body">Read: programiz.com/python-programming/list<br>Focus on: creating lists, <code>list[0]</code>, <code>list[-1]</code>, <code>len()</code>, <code>.append()</code>, <code>.remove()</code>, looping over a list with <code>for item in list</code></div></div>
+      <div class="section">Exercise</div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — test data lists</div>
+        <div class="ex-body">
+          • Create <code>invalid_emails = ["noatsign", "@nodomain", "", "a@b", "test@"]</code><br>
+          • Print the first item, the last item, the total count<br>
+          • Loop over the list — print <code>"Testing invalid email: noatsign"</code> for each<br>
+          • Create <code>browsers = ["chromium", "firefox", "webkit"]</code> — loop and print <code>"Running tests on: chromium"</code><br>
+          • Add a new browser to the list with <code>.append()</code> — print the updated list
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python lists for test automation — create, access, loop, append, len — with QA exercises using test data like emails, browsers, URLs')">Teach me lists with QA exercises ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 4</span><span class="day-topic">Dictionaries</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="section">What to learn</div>
+      <div class="learn-card"><div class="lc-body">Read: programiz.com/python-programming/dictionary<br>Focus on: creating dicts, accessing with <code>dict["key"]</code>, safe access with <code>.get("key", default)</code>, <code>.keys()</code>, <code>.values()</code>, <code>.items()</code>, looping over a dict</div></div>
+      <div class="section">Exercise</div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — test user and config dicts</div>
+        <div class="ex-body">
+          • Create a <code>test_user</code> dict with keys: <code>username</code>, <code>password</code>, <code>role</code>, <code>email</code><br>
+          • Print each value using its key — then using an f-string message<br>
+          • Use <code>.get("phone", "not provided")</code> for a key that doesn't exist<br>
+          • Create a <code>config</code> dict: <code>base_url</code>, <code>timeout</code>, <code>headless</code>, <code>browser</code><br>
+          • Loop over config with <code>.items()</code> — print <code>"base_url = https://staging.myapp.com"</code> for each pair<br>
+          • Create a list of 3 user dicts — print just the username of each
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python dictionaries for test automation — create, access, safe get, loop items — with QA exercises using test users and config objects')">Teach me dicts with QA exercises ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 5</span><span class="day-topic">Conditions (if / elif / else)</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="section">What to learn</div>
+      <div class="learn-card"><div class="lc-body">Read: programiz.com/python-programming/if-elif-else<br>Focus on: <code>if / elif / else</code>, comparison operators <code>== != > < >= <=</code>, <code>and / or / not</code>, <code>in</code> for membership, <code>is None</code> check</div></div>
+      <div class="section">Exercise</div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — QA pass/fail logic</div>
+        <div class="ex-body">
+          • Write code that checks a <code>status_code</code> variable — print "Pass: OK", "Fail: Not Found", "Fail: Server Error", or "Unknown" based on value<br>
+          • Check if a <code>user_role</code> is in an <code>allowed_roles</code> list — print "Access granted" or "Access denied"<br>
+          • Check if a URL starts with "https" AND contains "myapp.com" — both must be true<br>
+          • Check if an element is <code>None</code> — print "Element missing — test will fail"<br>
+          • Given a test result string <code>"PASS"</code> or <code>"FAIL"</code> — print a different message for each
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python if elif else conditions for test automation with QA exercises — status code checks, role validation, URL validation, None checks')">Teach me conditions with QA exercises ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 6</span><span class="day-topic">Loops (for + while + enumerate)</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="section">What to learn</div>
+      <div class="learn-card"><div class="lc-body">Read: programiz.com/python-programming/for-loop and /while-loop<br>Focus on: <code>for item in list</code>, <code>for i, item in enumerate(list)</code>, <code>for key, val in dict.items()</code>, <code>range(n)</code>, <code>while</code> loop, <code>break</code> and <code>continue</code></div></div>
+      <div class="section">Exercise</div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — iterating test data</div>
+        <div class="ex-body">
+          • Loop over your <code>invalid_emails</code> list — print <code>"Test 1: testing noatsign"</code> using enumerate<br>
+          • Loop over your <code>config</code> dict — print every key=value pair<br>
+          • Use <code>range(3)</code> to print "Retry attempt 1", "Retry attempt 2", "Retry attempt 3"<br>
+          • Write a <code>while</code> loop that simulates retrying a failing test — stop after 3 attempts or when a <code>success</code> flag is True<br>
+          • Loop over a list of URLs — skip any that don't start with "https" using <code>continue</code>
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python for loops, while loops, enumerate, and range with QA automation exercises — looping over test data, retry logic, skipping invalid inputs')">Teach me loops with QA exercises ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 7</span><span class="day-topic">Mini project — combine everything</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="section">No new concepts today — build something</div>
+      <div class="ex-block">
+        <div class="ex-title">Mini project — test user report</div>
+        <div class="ex-body">
+          Write a single Python file that does ALL of this without any help:<br><br>
+          1. Create a list of 3 test users — each user is a dict with: <code>username</code>, <code>password</code>, <code>role</code>, <code>active</code> (True/False)<br>
+          2. Loop over the users with enumerate<br>
+          3. For each user: print a formatted line like <code>"User 1: admin — role: admin — status: ACTIVE"</code><br>
+          4. Check if role is "admin" — print "Has admin access" or "No admin access"<br>
+          5. Count how many users are active — print "3 out of 3 users are active" at the end<br><br>
+          This uses: lists, dicts, loops, enumerate, conditions, f-strings, variables. All of week 1.
+        </div>
+      </div>
+      <div class="ok">If you can write this mini project without looking anything up — you are genuinely ready for Week 2. Don't move on until you can.</div>
+      <button class="ask" onclick="sendPrompt('Check my Python Week 1 knowledge — give me 5 quick questions covering variables, strings, lists, dicts, loops, and conditions that I should be able to answer after 1 week of Python')">Test my week 1 knowledge ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK 2 -->
+<div id="p2" class="pg">
+  <span class="wk-label" style="background:#EAF3DE;color:#27500A">Week 2 — Days 8–14</span>
+  <div class="wk-title">Functions, OOP, and Git</div>
+  <div class="wk-sub">The hardest Python week — but this is exactly what Page Object Model is built on. Push through it.</div>
+
+  <div class="res-grid">
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">Programiz — Functions</div><div class="res-desc">programiz.com/python-programming/function — read this before Day 8</div></div>
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">Programiz — OOP</div><div class="res-desc">programiz.com/python-programming/object-oriented-programming — read before Day 11</div></div>
+    <div class="res-card"><span class="res-type res-tool">Tool</span><div class="res-name">Git + GitHub</div><div class="res-desc">git-scm.com/downloads for Git. github.com for your free account. Both free.</div></div>
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">GitHub Skills</div><div class="res-desc">skills.github.com — "Introduction to GitHub" course. Free, browser-based, takes 1 hour.</div></div>
+  </div>
+
+  <div class="section">Day by day</div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 8</span><span class="day-topic">Functions — basics</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Read programiz functions page. Concepts: <code>def</code>, parameters, <code>return</code>, calling a function, functions that return values vs functions that just print.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise</div>
+        <div class="ex-body">
+          • Write <code>build_url(env, path)</code> — returns <code>"https://staging.myapp.com/login"</code><br>
+          • Write <code>is_valid_status(code)</code> — returns True if code is between 200–299<br>
+          • Write <code>format_user(username, role)</code> — returns <code>"User: admin | Role: admin"</code><br>
+          • Call each function and print the result<br>
+          • Write a function with NO return — it just prints. Notice the difference when you try to store the result in a variable (<code>None</code>).
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python functions def, parameters, and return values with 6 QA automation exercises — URL builders, validators, formatters')">Teach me Python functions ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 9</span><span class="day-topic">Default arguments + docstrings</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Default args: <code>def login(user="tomsmith", pw="Secret!")</code> — caller can override or use defaults. Docstrings: triple-quoted string right after <code>def</code> — documents what the function does. Write one for every function you write from now on.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise</div>
+        <div class="ex-body">
+          • Write <code>login(username="tomsmith", password="SuperSecretPassword!")</code> — just print the credentials for now. Call it 3 ways: no args, override username only, override both<br>
+          • Write <code>get_url(path, env="staging", protocol="https")</code> — returns full URL. Call with just path, then override env to "prod"<br>
+          • Add a docstring to every function you've written so far
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python default arguments and docstrings with QA automation examples — login functions, config builders, test helpers with default values')">Teach me default args + docstrings ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 10</span><span class="day-topic">try / except error handling</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Read: programiz.com/python-programming/exception-handling<br>Concepts: <code>try / except / finally</code>, catching specific errors vs <code>Exception</code>, printing the error message with <code>except Exception as e: print(e)</code></div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise</div>
+        <div class="ex-body">
+          • Write <code>safe_divide(a, b)</code> — catch ZeroDivisionError, return 0 and print a warning<br>
+          • Write <code>read_test_data(filename)</code> — open a file, catch FileNotFoundError, print "Config file missing: {filename}"<br>
+          • Write a function that converts a string to int — catch ValueError if the string is not a number<br>
+          • In each: print a clear message in the except block so you know exactly what failed
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python try except error handling for test automation — file not found, timeout handling, type errors, with QA-specific examples')">Teach me try/except ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3EC;color:#27500A">Day 11</span><span class="day-topic">Classes + self + __init__</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="tip">This is the most important day in the Python section. Classes are what make the Page Object Model work. Read the Programiz OOP page before starting.</div>
+      <div class="learn-card"><div class="lc-body">Concepts: <code>class MyClass:</code>, <code>def __init__(self, ...)</code>, <code>self.attribute = value</code>, methods, creating instances with <code>obj = MyClass(args)</code>, accessing with <code>obj.method()</code></div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise</div>
+        <div class="ex-body">
+          • Create a <code>TestUser</code> class with <code>__init__(self, username, password, role)</code> — store all 3 as attributes<br>
+          • Add a method <code>get_credentials(self)</code> — returns <code>"username: tomsmith | password: Secret!"</code><br>
+          • Add a method <code>is_admin(self)</code> — returns True if role == "admin"<br>
+          • Create 3 instances: admin user, editor user, viewer user<br>
+          • Call <code>get_credentials()</code> and <code>is_admin()</code> on each — print results
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python classes, self, and __init__ from zero with a TestUser class example — create instances, add methods, call them — step by step')">Teach me classes from zero ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 12</span><span class="day-topic">Inheritance — the Page Object Model pattern</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Concept: <code>class Child(Parent)</code> — child gets all parent methods for free. Used in automation for: one <code>BasePage</code> class with shared methods (wait for spinner, get title), then each page class inherits from it.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — build the POM structure without Playwright yet</div>
+        <div class="ex-body">
+          • Create <code>BasePage</code> class with: <code>__init__(self, driver)</code> that stores <code>self.driver = driver</code>, method <code>get_title(self)</code> that prints "Getting page title...", method <code>wait_for_load(self)</code> that prints "Waiting for page..."<br>
+          • Create <code>LoginPage(BasePage)</code> that adds: <code>login(self, username, password)</code> — prints "Logging in as {username}...", <code>get_error(self)</code> — prints "Getting error message..."<br>
+          • Create <code>DashboardPage(BasePage)</code> — adds <code>get_welcome_text(self)</code><br>
+          • Instantiate both with a fake <code>driver = None</code> — call all methods. Notice LoginPage can also call <code>get_title()</code> from BasePage.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Python inheritance with a BasePage and LoginPage example — the Page Object Model class structure without Playwright, just pure Python OOP')">Teach me inheritance + POM structure ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 13</span><span class="day-topic">Git + GitHub from zero</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="section">Install and set up</div>
+      <div class="learn-card"><div class="lc-body">1. Download Git from <code>git-scm.com/downloads</code> — install with defaults<br>2. Create a free account at <code>github.com</code><br>3. Open terminal in VS Code — run <code>git --version</code> to verify<br>4. Configure: <code>git config --global user.name "Your Name"</code> and <code>git config --global user.email "you@email.com"</code></div></div>
+      <div class="section">Learn the 5 commands you'll use every day</div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — push your week 1+2 code to GitHub</div>
+        <div class="ex-body">
+          In your <code>qa-automation</code> folder:<br><br>
+          <code>git init</code> — initialise a repo<br>
+          <code>git add .</code> — stage all files<br>
+          <code>git commit -m "Week 1 and 2 Python practice"</code> — save a snapshot<br><br>
+          On GitHub.com: create a new repo called "python-qa-practice" (public, no README)<br>
+          Copy the commands it gives you — run them in terminal<br>
+          Refresh GitHub — you should see your files there.<br><br>
+          That is your first GitHub push. This is now on your profile forever.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Git from absolute zero — install, config, init, add, commit, push to GitHub — step by step commands with explanations for a complete beginner')">Teach me Git from zero ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EAF3DE;color:#27500A">Day 14</span><span class="day-topic">Week 2 mini project</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="ex-block">
+        <div class="ex-title">Mini project — build a full POM skeleton and push to GitHub</div>
+        <div class="ex-body">
+          No guidance — write this yourself from scratch:<br><br>
+          1. Create <code>BasePage</code> class — <code>__init__</code> accepts a <code>page</code> param, has methods: <code>get_title()</code>, <code>wait_for_spinner()</code><br>
+          2. Create <code>LoginPage(BasePage)</code> — adds <code>navigate(url)</code>, <code>login(username, password)</code> with default args, <code>get_error_message()</code><br>
+          3. Create <code>DashboardPage(BasePage)</code> — adds <code>get_welcome_text()</code>, <code>logout()</code><br>
+          4. Instantiate both with <code>page = None</code> — call every method and check it runs without errors<br>
+          5. Push to GitHub with commit message "Week 2: POM class structure"<br><br>
+          Next week, you'll fill these methods with real Playwright code. The skeleton is already there.
+        </div>
+      </div>
+      <div class="ok">If you can build this from memory — you understand OOP well enough to move to Playwright. The transition in Week 3 will feel natural.</div>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK 3 -->
+<div id="p3" class="pg">
+  <span class="wk-label" style="background:#E6F1FB;color:#0C447C">Week 3 — Days 15–21</span>
+  <div class="wk-title">Playwright from scratch</div>
+  <div class="wk-sub">Your Python skills now plug directly into Playwright. Every day on the-internet.herokuapp.com — a free site built for automation practice.</div>
+
+  <div class="res-grid">
+    <div class="res-card"><span class="res-type res-free">Free docs</span><div class="res-name">Playwright Python docs</div><div class="res-desc">playwright.dev/python/docs/intro — official docs. Bookmark. Use for every new concept this week.</div></div>
+    <div class="res-card"><span class="res-type res-practice">Practice site</span><div class="res-name">the-internet.herokuapp.com</div><div class="res-desc">Free site with 40+ pages for automation practice: login, dropdowns, checkboxes, alerts, iframes, file upload. Use this every day this week.</div></div>
+    <div class="res-card"><span class="res-type res-practice">Practice site</span><div class="res-name">demoqa.com</div><div class="res-desc">More complex elements — forms, date pickers, tables, drag-drop. Use from Day 19 onward for harder challenges.</div></div>
+    <div class="res-card"><span class="res-type res-tool">Tool</span><div class="res-name">Playwright codegen</div><div class="res-desc">Run <code>playwright codegen the-internet.herokuapp.com</code> in terminal — it auto-generates locators as you click. Use to learn, not to cheat.</div></div>
+  </div>
+
+  <div class="section">Day by day</div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 15</span><span class="day-topic">Install + first test + run it</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">In your terminal: <code>pip install pytest-playwright</code> then <code>playwright install</code><br>This downloads real browser binaries. Takes 2–3 minutes.<br>Verify: <code>playwright --version</code></div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — your first browser automation</div>
+        <div class="ex-body">
+          Create <code>tests/test_first.py</code>:<br><br>
+          <code>from playwright.sync_api import Page, expect</code><br><br>
+          <code>def test_page_loads(page: Page):</code><br>
+          &nbsp;&nbsp;&nbsp;<code>page.goto("https://the-internet.herokuapp.com")</code><br>
+          &nbsp;&nbsp;&nbsp;<code>expect(page).to_have_title("The Internet")</code><br><br>
+          Run: <code>pytest tests/test_first.py --headed</code><br>
+          Watch a browser open, go to the site, and close. That is test automation.<br><br>
+          Now run without <code>--headed</code> — notice it runs invisibly (headless mode).
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('I just installed Playwright. Walk me through writing and running my very first 3 tests on the-internet.herokuapp.com — page title, navigation, and a simple assertion')">Guide me through my first Playwright tests ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 16</span><span class="day-topic">Locators — finding elements</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Read: playwright.dev/python/docs/locators<br>The 5 locators in priority order: <code>get_by_role()</code>, <code>get_by_label()</code>, <code>get_by_placeholder()</code>, <code>get_by_text()</code>, <code>locator("css")</code><br>Run <code>playwright codegen the-internet.herokuapp.com/login</code> to see auto-generated locators</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — one test per locator type</div>
+        <div class="ex-body">
+          Write 5 separate tests on the-internet login page — each using a different locator:<br><br>
+          • <code>get_by_role("textbox", name="Username")</code><br>
+          • <code>get_by_label("Username")</code><br>
+          • <code>get_by_placeholder("...")</code> — inspect the page to find placeholder text<br>
+          • <code>get_by_text("Login")</code> on the heading<br>
+          • <code>locator("#username")</code> — CSS by ID<br><br>
+          For each: fill the field or click the element. Run and watch. Feel which ones are readable.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me all Playwright locators with examples on the-internet.herokuapp.com login page — get_by_role, get_by_label, get_by_text, get_by_placeholder, CSS locators — when to use each')">Teach me all Playwright locators ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 17</span><span class="day-topic">Assertions + actions</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Read: playwright.dev/python/docs/test-assertions<br>Key assertions: <code>to_be_visible()</code>, <code>to_have_text()</code>, <code>to_have_title()</code>, <code>to_have_url()</code>, <code>to_be_enabled()</code>, <code>to_have_count()</code>, <code>not_to_be_visible()</code></div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — login tests happy + negative</div>
+        <div class="ex-body">
+          Write 3 tests on the-internet.herokuapp.com/login:<br><br>
+          Test 1 (happy path): fill username <code>"tomsmith"</code>, password <code>"SuperSecretPassword!"</code>, click Login, assert success message is visible<br><br>
+          Test 2 (wrong password): fill with wrong credentials, click Login, assert the error flash message contains "invalid"<br><br>
+          Test 3: after successful login, assert the URL changed to <code>/secure</code><br><br>
+          Run all 3: <code>pytest tests/ -v --headed</code>
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me Playwright assertions — to_be_visible, to_have_text, to_have_url, not_to_be_visible — with a complete login test example showing happy path and negative test')">Teach me Playwright assertions ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 18</span><span class="day-topic">pytest fixtures + conftest.py</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Read: playwright.dev/python/docs/test-runners (pytest section)<br>A fixture is setup code that runs before your test — removes copy-paste from every test function. <code>conftest.py</code> is a special file where shared fixtures live — pytest finds it automatically.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — conftest.py with a navigate fixture</div>
+        <div class="ex-body">
+          Create <code>conftest.py</code> in your tests folder:<br><br>
+          <code>import pytest</code><br>
+          <code>@pytest.fixture</code><br>
+          <code>def login_page(page):</code><br>
+          &nbsp;&nbsp;&nbsp;<code>page.goto("https://the-internet.herokuapp.com/login")</code><br>
+          &nbsp;&nbsp;&nbsp;<code>return page</code><br><br>
+          Now in your test file — use <code>def test_valid_login(login_page):</code> instead of <code>(page)</code><br>
+          Remove all <code>page.goto()</code> calls from your tests — the fixture handles it<br><br>
+          Notice: your tests are now 2 lines shorter each. That's the point.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me pytest fixtures and conftest.py for Playwright — what problem they solve, how to write them, how tests use them, with a complete working example')">Teach me fixtures + conftest.py ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 19</span><span class="day-topic">parametrize — data-driven tests</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Read: docs.pytest.org/en/stable/parametrize.html<br><code>@pytest.mark.parametrize("username,password", [("user1","pass1"), ("user2","pass2")])</code> — runs the same test for each row of data. This is your Python loops knowledge applied to testing.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — test 5 invalid login combos with 1 function</div>
+        <div class="ex-body">
+          Write ONE test function that tests all of these:<br><br>
+          <code>@pytest.mark.parametrize("username,password", [</code><br>
+          &nbsp;&nbsp;<code>("", "password"),</code><br>
+          &nbsp;&nbsp;<code>("user", ""),</code><br>
+          &nbsp;&nbsp;<code>("wronguser", "wrongpass"),</code><br>
+          &nbsp;&nbsp;<code>("tomsmith", "wrongpass"),</code><br>
+          &nbsp;&nbsp;<code>("", ""),</code><br>
+          <code>])</code><br>
+          <code>def test_invalid_logins(page, username, password):</code><br><br>
+          Run it — watch pytest run 5 separate tests from 1 function. This is how real test suites handle negative testing.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me pytest parametrize with Playwright — how to test multiple sets of login credentials, form inputs, and URLs with one test function')">Teach me parametrize ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 20</span><span class="day-topic">Page Object Model — applied in Playwright</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Today you take the OOP skeleton you built on Day 12 and fill it with real Playwright code. Create a <code>pages/</code> folder. Each file = one page class. Tests import and use the page classes — tests never touch raw locators directly.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — real LoginPage POM class</div>
+        <div class="ex-body">
+          Create <code>pages/login_page.py</code>:<br><br>
+          <code>class LoginPage:</code><br>
+          &nbsp;&nbsp;<code>def __init__(self, page): self.page = page</code><br>
+          &nbsp;&nbsp;<code>def navigate(self): self.page.goto("https://the-internet.herokuapp.com/login")</code><br>
+          &nbsp;&nbsp;<code>def login(self, u, p): </code>— fill username, fill password, click Login<br>
+          &nbsp;&nbsp;<code>def get_error(self): </code>— return error flash text<br>
+          &nbsp;&nbsp;<code>def is_logged_in(self): </code>— return True if success message visible<br><br>
+          Rewrite ALL your login tests to use this class. Tests should read like:<br>
+          <code>lp = LoginPage(page)</code><br>
+          <code>lp.navigate()</code><br>
+          <code>lp.login("tomsmith", "SuperSecretPassword!")</code><br>
+          <code>assert lp.is_logged_in()</code>
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Show me a complete Playwright Page Object Model implementation — LoginPage class with all methods, folder structure, conftest.py, and 3 test examples using it')">Show me complete POM implementation ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 21</span><span class="day-topic">Portfolio Project #1 — build + push</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="ex-block">
+        <div class="ex-title">Build your first portfolio project</div>
+        <div class="ex-body">
+          Create a new GitHub repo: <code>playwright-ui-tests</code><br><br>
+          Folder structure:<br>
+          <code>pages/login_page.py</code><br>
+          <code>pages/base_page.py</code><br>
+          <code>tests/test_login.py</code><br>
+          <code>tests/test_checkboxes.py</code><br>
+          <code>conftest.py</code><br>
+          <code>requirements.txt</code><br>
+          <code>README.md</code><br><br>
+          Write 10+ tests total covering: login (happy + negative + parametrize), checkboxes (check, uncheck, assert state), dropdown (select option, assert value)<br><br>
+          README must say: what the project tests, how to install, how to run. A recruiter should be able to clone and run in 3 commands.
+        </div>
+      </div>
+      <div class="ok">Portfolio Project #1 is live. This is real proof of work — not a certificate, not a course completion badge. Running tests on GitHub.</div>
+      <button class="ask" onclick="sendPrompt('Help me write a professional README.md for a Playwright test automation portfolio project on GitHub — what to include, how to structure it')">Help me write the README ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK 4 -->
+<div id="p4" class="pg">
+  <span class="wk-label" style="background:#E6F1FB;color:#0C447C">Week 4 — Days 22–28</span>
+  <div class="wk-title">API testing + SQL basics</div>
+  <div class="wk-sub">API testing is in every job posting. SQL makes you stand out. Both are learnable this week.</div>
+
+  <div class="res-grid">
+    <div class="res-card"><span class="res-type res-tool">Tool</span><div class="res-name">Postman</div><div class="res-desc">postman.com — download the desktop app, free. The standard tool for API testing. You'll use this before writing any Python.</div></div>
+    <div class="res-card"><span class="res-type res-practice">Practice API</span><div class="res-name">reqres.in</div><div class="res-desc">Free fake REST API with users, login, registration. No auth needed. Perfect for learning GET, POST, PUT, DELETE.</div></div>
+    <div class="res-card"><span class="res-type res-practice">Practice API</span><div class="res-name">jsonplaceholder.typicode.com</div><div class="res-desc">Another free fake API — posts, todos, users. Good for practicing assertions on nested JSON.</div></div>
+    <div class="res-card"><span class="res-type res-free">Free SQL</span><div class="res-name">sqlzoo.net</div><div class="res-desc">Browser-based SQL practice — no install needed. Do "SELECT basics" and "SELECT from World" sections only. Enough for interviews.</div></div>
+  </div>
+
+  <div class="section">Day by day</div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 22</span><span class="day-topic">API concepts — no coding today</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">What is a REST API: a way for systems to talk to each other over HTTP.<br><br>HTTP Methods: GET (read), POST (create), PUT (update), DELETE (remove)<br>Status codes: 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 404 Not Found, 500 Server Error<br>JSON: the data format — key-value pairs, same as Python dicts<br>Headers: metadata sent with the request (content-type, auth token)</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — Postman exploration</div>
+        <div class="ex-body">
+          Open Postman. Do these calls manually — no code:<br><br>
+          • GET <code>reqres.in/api/users?page=1</code> — read the JSON response. Find the list of users.<br>
+          • GET <code>reqres.in/api/users/2</code> — get one user. Note the structure.<br>
+          • POST <code>reqres.in/api/users</code> — body: <code>{"name": "Test User", "job": "QA Engineer"}</code> — see the 201 response<br>
+          • DELETE <code>reqres.in/api/users/2</code> — see the 204 response<br><br>
+          For each: write down the status code and what you'd assert in a test.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me REST API concepts for QA testers — HTTP methods, status codes, headers, JSON — with examples on reqres.in using Postman')">Teach me REST API fundamentals ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 23</span><span class="day-topic">Postman tests + Newman</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Postman has a "Tests" tab per request where you write JavaScript assertions. This lets you validate API responses without writing Python. Newman runs Postman collections from command line — used in CI/CD.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — add tests to your Postman requests</div>
+        <div class="ex-body">
+          For each of your 4 Postman requests from Day 22, add tests in the Tests tab:<br><br>
+          GET users: <code>pm.test("Status is 200", () => pm.response.to.have.status(200))</code><br>
+          GET users: <code>pm.test("Has data array", () => pm.expect(pm.response.json().data).to.be.an("array"))</code><br>
+          POST user: assert status 201, assert response has "id" field<br>
+          DELETE: assert status 204<br><br>
+          Save as a Collection. Run the collection — all tests should pass. Export the collection as a JSON file — save it in your project folder.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me how to write Postman tests in the Tests tab — status code assertions, JSON response assertions, with examples on reqres.in')">Teach me Postman tests ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 24–25</span><span class="day-topic">Python requests library</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h each</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body"><code>pip install requests</code><br>Read: docs.python-requests.org/en/latest/user/quickstart<br>This is the Python library for making HTTP calls. Mirror everything you did in Postman — now in Python code with pytest.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — Day 24: GET tests</div>
+        <div class="ex-body">
+          Create <code>tests/test_api_users.py</code>:<br><br>
+          <code>import requests</code><br>
+          <code>BASE = "https://reqres.in/api"</code><br><br>
+          <code>def test_get_users_returns_200():</code><br>
+          &nbsp;&nbsp;<code>r = requests.get(f"{BASE}/users?page=1")</code><br>
+          &nbsp;&nbsp;<code>assert r.status_code == 200</code><br><br>
+          <code>def test_get_users_has_data():</code><br>
+          &nbsp;&nbsp;<code>r = requests.get(f"{BASE}/users?page=1")</code><br>
+          &nbsp;&nbsp;<code>data = r.json()</code><br>
+          &nbsp;&nbsp;<code>assert len(data["data"]) > 0</code><br><br>
+          <code>def test_get_single_user():</code><br>
+          &nbsp;&nbsp;<code>r = requests.get(f"{BASE}/users/2")</code><br>
+          &nbsp;&nbsp;<code>assert r.json()["data"]["email"] == "janet.weaver@reqres.in"</code>
+        </div>
+      </div>
+      <div class="ex-block">
+        <div class="ex-title">Exercise — Day 25: POST + PUT + DELETE tests</div>
+        <div class="ex-body">
+          Write 4 more tests:<br><br>
+          POST create user: send <code>{"name":"QA Bot","job":"Tester"}</code>, assert 201, assert response has <code>"id"</code> key<br>
+          PUT update user: send updated job title to <code>/users/2</code>, assert 200, assert updated field in response<br>
+          DELETE user: DELETE <code>/users/2</code>, assert 204<br>
+          GET non-existent user: GET <code>/users/999</code>, assert 404<br><br>
+          Run all: <code>pytest tests/test_api_users.py -v</code> — you should have 7+ passing tests.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Teach me API testing with Python requests library — GET, POST, PUT, DELETE with full pytest test functions on reqres.in, asserting status codes and JSON fields')">Teach me Python API testing ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 26</span><span class="day-topic">Portfolio Project #2 — API test suite</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="ex-block">
+        <div class="ex-title">Build and push your API portfolio project</div>
+        <div class="ex-body">
+          New GitHub repo: <code>api-testing-python</code><br><br>
+          Write 12+ tests covering:<br>
+          • GET all users (page 1 and page 2)<br>
+          • GET single user (valid ID and invalid ID)<br>
+          • POST create user — assert response body<br>
+          • PUT update user<br>
+          • DELETE user<br>
+          • POST login (reqres.in/api/login) — valid and invalid credentials<br>
+          • Use <code>@pytest.mark.parametrize</code> to test multiple user IDs<br><br>
+          Add a <code>README.md</code> — what the tests cover, how to install and run.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#E6F1FB;color:#0C447C">Day 27–28</span><span class="day-topic">SQL basics + Selenium awareness</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">2.5h each</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Day 27 — SQL: Go to <code>sqlzoo.net</code>. Do "SELECT basics" and "SELECT from World" tutorials only. Learn: <code>SELECT * FROM table</code>, <code>WHERE column = 'value'</code>, <code>COUNT(*)</code>, basic <code>JOIN</code>. Goal: answer "how would you verify DB data after an API call?" in an interview.<br><br>Day 28 — Selenium: <code>pip install selenium webdriver-manager</code>. Write the same login test you wrote in Playwright — now in Selenium. Feel how much more setup is needed. You now understand why Playwright is preferred — AND you can talk about Selenium in interviews.</div></div>
+      <button class="ask" onclick="sendPrompt('Teach me SQL basics for QA testers — SELECT, WHERE, COUNT, JOIN with examples I would actually use to verify test data in a database')">Teach me SQL for QA ↗</button>
+      <button class="ask" onclick="sendPrompt('Show me a Selenium WebDriver test in Python for the-internet.herokuapp.com login page — so I can compare it to my Playwright version')">Show me Selenium vs Playwright ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK 5 -->
+<div id="p5" class="pg">
+  <span class="wk-label" style="background:#EEEDFE;color:#3C3489">Week 5 — Days 29–35</span>
+  <div class="wk-title">CI/CD + portfolio polish + start applying</div>
+  <div class="wk-sub">This week turns your practice into proof. A green CI badge on GitHub is more convincing than any certificate.</div>
+
+  <div class="res-grid">
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">GitHub Actions docs</div><div class="res-desc">docs.github.com/actions — read "Understanding GitHub Actions" and "Quickstart". Free for public repos.</div></div>
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">LinkedIn (for jobs)</div><div class="res-desc">linkedin.com — update your headline, about, skills, and set Open to Work by Day 33</div></div>
+    <div class="res-card"><span class="res-type res-tool">Tool</span><div class="res-name">Docker Desktop</div><div class="res-desc">docker.com/products/docker-desktop — install and run the Playwright Docker image. Just enough to mention in interviews.</div></div>
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">Resume template</div><div class="res-desc">Use rxresu.me or overleaf.com — clean, ATS-friendly templates. Avoid fancy Word tables that break parsing.</div></div>
+  </div>
+
+  <div class="section">Day by day</div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EEEDFE;color:#3C3489">Day 29–30</span><span class="day-topic">GitHub Actions — auto-run tests on every push</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h each</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="ex-block">
+        <div class="ex-title">Exercise — your first CI/CD pipeline</div>
+        <div class="ex-body">
+          In your <code>playwright-ui-tests</code> repo, create this file:<br>
+          <code>.github/workflows/tests.yml</code><br><br>
+          The file should: trigger on push to main, set up Python, install dependencies, install Playwright browsers, run pytest.<br><br>
+          Push to GitHub — go to the Actions tab — watch your tests run in the cloud.<br>
+          When it goes green: copy the badge URL from Actions → add to your README as an image.<br>
+          Your README now shows: <code>Tests: passing</code> in green.<br><br>
+          Day 30: repeat for your API test repo. Both repos should have green badges.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Show me a complete GitHub Actions YAML file that runs Playwright pytest tests automatically on every push to main — with Python setup, pip install, playwright install, and pytest run')">Give me the GitHub Actions YAML ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EEEDFE;color:#3C3489">Day 31</span><span class="day-topic">Portfolio Project #3 — combined UI + API</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="ex-block">
+        <div class="ex-title">The project that impresses interviewers</div>
+        <div class="ex-body">
+          New repo: <code>e2e-test-suite</code><br><br>
+          Design a test flow that uses BOTH tools together:<br>
+          • API call to create a test user (requests)<br>
+          • UI test to log in as that user (Playwright)<br>
+          • API call to verify the user's data is correct<br>
+          • API call to clean up / delete the user after test<br><br>
+          This shows you think end-to-end — not just "I click buttons". It demonstrates test design thinking, which is exactly what your 7.4yr QA experience gives you over fresh grads.<br><br>
+          Add GitHub Actions to this repo too.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EEEDFE;color:#3C3489">Day 32</span><span class="day-topic">Resume rewrite</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">
+        <strong style="font-weight:500">Headline:</strong> QA Automation Engineer | Python | Playwright | 7+ Years QA<br><br>
+        <strong style="font-weight:500">Skills section:</strong> Python, Playwright, pytest, REST API Testing, Postman, Page Object Model, GitHub Actions, Git, SQL, Selenium, CI/CD<br><br>
+        <strong style="font-weight:500">GitHub link:</strong> Right at the top, next to your name<br><br>
+        <strong style="font-weight:500">Reframe your 7.4yr experience:</strong> Don't say "manual testing". Say: "Designed test strategies", "Built regression test suites", "Identified edge cases across X modules", "Collaborated with developers to reproduce and triage defects". These are automation skills too — you were doing the thinking, just not the coding.<br><br>
+        <strong style="font-weight:500">Quantify your portfolio:</strong> "Built 30+ automated tests covering UI and API layers with CI/CD integration"
+      </div></div>
+      <button class="ask" onclick="sendPrompt('Help me rewrite my QA resume to position myself as a QA Automation Engineer — I have 7.4 years manual QA experience and have just built Python, Playwright, and API testing skills')">Help me rewrite my resume ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EEEDFE;color:#3C3489">Day 33</span><span class="day-topic">LinkedIn + first applications</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">
+        LinkedIn headline: "QA Automation Engineer | Python | Playwright | Open to Work"<br>
+        About section: reframe your 7.4 years as test strategy and quality thinking, now with automation skills<br>
+        Add your 3 GitHub repos as Featured items<br>
+        Skills: add Playwright, Python, pytest, REST API Testing, CI/CD, Git<br>
+        Set "Open to Work" visible to recruiters<br><br>
+        Job titles to search: "QA Automation Engineer", "SDET", "Software Engineer in Test", "Automation Test Engineer", "QA Engineer Playwright"<br><br>
+        Send your first 5 applications today. Done is better than perfect.
+      </div></div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#EEEDFE;color:#3C3489">Day 34–35</span><span class="day-topic">Docker basics + final polish</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h each</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Day 34 — Docker: install Docker Desktop, pull the official Playwright image (<code>mcr.microsoft.com/playwright/python</code>), run your tests inside a container. Goal: just enough to say "yes I've containerised tests" in an interview.<br><br>Day 35 — Polish everything: all 3 repos have passing CI badges, clean READMEs with install/run instructions, consistent folder structures. Run each test suite one final time — fix any failures. Your portfolio is complete.</div></div>
+      <button class="ask" onclick="sendPrompt('Show me the Docker commands to run Playwright pytest tests inside a container using the official Playwright Python Docker image')">Show me Docker for Playwright ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK 6 -->
+<div id="p6" class="pg">
+  <span class="wk-label" style="background:#FAEEDA;color:#633806">Week 6 — Days 36–45</span>
+  <div class="wk-title">Interview sprint + aggressive job hunt</div>
+  <div class="wk-sub">Your 7.4 years of QA experience is your unfair advantage. Every answer you give connects your real-world testing instincts to your new automation skills.</div>
+
+  <div class="res-grid">
+    <div class="res-card"><span class="res-type res-practice">Practice</span><div class="res-name">HackerRank Python</div><div class="res-desc">hackerrank.com/domains/python — do "Easy" level only. 3 problems per day from Day 38 onward. Coding tests now appear in 32% of SDET interviews.</div></div>
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">Glassdoor interview questions</div><div class="res-desc">Search "SDET interview questions" on glassdoor.com — read real questions from actual interviews at companies you're targeting.</div></div>
+    <div class="res-card"><span class="res-type res-free">Free</span><div class="res-name">LinkedIn Jobs</div><div class="res-desc">Set up job alerts for your 5 target titles. Apply daily — volume matters. Follow up after 5 days.</div></div>
+    <div class="res-card"><span class="res-type res-practice">Practice</span><div class="res-name">Mock interview — use me</div><div class="res-desc">Ask me to run a mock SDET interview. I'll ask real questions, wait for your answer, give feedback, then continue.</div></div>
+  </div>
+
+  <div class="section">Day by day</div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#FAEEDA;color:#633806">Day 36–37</span><span class="day-topic">Top 25 SDET questions — write every answer</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h each</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">
+        Don't just read answers — write yours out in full. For each technical question: explain the concept, then give an example from your own project code.<br><br>
+        Key topics to cover: What is POM and why use it? Playwright vs Selenium differences? What is a fixture in pytest? What does parametrize do? How does CI/CD work? What do you assert in API tests? How do you handle flaky tests? Explain the test pyramid. What is your test strategy for a new feature?<br><br>
+        For scenario questions: use your 7.4yr experience. "In my manual QA years I would... — now I automate this by..."
+      </div></div>
+      <button class="ask" onclick="sendPrompt('Give me the top 25 SDET and QA Automation interview questions for 2025 with ideal answers — covering Playwright, pytest, POM, CI/CD, API testing, and test strategy')">Get top 25 interview questions ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#FAEEDA;color:#633806">Day 38</span><span class="day-topic">Coding round prep</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">32% of SDET interviews now include a live coding test. They are NOT LeetCode hard problems. They test: can you write a function, fix a bug in a test, write a class, do basic string/list operations. Exactly what you learned in weeks 1–2.</div></div>
+      <div class="ex-block">
+        <div class="ex-title">Coding prep exercises</div>
+        <div class="ex-body">
+          Practice these without looking anything up:<br><br>
+          • Write a function that takes a list of HTTP status codes and returns only the failed ones (4xx and 5xx)<br>
+          • Write a class <code>APIClient</code> with a base URL and a <code>get(path)</code> method<br>
+          • Fix this broken test function: given code with 3 bugs, find and fix them<br>
+          • Write a function that checks if a URL is valid (starts with http/https, contains a dot)<br>
+          • Given a dict of test results, count how many passed vs failed<br><br>
+          Do 3 Easy Python problems on HackerRank today.
+        </div>
+      </div>
+      <button class="ask" onclick="sendPrompt('Give me 5 realistic SDET coding interview challenges in Python — writing test helper functions, fixing broken test code, building simple classes — at the level actually asked in interviews')">Give me coding interview challenges ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#FAEEDA;color:#633806">Day 39</span><span class="day-topic">Mock interview — say answers out loud</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">Knowing the answer in your head and saying it clearly in an interview are completely different skills. You must practice speaking.<br><br>Option 1: Ask me to run a full mock interview — I'll ask questions one by one, wait for your answer, give feedback.<br>Option 2: Record yourself on video answering 10 questions. Watch it back. It is brutal and effective. Filler words, vague answers, and knowledge gaps show up immediately.</div></div>
+      <button class="ask" onclick="sendPrompt('Run a mock SDET interview with me. Ask me one question at a time, wait for my answer, then give specific feedback on what was good and what to improve before moving to the next question. Start now.')">Start mock interview now ↗</button>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-hdr" onclick="tog(this)">
+      <div class="day-hdr-left"><span class="day-num" style="background:#FAEEDA;color:#633806">Day 40–45</span><span class="day-topic">Apply aggressively + keep preparing</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="day-time">3h/day</span><span class="day-arr">▶</span></div>
+    </div>
+    <div class="day-body">
+      <div class="learn-card"><div class="lc-body">
+        <strong style="font-weight:500">Daily routine for Days 40–45:</strong><br>
+        60 min — 5+ job applications (LinkedIn, Naukri, Indeed, company career pages)<br>
+        60 min — interview prep, re-read your answer notes<br>
+        30 min — 3 HackerRank Easy problems<br>
+        30 min — follow up on applications sent 5+ days ago<br><br>
+        <strong style="font-weight:500">Before every interview:</strong> re-read your own GitHub repos — be ready to walk through your code live. Know every line you wrote.<br><br>
+        <strong style="font-weight:500">Your advantage in every single interview:</strong> You have 7.4 years of understanding what makes a good test. Most junior automators can run scripts but can't design a test strategy, identify edge cases, or explain why a test matters. You can. That gap is worth more than 6 months of coding experience.
+      </div></div>
+      <div class="ok">Keep applying even after you get your first offer. Multiple offers = negotiating power. Your skills are real. The market needs people who can do this.</div>
+      <button class="ask" onclick="sendPrompt('What are the best job boards and strategies for finding QA Automation Engineer and SDET jobs in 2025 — LinkedIn, Naukri, Indeed, company career pages, keywords to use')">Best job search strategies ↗</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function go(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tog(hdr){
+  const body=hdr.nextElementSibling;
+  const arr=hdr.querySelector('.day-arr');
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  arr.classList.toggle('open',!open);
+}
+</script>

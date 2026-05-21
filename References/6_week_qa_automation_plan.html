@@ -1,0 +1,220 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.app{padding:1rem 0}
+.header-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
+.stat-n{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.week-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+.wt{font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap}
+.wt:hover{background:var(--color-background-secondary)}
+.wt.active{font-weight:500}
+.w1.active{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.w2.active{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.w3.active{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.w4.active{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.w5.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.w6.active{background:#FAEEDA;color:#633806;border-color:#EF9F27}
+.panel{display:none}
+.panel.active{display:block}
+.week-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.week-badge{font-size:12px;font-weight:500;padding:4px 14px;border-radius:20px}
+.week-title{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.week-goal{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+.phase-tag{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500}
+.days{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.day{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;border:0.5px solid var(--color-border-tertiary)}
+.day-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.day-tasks{font-size:13px;color:var(--color-text-primary);line-height:1.6}
+.day-tasks b{font-weight:500}
+.deliverable{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 14px;margin:10px 0}
+.del-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.del-item{font-size:13px;color:var(--color-text-primary);line-height:1.7;display:flex;align-items:baseline;gap:6px}
+.del-item::before{content:"✓";color:var(--color-text-success);font-size:12px;flex-shrink:0}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:10px 14px;font-size:13px;color:var(--color-text-info);line-height:1.6;margin:10px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:10px 14px;font-size:13px;color:var(--color-text-warning);line-height:1.6;margin:10px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:10px 14px;font-size:13px;color:var(--color-text-success);line-height:1.6;margin:10px 0}
+.ask{font-size:12px;padding:5px 14px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin-top:8px;display:inline-block}
+.ask:hover{opacity:.8}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.mini-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 12px;border:0.5px solid var(--color-border-tertiary)}
+.mc-t{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.mc-d{font-size:11px;color:var(--color-text-secondary);line-height:1.4}
+.hours-bar{display:flex;align-items:center;gap:8px;margin:4px 0}
+.hb-label{font-size:11px;color:var(--color-text-secondary);width:80px;flex-shrink:0}
+.hb-track{flex:1;height:6px;background:var(--color-background-tertiary);border-radius:3px;overflow:hidden}
+.hb-fill{height:100%;border-radius:3px}
+.hb-val{font-size:11px;color:var(--color-text-tertiary);width:30px;text-align:right;flex-shrink:0}
+.daily-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 12px;border-radius:20px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);margin:2px}
+.pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+</style>
+
+<div class="app">
+<h2 class="sr-only">6-week personalised QA automation preparation plan with daily schedule</h2>
+
+<div class="header-stats">
+  <div class="stat"><div class="stat-n">6</div><div class="stat-l">weeks total</div></div>
+  <div class="stat"><div class="stat-n">2–3h</div><div class="stat-l">per day needed</div></div>
+  <div class="stat"><div class="stat-n">3</div><div class="stat-l">portfolio projects</div></div>
+  <div class="stat"><div class="stat-n">Week 5</div><div class="stat-l">start applying</div></div>
+</div>
+
+<div class="week-tabs">
+  <button class="wt w1 active" onclick="show('w1',this)">Week 1–2 — Foundation</button>
+  <button class="wt w3" onclick="show('w3',this)">Week 3–4 — Frameworks</button>
+  <button class="wt w5" onclick="show('w5',this)">Week 5 — CI/CD + Portfolio</button>
+  <button class="wt w6" onclick="show('w6',this)">Week 6 — Interview sprint</button>
+</div>
+
+<!-- WEEK 1-2 -->
+<div id="w1" class="panel active">
+  <div class="week-header">
+    <span class="week-badge" style="background:#EAF3DE;color:#27500A">Phase 1</span>
+    <div>
+      <div class="week-title">Weeks 1–2 — Python + Git foundation</div>
+      <div class="week-goal">Goal: Write Python fluently enough to read and write test scripts without googling syntax</div>
+    </div>
+  </div>
+
+  <div class="tip">You already did Python basics and Playwright basics here in our chat. Week 1 reinforces and drills that — don't skip to frameworks yet. A shaky foundation breaks everything built on it.</div>
+
+  <div style="font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">Daily time split (2–2.5 hrs/day)</div>
+  <div class="hours-bar"><div class="hb-label">Python coding</div><div class="hb-track"><div class="hb-fill" style="width:55%;background:#639922"></div></div><div class="hb-val">60 min</div></div>
+  <div class="hours-bar"><div class="hb-label">Playwright drills</div><div class="hb-track"><div class="hb-fill" style="width:45%;background:#185FA5"></div></div><div class="hb-val">50 min</div></div>
+  <div class="hours-bar"><div class="hb-label">Git basics</div><div class="hb-track"><div class="hb-fill" style="width:20%;background:#534AB7"></div></div><div class="hb-val">20 min</div></div>
+
+  <div class="days">
+    <div class="day"><div class="day-label">Week 1 — Mon–Wed</div><div class="day-tasks">Python: variables, f-strings, dicts, lists — write 10 small scripts. <b>Practice site:</b> the-internet.herokuapp.com — write 3 Playwright tests (login happy path, negative, checkbox)</div></div>
+    <div class="day"><div class="day-label">Week 1 — Thu–Fri</div><div class="day-tasks">Python: functions with default args, return values. Write a <b>login() helper function</b> used by 3 different tests. Learn Git: init, add, commit, push a repo to GitHub</div></div>
+    <div class="day"><div class="day-label">Weekend</div><div class="day-tasks">Build your <b>first GitHub repo</b>: "playwright-practice". Push your 5+ tests. Write a README. This is portfolio item #1 starting to take shape.</div></div>
+    <div class="day"><div class="day-label">Week 2 — Mon–Wed</div><div class="day-tasks">Python OOP: classes, self, __init__, methods. Build a <b>LoginPage class</b> (Page Object Model) for the-internet.herokuapp.com. Refactor your week 1 tests to use it.</div></div>
+    <div class="day"><div class="day-label">Week 2 — Thu–Fri</div><div class="day-tasks">Python: loops, list comprehension, try/except. Add <b>pytest.mark.parametrize</b> to test 5 invalid login combos. Understand fixtures and conftest.py.</div></div>
+    <div class="day"><div class="day-label">Weekend</div><div class="day-tasks">Polish your repo. Add a DashboardPage class. Make sure tests run clean with <b>pytest -v</b>. Push everything. Rest — you've earned it.</div></div>
+  </div>
+
+  <div class="deliverable">
+    <div class="del-label">End of week 2 — you must have these</div>
+    <div class="del-item">GitHub repo with 8–10 working Playwright tests</div>
+    <div class="del-item">Page Object Model with at least 2 page classes (LoginPage + one more)</div>
+    <div class="del-item">Tests use parametrize, fixtures, conftest.py</div>
+    <div class="del-item">Comfortable with git add → commit → push workflow</div>
+  </div>
+  <button class="ask" onclick="sendPrompt('Teach me conftest.py and pytest fixtures in Playwright — what they are, how to use them, with examples')">Teach me conftest.py + fixtures ↗</button>
+</div>
+
+<!-- WEEK 3-4 -->
+<div id="w3" class="panel">
+  <div class="week-header">
+    <span class="week-badge" style="background:#E6F1FB;color:#0C447C">Phase 2</span>
+    <div>
+      <div class="week-title">Weeks 3–4 — API testing + Selenium basics</div>
+      <div class="week-goal">Goal: Test REST APIs with Python + be able to talk about Selenium in interviews (still in 60% of job listings)</div>
+    </div>
+  </div>
+
+  <div class="warn">Market data: Playwright roles pay 15–24% MORE than Selenium roles, but Selenium is still in 56% of job postings. You need to know both — master Playwright, be familiar with Selenium.</div>
+
+  <div style="font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">Daily time split (2.5 hrs/day)</div>
+  <div class="hours-bar"><div class="hb-label">API testing</div><div class="hb-track"><div class="hb-fill" style="width:55%;background:#185FA5"></div></div><div class="hb-val">70 min</div></div>
+  <div class="hours-bar"><div class="hb-label">Selenium basics</div><div class="hb-track"><div class="hb-fill" style="width:30%;background:#854F0B"></div></div><div class="hb-val">40 min</div></div>
+  <div class="hours-bar"><div class="hb-label">Portfolio work</div><div class="hb-track"><div class="hb-fill" style="width:25%;background:#534AB7"></div></div><div class="hb-val">30 min</div></div>
+
+  <div class="days">
+    <div class="day"><div class="day-label">Week 3 — Mon–Tue</div><div class="day-tasks">API testing fundamentals: what is REST, HTTP methods (GET/POST/PUT/DELETE), status codes, headers, JSON. <b>Postman</b>: make your first API calls to reqres.in (free practice API)</div></div>
+    <div class="day"><div class="day-label">Week 3 — Wed–Thu</div><div class="day-tasks">Python <b>requests library</b>: write API tests with GET, POST, assert status codes and JSON response fields. Practice on reqres.in and jsonplaceholder.typicode.com</div></div>
+    <div class="day"><div class="day-label">Week 3 — Fri + Weekend</div><div class="day-tasks">Build <b>Portfolio Project #2</b>: API test suite. 10+ tests covering GET list, GET single, POST create, PUT update, DELETE. Push to a new GitHub repo "api-testing-python"</div></div>
+    <div class="day"><div class="day-label">Week 4 — Mon–Tue</div><div class="day-tasks">Selenium WebDriver basics: setup, finding elements, clicks, waits. Write the same login test you wrote in Playwright — now in Selenium. Feel the difference. Understand why Playwright is better.</div></div>
+    <div class="day"><div class="day-label">Week 4 — Wed–Thu</div><div class="day-tasks">Playwright advanced: <b>network interception</b> (mock API responses), <b>file uploads</b>, multiple tabs, iframes. These appear in senior interview questions.</div></div>
+    <div class="day"><div class="day-label">Week 4 — Fri + Weekend</div><div class="day-tasks">SQL basics: SELECT, WHERE, JOIN, COUNT. Practice on sqlzoo.net or leetcode easy SQL. Interviewers ask: "how would you verify data in the DB after an API call?"</div></div>
+  </div>
+
+  <div class="deliverable">
+    <div class="del-label">End of week 4 — you must have these</div>
+    <div class="del-item">API test suite (Python requests + pytest) live on GitHub</div>
+    <div class="del-item">Can explain REST methods, status codes, and JSON in an interview</div>
+    <div class="del-item">Written at least one Selenium test — can compare Selenium vs Playwright</div>
+    <div class="del-item">Basic SQL SELECT queries — can query a DB to verify test data</div>
+  </div>
+  <button class="ask" onclick="sendPrompt('Teach me API testing with Python requests library from scratch — GET, POST, assertions on JSON, status codes, with examples on reqres.in')">Teach me API testing with Python ↗</button>
+</div>
+
+<!-- WEEK 5 -->
+<div id="w5" class="panel">
+  <div class="week-header">
+    <span class="week-badge" style="background:#EEEDFE;color:#3C3489">Phase 3</span>
+    <div>
+      <div class="week-title">Week 5 — CI/CD + portfolio polish + start applying</div>
+      <div class="week-goal">Goal: Your tests run automatically in GitHub Actions. Your GitHub looks hireable. Applications go out.</div>
+    </div>
+  </div>
+
+  <div class="ok">This is where you separate yourself from 70% of candidates. Most people learn automation but never hook it into CI/CD. A pipeline that runs on every commit = proof you work like a real engineer.</div>
+
+  <div style="font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">Daily time split (3 hrs/day — push harder this week)</div>
+  <div class="hours-bar"><div class="hb-label">GitHub Actions</div><div class="hb-track"><div class="hb-fill" style="width:40%;background:#534AB7"></div></div><div class="hb-val">55 min</div></div>
+  <div class="hours-bar"><div class="hb-label">Portfolio polish</div><div class="hb-track"><div class="hb-fill" style="width:35%;background:#185FA5"></div></div><div class="hb-val">45 min</div></div>
+  <div class="hours-bar"><div class="hb-label">Job applications</div><div class="hb-track"><div class="hb-fill" style="width:35%;background:#639922"></div></div><div class="hb-val">45 min</div></div>
+  <div class="hours-bar"><div class="hb-label">Interview prep</div><div class="hb-track"><div class="hb-fill" style="width:25%;background:#854F0B"></div></div><div class="hb-val">35 min</div></div>
+
+  <div class="days">
+    <div class="day"><div class="day-label">Mon–Tue</div><div class="day-tasks"><b>GitHub Actions</b>: create a .github/workflows/tests.yml file. Make your Playwright tests run automatically on every push and pull request. Add a badge to your README showing "Tests: passing".</div></div>
+    <div class="day"><div class="day-label">Wed</div><div class="day-tasks"><b>Portfolio Project #3 — combined</b>: an end-to-end test suite that tests both UI (Playwright) and API (requests) for the same app flow. Shows you think like a real engineer, not just a script writer.</div></div>
+    <div class="day"><div class="day-label">Thu</div><div class="day-tasks"><b>Resume rewrite</b>: lead with "7.4 years QA experience — transitioning to automation". List Python, Playwright, pytest, REST API testing, GitHub Actions, Git. Link your GitHub. Quantify: "Automated 40+ test cases covering login, checkout, API endpoints".</div></div>
+    <div class="day"><div class="day-label">Fri</div><div class="day-tasks"><b>LinkedIn update</b>: headline = "QA Automation Engineer | Playwright | Python | 7+ yrs QA". Add your GitHub link. Set "Open to work". Start applying to 3–5 jobs today — don't wait for perfect.</div></div>
+    <div class="day"><div class="day-label">Weekend</div><div class="day-tasks">Docker basics: pull the playwright Docker image, run your tests inside a container. Not required to be expert — just enough to say "yes I've used Docker" in an interview.</div></div>
+  </div>
+
+  <div class="deliverable">
+    <div class="del-label">End of week 5 — your portfolio</div>
+    <div class="del-item">Repo 1: playwright-ui-tests — Page Object Model, parametrize, 10+ tests, CI/CD badge</div>
+    <div class="del-item">Repo 2: api-testing-python — REST API tests, 10+ tests, CI/CD badge</div>
+    <div class="del-item">Repo 3: e2e-test-suite — combined UI + API tests for one user flow</div>
+    <div class="del-item">Resume updated and 5+ applications sent</div>
+  </div>
+  <button class="ask" onclick="sendPrompt('Show me a complete GitHub Actions workflow YAML file that runs Playwright tests automatically on every push')">Show me the GitHub Actions YAML ↗</button>
+</div>
+
+<!-- WEEK 6 -->
+<div id="w6" class="panel">
+  <div class="week-header">
+    <span class="week-badge" style="background:#FAEEDA;color:#633806">Phase 4</span>
+    <div>
+      <div class="week-title">Week 6 — Interview sprint + keep applying</div>
+      <div class="week-goal">Goal: Answer every common automation interview question confidently. Keep sending 5+ applications per day.</div>
+    </div>
+  </div>
+
+  <div class="tip">Your 7.4 years is your biggest asset in interviews. Every answer should connect your manual QA experience to the automation concept. "I used to do this manually, now I automate it because..."</div>
+
+  <div class="days">
+    <div class="day"><div class="day-label">Mon — Framework questions</div><div class="day-tasks">Practice answering: What is POM? Why Playwright over Selenium? How do fixtures work? What is parametrize? Explain your test folder structure. <b>Answer out loud</b> — not just in your head.</div></div>
+    <div class="day"><div class="day-label">Tue — Coding round prep</div><div class="day-tasks">32% of SDET interviews now include coding tests. Practice: write a function, debug a broken test script, write a class. Use HackerRank "Easy" level Python problems — 3 per day.</div></div>
+    <div class="day"><div class="day-label">Wed — QA scenario questions</div><div class="day-tasks">These are YOUR strength. "How would you test a login page?" "What's your test strategy for a new feature?" "How do you handle flaky tests?" "What's in your regression suite?" Answer using your 7.4yr experience + automation angle.</div></div>
+    <div class="day"><div class="day-label">Thu — CI/CD + API questions</div><div class="day-tasks">Practice: What is CI/CD? What does your pipeline do? What's the difference between GET and POST? What do you assert in an API test? How do you test an API without a UI? Walk through your GitHub Actions setup.</div></div>
+    <div class="day"><div class="day-label">Fri — Mock interview</div><div class="day-tasks">Do a full 45-min mock interview — ask me and I'll play interviewer. OR record yourself answering 10 questions on video and watch it back. Brutal but effective.</div></div>
+    <div class="day"><div class="day-label">Weekend</div><div class="day-tasks">Keep applying (5/day). Research each company before applying. Tailor 2 lines of your resume cover to their stack. Follow up on week 5 applications. Rest matters — you need to be sharp for calls.</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="mini-card"><div class="mc-t">Must-know interview answers</div><div class="mc-d">POM, test pyramid, flaky tests, Page fixtures, parametrize, Playwright vs Selenium, CI/CD pipeline, API assertions, SQL basics</div></div>
+    <div class="mini-card"><div class="mc-t">Your unfair advantage</div><div class="mc-d">7.4yrs domain knowledge, test design instincts, edge case thinking, stakeholder communication — most script-only automators lack all of this</div></div>
+    <div class="mini-card"><div class="mc-t">Salary to target</div><div class="mc-d">With your exp: ₹12–22 LPA India / $85–110k US / £55–75k UK for mid-level automation roles</div></div>
+    <div class="mini-card"><div class="mc-t">Job titles to search</div><div class="mc-d">QA Automation Engineer, SDET, Software Engineer in Test, Automation Test Engineer, QA Engineer (Playwright)</div></div>
+  </div>
+
+  <button class="ask" onclick="sendPrompt('Do a mock SDET interview with me — ask me 10 real automation interview questions one by one and evaluate my answers')">Start a mock interview ↗</button>
+  <button class="ask" style="margin-left:6px" onclick="sendPrompt('What are the top 25 SDET and automation engineer interview questions with ideal answers for someone transitioning from manual QA?')">Top 25 interview questions ↗</button>
+</div>
+
+</div>
+
+<script>
+function show(id, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.wt').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>

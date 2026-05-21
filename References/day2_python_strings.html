@@ -1,0 +1,621 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#E6F1FB;color:#0C447C;border-color:#85B7EB;font-weight:500}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:13px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.9;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.od{color:var(--color-text-tertiary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:5px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#E6F1FB;color:#0C447C;border-color:#85B7EB;font-weight:500}
+.btn-n:hover{background:#B5D4F4}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.br{background:#FCEBEB;color:#791F1F}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:9px 0}
+.mc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 12px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:border-color .15s}
+.mc:hover{border-color:var(--color-border-secondary)}
+.mc-n{font-size:12px;font-weight:500;font-family:var(--font-mono);color:var(--color-text-info);margin-bottom:3px}
+.mc-d{font-size:11px;color:var(--color-text-secondary);line-height:1.4}
+.mc-ex{font-size:11px;font-family:var(--font-mono);color:var(--color-text-tertiary);margin-top:4px}
+</style>
+
+<div class="app">
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden">Day 2 Python — strings and f-strings in depth for QA automation</h2>
+
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT IS A STRING -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">What is a string — and why QA engineers use them constantly</div>
+    <div class="card-b">A string is any text wrapped in quotes. In test automation, almost <b>everything visible on screen</b> is a string — page titles, error messages, URLs, button labels, form values, API response fields.<br><br>When you write <code>expect(page).to_have_title("Dashboard")</code> in Playwright — that <code>"Dashboard"</code> is a string. When you assert an API response contains <code>"success"</code> — that is a string. Mastering strings means mastering assertions.</div>
+  </div>
+
+  <div class="sec">Three ways to create a string — all valid</div>
+<div class="code"><span class="cm"># Single quotes</span>
+url = <span class="st">'https://staging.myapp.com'</span>
+
+<span class="cm"># Double quotes (most common)</span>
+message = <span class="st">"You logged into a secure area!"</span>
+
+<span class="cm"># Triple quotes — for long text spanning multiple lines</span>
+test_description = <span class="st">"""This test verifies that a valid user
+can log in and see the dashboard."""</span>
+
+<span class="fn">print</span>(url)
+<span class="fn">print</span>(message)
+<span class="fn">print</span>(test_description)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">https://staging.myapp.com</div>
+    <div class="ol">You logged into a secure area!</div>
+    <div class="ol">This test verifies that a valid user</div>
+    <div class="ol">can log in and see the dashboard.</div>
+  </div>
+
+  <div class="tip">Use double quotes as your default. Use single quotes when your string contains an apostrophe: <code>'user's profile'</code> — or just escape it: <code>"user\'s profile"</code>. Pick one style and be consistent throughout a project.</div>
+
+  <div class="sec">Strings have a length — check it with len()</div>
+<div class="code">password = <span class="st">"SuperSecretPassword!"</span>
+<span class="fn">print</span>(<span class="fn">len</span>(password))    <span class="cm"># 20</span>
+
+<span class="cm"># Useful in QA: check password meets minimum length requirement</span>
+min_length = <span class="nm">8</span>
+<span class="fn">print</span>(<span class="fn">len</span>(password) <span class="kw">&gt;=</span> min_length)   <span class="cm"># True</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">20</div>
+    <div class="ol">True</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">f-strings →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: F-STRINGS -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">f-strings — the most important string skill <span class="badge bb" style="margin-left:6px">use every day</span></div>
+    <div class="card-b">An f-string lets you <b>embed variables directly inside a string</b>. Put <code>f</code> before the opening quote, then wrap any variable in <code>{curly braces}</code>. Python replaces the braces with the variable's value at runtime.<br><br>You will use f-strings in every test file you ever write — for building URLs, printing test results, writing error messages, and logging what your test is doing.</div>
+  </div>
+
+  <div class="try-lbl">Type this into day2.py</div>
+<div class="code"><span class="cm"># Without f-string — clunky</span>
+env = <span class="st">"staging"</span>
+path = <span class="st">"/login"</span>
+url = <span class="st">"https://"</span> + env + <span class="st">.myapp.com"</span> + path   <span class="cm"># messy</span>
+
+<span class="cm"># With f-string — clean</span>
+url = <span class="fn">f</span><span class="st">"https://{env}.myapp.com{path}"</span>
+<span class="fn">print</span>(url)   <span class="cm"># https://staging.myapp.com/login</span>
+
+<span class="cm"># Any variable type works inside braces</span>
+test_num = <span class="nm">7</span>
+passed   = <span class="kw">True</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Test {test_num} result: {passed}"</span>)
+
+<span class="cm"># Expressions work inside braces too</span>
+total = <span class="nm">42</span>
+fails = <span class="nm">4</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Pass rate: {total - fails}/{total}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Percentage: {round((total-fails)/total*100, 1)}%"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">https://staging.myapp.com/login</div>
+    <div class="ol">Test 7 result: True</div>
+    <div class="ol">Pass rate: 38/42</div>
+    <div class="ol">Percentage: 90.5%</div>
+  </div>
+
+  <div class="sec">The QA logging pattern — use this in every test</div>
+<div class="code">username = <span class="st">"tomsmith"</span>
+env      = <span class="st">"staging"</span>
+browser  = <span class="st">"chromium"</span>
+status   = <span class="nm">200</span>
+
+<span class="cm"># Print what your test is about to do — before the action</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"[TEST] Logging in as '{username}' on {env} using {browser}"</span>)
+
+<span class="cm"># Print what happened — after the action</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"[RESULT] API responded with status: {status}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"[PASS] Expected 200, got {status} — {'PASS' if status == 200 else 'FAIL'}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">[TEST] Logging in as 'tomsmith' on staging using chromium</div>
+    <div class="ol">[RESULT] API responded with status: 200</div>
+    <div class="ol">[PASS] Expected 200, got 200 — PASS</div>
+  </div>
+
+  <div class="warn">The most common f-string mistake: forgetting the <code>f</code> before the quote. <code>"Hello {name}"</code> prints literally as <code>Hello {name}</code> — the braces are not replaced. Always check you wrote <code>f"Hello {name}"</code>.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">String methods →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: STRING METHODS -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">String methods — built-in tools on every string</div>
+    <div class="card-b">A method is a function that belongs to a string. You call it with a dot: <code>my_string.method()</code>. These are the ones you will actually use in QA automation — not all 40+ Python string methods, just the ones that matter.</div>
+  </div>
+
+  <div class="method-grid">
+    <div class="mc"><div class="mc-n">.lower()</div><div class="mc-d">Convert to all lowercase — for case-insensitive comparisons</div><div class="mc-ex">"ERROR".lower() → "error"</div></div>
+    <div class="mc"><div class="mc-n">.upper()</div><div class="mc-d">Convert to all uppercase</div><div class="mc-ex">"pass".upper() → "PASS"</div></div>
+    <div class="mc"><div class="mc-n">.strip()</div><div class="mc-d">Remove spaces from both ends — clean scraped text</div><div class="mc-ex">"  hello  ".strip() → "hello"</div></div>
+    <div class="mc"><div class="mc-n">.replace(a,b)</div><div class="mc-d">Replace all occurrences of a with b</div><div class="mc-ex">"prod.app.com".replace("prod","staging")</div></div>
+    <div class="mc"><div class="mc-n">.startswith()</div><div class="mc-d">Returns True if string starts with the given text</div><div class="mc-ex">url.startswith("https") → True/False</div></div>
+    <div class="mc"><div class="mc-n">.endswith()</div><div class="mc-d">Returns True if string ends with the given text</div><div class="mc-ex">file.endswith(".png") → True/False</div></div>
+    <div class="mc"><div class="mc-n">.split(sep)</div><div class="mc-d">Split string into a list by separator</div><div class="mc-ex">"a,b,c".split(",") → ["a","b","c"]</div></div>
+    <div class="mc"><div class="mc-n">.count()</div><div class="mc-d">Count how many times a substring appears</div><div class="mc-ex">"aababc".count("a") → 3</div></div>
+    <div class="mc"><div class="mc-n">"x" in s</div><div class="mc-d">True if x is found anywhere in s</div><div class="mc-ex">"error" in message → True/False</div></div>
+    <div class="mc"><div class="mc-n">.find()</div><div class="mc-d">Returns index of first match, or -1 if not found</div><div class="mc-ex">"hello".find("ll") → 2</div></div>
+  </div>
+
+  <div class="try-lbl">Type all of these — see each one in action</div>
+<div class="code">message = <span class="st">"  Your Username Is Invalid!  "</span>
+
+<span class="cm"># Clean it first</span>
+clean = message.<span class="fn">strip</span>()
+<span class="fn">print</span>(clean)          <span class="cm"># "Your Username Is Invalid!"</span>
+
+<span class="cm"># Lowercase for safe comparison</span>
+<span class="fn">print</span>(clean.<span class="fn">lower</span>())   <span class="cm"># "your username is invalid!"</span>
+
+<span class="cm"># Does it mention "invalid"? — case-insensitive check</span>
+<span class="fn">print</span>(<span class="st">"invalid"</span> <span class="kw">in</span> clean.<span class="fn">lower</span>())    <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="st">"success"</span> <span class="kw">in</span> clean.<span class="fn">lower</span>())    <span class="cm"># False</span>
+
+url = <span class="st">"https://staging.myapp.com/login"</span>
+<span class="fn">print</span>(url.<span class="fn">startswith</span>(<span class="st">"https"</span>))      <span class="cm"># True</span>
+<span class="fn">print</span>(url.<span class="fn">endswith</span>(<span class="st">"/login"</span>))       <span class="cm"># True</span>
+<span class="fn">print</span>(url.<span class="fn">replace</span>(<span class="st">"staging"</span>, <span class="st">"prod"</span>)) <span class="cm"># https://prod.myapp.com/login</span>
+
+<span class="cm"># Split a URL into parts</span>
+parts = url.<span class="fn">split</span>(<span class="st">"/"</span>)
+<span class="fn">print</span>(parts)   <span class="cm"># ['https:', '', 'staging.myapp.com', 'login']</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Your Username Is Invalid!</div>
+    <div class="ol">your username is invalid!</div>
+    <div class="ol">True</div>
+    <div class="ol">False</div>
+    <div class="ol">True</div>
+    <div class="ol">True</div>
+    <div class="ol">https://prod.myapp.com/login</div>
+    <div class="ol">['https:', '', 'staging.myapp.com', 'login']</div>
+  </div>
+
+  <div class="tip">Methods can be chained: <code>message.strip().lower()</code> — strip spaces first, then lowercase. Read it left to right. This is the most common pattern when comparing text scraped from a browser, because scraped text often has extra spaces and unexpected capitalisation.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">QA Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: QA EXAMPLE 1 — URL BUILDER -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">QA Example 1 — Dynamic URL builder <span class="badge bg" style="margin-left:6px">f-strings</span></div>
+    <div class="card-b">In every project you'll have a base URL and dozens of paths. Instead of hardcoding the full URL everywhere, build them dynamically. Change <code>env</code> once at the top and all URLs update.</div>
+  </div>
+
+  <div class="try-lbl">Create day2_ex1.py and type this</div>
+<div class="code"><span class="cm"># Central config — change env here, everything updates</span>
+env      = <span class="st">"staging"</span>
+protocol = <span class="st">"https"</span>
+domain   = <span class="st">"myapp.com"</span>
+
+<span class="cm"># Build URLs for every page you'll test</span>
+base_url      = <span class="fn">f</span><span class="st">"{protocol}://{env}.{domain}"</span>
+login_url     = <span class="fn">f</span><span class="st">"{base_url}/login"</span>
+dashboard_url = <span class="fn">f</span><span class="st">"{base_url}/dashboard"</span>
+profile_url   = <span class="fn">f</span><span class="st">"{base_url}/profile"</span>
+api_url       = <span class="fn">f</span><span class="st">"{base_url}/api/v1"</span>
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Base:      {base_url}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Login:     {login_url}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Dashboard: {dashboard_url}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Profile:   {profile_url}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"API:       {api_url}"</span>)
+
+<span class="cm"># Now switch to prod — change ONE line</span>
+env = <span class="st">"prod"</span>
+base_url  = <span class="fn">f</span><span class="st">"{protocol}://{env}.{domain}"</span>
+login_url = <span class="fn">f</span><span class="st">"{base_url}/login"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nSwitched to prod: {login_url}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Base:      https://staging.myapp.com</div>
+    <div class="ol">Login:     https://staging.myapp.com/login</div>
+    <div class="ol">Dashboard: https://staging.myapp.com/dashboard</div>
+    <div class="ol">Profile:   https://staging.myapp.com/profile</div>
+    <div class="ol">API:       https://staging.myapp.com/api/v1</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Switched to prod: https://prod.myapp.com/login</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Your turn — extend it</div>
+    <div class="ch-b">Add these 3 more URLs to the same file:<br>• <code>reset_password_url</code> — path: /reset-password<br>• <code>admin_url</code> — path: /admin/users<br>• <code>api_users_url</code> — path: /api/v1/users<br><br>Then print a clean summary block like:<br><code>--- Test Environment: staging ---</code><br><code>Login URL: https://staging.myapp.com/login</code><br>...and so on for all URLs</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">QA Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: QA EXAMPLE 2 — ERROR MESSAGE CHECKER -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">QA Example 2 — Error message validator <span class="badge bg" style="margin-left:6px">.strip() .lower() in</span></div>
+    <div class="card-b">When you scrape text from a browser, it often comes back with extra spaces, random capitalisation, or newlines. Before asserting, you clean and normalise it. This is the <b>single most used string pattern in UI test automation</b>.</div>
+  </div>
+
+  <div class="try-lbl">Create day2_ex2.py</div>
+<div class="code"><span class="cm"># Simulating text scraped from a web page</span>
+<span class="cm"># Real Playwright: text = page.locator("#flash").inner_text()</span>
+scraped_text = <span class="st">"  \n  Your username is invalid!  \n  "</span>
+
+<span class="cm"># Step 1: clean it</span>
+clean = scraped_text.<span class="fn">strip</span>()
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"After strip: '{clean}'"</span>)
+
+<span class="cm"># Step 2: normalise case</span>
+normalised = clean.<span class="fn">lower</span>()
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Normalised: '{normalised}'"</span>)
+
+<span class="cm"># Step 3: assert — does it contain expected text?</span>
+expected = <span class="st">"invalid"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Contains '{expected}': {expected in normalised}"</span>)
+
+<span class="cm"># Real assertion pattern — one chained line</span>
+assert <span class="st">"invalid"</span> <span class="kw">in</span> scraped_text.<span class="fn">strip</span>().<span class="fn">lower</span>(), \
+    <span class="fn">f</span><span class="st">"Expected error message to contain 'invalid', got: '{clean}'"</span>
+<span class="fn">print</span>(<span class="st">"Assertion passed!"</span>)
+
+<span class="cm"># Now test an exact match</span>
+expected_exact = <span class="st">"Your username is invalid!"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Exact match: {clean == expected_exact}"</span>)   <span class="cm"># True</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">After strip: 'Your username is invalid!'</div>
+    <div class="ol">Normalised: 'your username is invalid!'</div>
+    <div class="ol">Contains 'invalid': True</div>
+    <div class="ol">Assertion passed!</div>
+    <div class="ol">Exact match: True</div>
+  </div>
+
+  <div class="tip">In Playwright you will write exactly this: <code>assert "invalid" in page.locator("#flash").inner_text().strip().lower()</code> — the same chain you just practiced. You're already writing real assertion logic.</div>
+
+  <div class="ch">
+    <div class="ch-t">Your turn</div>
+    <div class="ch-b">Create 3 more scraped text variables (add spaces and odd capitalisation):<br>• A success message containing "logged into a secure area"<br>• A 404 message containing "page not found"<br>• An empty string <code>""</code><br><br>For each: strip, lowercase, check if the expected keyword is in it, print True/False.<br>For the empty string: check <code>len(text.strip()) == 0</code> — print "Empty: True"</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">QA Example 3 →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: QA EXAMPLE 3 — URL VALIDATOR -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">QA Example 3 — URL security validator <span class="badge bg" style="margin-left:6px">.startswith() .endswith() in</span></div>
+    <div class="card-b">A very common QA task: verify a redirect went to the right URL, or that the app never serves pages over plain HTTP. You'll write this kind of check in Playwright after clicks and form submissions.</div>
+  </div>
+
+  <div class="try-lbl">Create day2_ex3.py</div>
+<div class="code"><span class="cm"># URLs returned after various actions in the app</span>
+urls = [
+    <span class="st">"https://staging.myapp.com/dashboard"</span>,
+    <span class="st">"http://staging.myapp.com/login"</span>,      <span class="cm"># insecure!</span>
+    <span class="st">"https://staging.myapp.com/profile"</span>,
+    <span class="st">"https://evil.com/phishing"</span>,            <span class="cm"># wrong domain!</span>
+    <span class="st">"https://staging.myapp.com/logout"</span>,
+]
+
+<span class="fn">print</span>(<span class="st">"--- URL Security Check ---"</span>)
+<span class="kw">for</span> url <span class="kw">in</span> urls:
+    is_https  = url.<span class="fn">startswith</span>(<span class="st">"https"</span>)
+    is_domain = <span class="st">"myapp.com"</span> <span class="kw">in</span> url
+    is_safe   = is_https <span class="kw">and</span> is_domain
+
+    status = <span class="st">"PASS"</span> <span class="kw">if</span> is_safe <span class="kw">else</span> <span class="st">"FAIL"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"[{status}] {url}"</span>)
+    <span class="kw">if not</span> is_https:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"       ^ Not HTTPS!"</span>)
+    <span class="kw">if not</span> is_domain:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"       ^ Wrong domain!"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">[PASS] https://staging.myapp.com/dashboard</div>
+    <div class="ol">[FAIL] http://staging.myapp.com/login</div>
+    <div class="ol">       ^ Not HTTPS!</div>
+    <div class="ol">[PASS] https://staging.myapp.com/profile</div>
+    <div class="ol">[FAIL] https://evil.com/phishing</div>
+    <div class="ol">       ^ Wrong domain!</div>
+    <div class="ol">[PASS] https://staging.myapp.com/logout</div>
+  </div>
+
+  <div class="tip">You just used a loop (from tomorrow's lesson) — don't worry about fully understanding it yet. Focus on what the string methods are doing: <code>startswith()</code> checks the beginning, <code>in</code> checks anywhere inside. That logic is what matters.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">QA Example 4 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA EXAMPLE 4 — TEST REPORT FORMATTER -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">QA Example 4 — Test result report formatter <span class="badge bb" style="margin-left:6px">f-strings advanced</span></div>
+    <div class="card-b">f-strings can do more than just insert values — they can format numbers, align text, and even contain inline conditions. This is exactly the kind of output you'll print at the end of a test run.</div>
+  </div>
+
+  <div class="try-lbl">Create day2_ex4.py</div>
+<div class="code"><span class="cm"># Test session data</span>
+app_name    = <span class="st">"ShopCart Pro"</span>
+env         = <span class="st">"staging"</span>
+browser     = <span class="st">"chromium"</span>
+total       = <span class="nm">47</span>
+passed      = <span class="nm">43</span>
+failed      = <span class="nm">4</span>
+duration_s  = <span class="nm">127.5</span>
+
+<span class="cm"># Calculate derived values</span>
+pass_rate   = (passed / total) * <span class="nm">100</span>
+skipped     = total - passed - failed
+
+<span class="cm"># f-string formatting tricks</span>
+<span class="cm"># :.1f  = 1 decimal place for floats</span>
+<span class="cm"># :>6   = right-align in 6 characters wide</span>
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'=' * 40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Test Report — {app_name}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'=' * 40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Environment : {env}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Browser     : {browser}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Duration    : {duration_s:.1f}s"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'─' * 40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Total tests : {total}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Passed      : {passed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Failed      : {failed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Skipped     : {skipped}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Pass rate   : {pass_rate:.1f}%"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'=' * 40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">" Status: {'PASSED' if failed == 0 else 'FAILED'}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">========================================</div>
+    <div class="ol"> Test Report — ShopCart Pro</div>
+    <div class="ol">========================================</div>
+    <div class="ol"> Environment : staging</div>
+    <div class="ol"> Browser     : chromium</div>
+    <div class="ol"> Duration    : 127.5s</div>
+    <div class="ol">────────────────────────────────────────</div>
+    <div class="ol"> Total tests : 47</div>
+    <div class="ol"> Passed      : 43</div>
+    <div class="ol"> Failed      : 4</div>
+    <div class="ol"> Skipped     : 0</div>
+    <div class="ol"> Pass rate   : 91.5%</div>
+    <div class="ol">========================================</div>
+    <div class="ol"> Status: FAILED</div>
+  </div>
+
+  <div class="tip"><code>:.1f</code> inside braces formats a float to 1 decimal place. <code>"=" * 40</code> repeats the = character 40 times. <code>'PASSED' if failed == 0 else 'FAILED'</code> is an inline condition — picks one string or the other based on the value of failed.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example 5 →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE 5 — API RESPONSE CHECKER -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example 5 — API response field checker <span class="badge bp" style="margin-left:6px">strings in real tests</span></div>
+    <div class="card-b">When an API returns JSON, the field values are strings. You'll check them constantly — email format, status field value, error message text. This example previews exactly what your Week 4 API tests will look like.</div>
+  </div>
+
+  <div class="try-lbl">Create day2_ex5.py</div>
+<div class="code"><span class="cm"># Simulating a JSON response from reqres.in/api/users/2</span>
+<span class="cm"># Real code: data = response.json()["data"]</span>
+first_name = <span class="st">"Janet"</span>
+last_name  = <span class="st">"Weaver"</span>
+email      = <span class="st">"janet.weaver@reqres.in"</span>
+avatar_url = <span class="st">"https://reqres.in/img/faces/2-image.jpg"</span>
+
+<span class="cm"># Build full name from parts</span>
+full_name = <span class="fn">f</span><span class="st">"{first_name} {last_name}"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Full name: {full_name}"</span>)
+
+<span class="cm"># Validate email format (basic checks)</span>
+has_at     = <span class="st">"@"</span> <span class="kw">in</span> email
+has_dot    = <span class="st">"."</span> <span class="kw">in</span> email.<span class="fn">split</span>(<span class="st">"@"</span>)[<span class="nm">-1</span>]
+not_empty  = <span class="fn">len</span>(email.<span class="fn">strip</span>()) > <span class="nm">0</span>
+looks_valid = has_at <span class="kw">and</span> has_dot <span class="kw">and</span> not_empty
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Email: {email}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Has @:       {has_at}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Has dot:     {has_dot}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Not empty:   {not_empty}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Looks valid: {looks_valid}"</span>)
+
+<span class="cm"># Validate avatar URL</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nAvatar URL checks:"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Is HTTPS:    {avatar_url.startswith('https')}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Is image:    {avatar_url.endswith(('.jpg','.png','.webp'))}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Has user ID: {'2' in avatar_url}"</span>)
+
+<span class="cm"># Domain extraction from email</span>
+domain = email.<span class="fn">split</span>(<span class="st">"@"</span>)[<span class="nm">1</span>]
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nEmail domain: {domain}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Domain is reqres.in: {domain == 'reqres.in'}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Full name: Janet Weaver</div>
+    <div class="ol">Email: janet.weaver@reqres.in</div>
+    <div class="ol">  Has @:       True</div>
+    <div class="ol">  Has dot:     True</div>
+    <div class="ol">  Not empty:   True</div>
+    <div class="ol">  Looks valid: True</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Avatar URL checks:</div>
+    <div class="ol">  Is HTTPS:    True</div>
+    <div class="ol">  Is image:    True</div>
+    <div class="ol">  Has user ID: True</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Email domain: reqres.in</div>
+    <div class="ol">Domain is reqres.in: True</div>
+  </div>
+
+  <div class="tip"><code>.split("@")[1]</code> splits the email on @ and takes the second part (index 1 = everything after @). This is real parsing logic you will use in API tests when checking email fields in JSON responses.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 2 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: FINAL CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 2 challenge — write it all from scratch</div>
+    <div class="card-b">New file: <b>day2_challenge.py</b>. No looking back. This combines every concept from today.</div>
+  </div>
+
+  <div class="sec">The challenge — QA login test string validator</div>
+  <div class="ch">
+    <div class="ch-t">Build this without help</div>
+    <div class="ch-b">
+      You are simulating what happens after a login attempt. You have these values:<br><br>
+      <code>env = "staging"</code><br>
+      <code>username = "tomsmith"</code><br>
+      <code>current_url = "  https://staging.myapp.com/secure  "</code> (has spaces)<br>
+      <code>page_title = "  Secure Area  "</code> (has spaces)<br>
+      <code>flash_message = "  \n You logged into a secure area! \n  "</code><br>
+      <code>response_time_ms = 843</code><br><br>
+
+      <b style="font-weight:500">Do all of this:</b><br><br>
+      1. Build a <code>login_url</code> using f-string: <code>https://staging.myapp.com/login</code><br>
+      2. Clean <code>current_url</code> with <code>.strip()</code> — print it<br>
+      3. Clean <code>page_title</code> with <code>.strip()</code> — print it<br>
+      4. Check if <code>flash_message</code> (cleaned + lowercased) contains <code>"secure area"</code> — print True/False<br>
+      5. Check if <code>current_url</code> (cleaned) starts with <code>"https"</code> — print True/False<br>
+      6. Check if <code>current_url</code> (cleaned) ends with <code>"/secure"</code> — print True/False<br>
+      7. Check if response time is under 2000ms — print True/False<br>
+      8. Print a final summary using f-strings:<br><br>
+      <code>=== Login Test Result ===</code><br>
+      <code>Environment : staging</code><br>
+      <code>User        : tomsmith</code><br>
+      <code>URL secure  : True</code><br>
+      <code>On /secure  : True</code><br>
+      <code>Flash OK    : True</code><br>
+      <code>Fast enough : True</code><br>
+      <code>Overall     : PASS</code>
+    </div>
+  </div>
+
+  <div class="ok">If you can write and run this clean, you have mastered Day 2. Every technique in this challenge appears directly in real Playwright tests — you are already writing automation logic.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 2 Python strings challenge. Check my work — give me the ideal solution so I can compare it to mine and see what I missed')">Show me the ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 2 Python challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 3 Python — lists in depth for QA automation with hands-on exercises')">Go to Day 3 — lists ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['Strings','f-strings','Methods','Ex 1','Ex 2','Ex 3','Ex 4','Ex 5','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const idx=i;
+    d.onclick=()=>go(idx);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+}
+render();
+</script>

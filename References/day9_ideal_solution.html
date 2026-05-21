@@ -1,0 +1,508 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#FCEBEB;color:#791F1F;border-color:#F09595}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.err{color:#791F1F;font-weight:500}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part{font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px}
+.pn{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#791F1F;border-color:#791F1F}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#791F1F;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Function by function</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every function that differs from yours, understand why before moving on.</div>
+
+<div class="code"><span class="cm"># ────────────────────────────────────────────────────
+# Day 9 Challenge — Ideal Solution
+# day9_challenge.py
+# ────────────────────────────────────────────────────</span>
+<span class="kw">import</span> json
+<span class="kw">from</span> typing <span class="kw">import</span> Any, Callable, Dict, List, Optional, Tuple
+
+<span class="cm"># Custom exception</span>
+<span class="kw">class</span> <span class="fn">TestDataError</span>(<span class="err">Exception</span>):
+    <span class="st">"""Raised when test data is missing or malformed."""</span>
+    <span class="kw">pass</span>
+
+<span class="cm"># ── Function 1: safe_get ─────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">safe_get</span>(data: Dict, *keys: <span class="fn">str</span>, default: Any = <span class="kw">None</span>) -> Any:
+    <span class="st">"""Navigate nested dicts safely using any number of keys.
+
+    safe_get(resp, "data", "email") → resp["data"]["email"]
+    Returns default if any key is missing or data is not a dict.
+    """</span>
+    current = data
+    <span class="kw">for</span> key <span class="kw">in</span> keys:
+        <span class="kw">try</span>:
+            current = current[key]
+        <span class="kw">except</span> (<span class="err">KeyError</span>, <span class="err">TypeError</span>):
+            <span class="kw">return</span> default
+    <span class="kw">return</span> current
+
+<span class="cm"># ── Function 2: load_users ───────────────────────────</span>
+<span class="kw">def</span> <span class="fn">load_users</span>(filepath: <span class="fn">str</span>) -> List[Dict]:
+    <span class="st">"""Load and validate users from a JSON file.
+
+    Raises TestDataError with a clear message on any problem.
+    Returns validated list of user dicts on success.
+    """</span>
+    <span class="cm"># Load the file</span>
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(filepath, <span class="st">"r"</span>, encoding=<span class="st">"utf-8"</span>) <span class="kw">as</span> f:
+            data = json.<span class="fn">load</span>(f)
+    <span class="kw">except</span> <span class="err">FileNotFoundError</span>:
+        <span class="kw">raise</span> <span class="fn">TestDataError</span>(<span class="fn">f</span><span class="st">"File not found: '{filepath}'"</span>)
+    <span class="kw">except</span> json.<span class="err">JSONDecodeError</span> <span class="kw">as</span> e:
+        <span class="kw">raise</span> <span class="fn">TestDataError</span>(<span class="fn">f</span><span class="st">"Invalid JSON in '{filepath}': {e}"</span>)
+
+    <span class="cm"># Check users key exists</span>
+    <span class="kw">if</span> <span class="st">"users"</span> <span class="kw">not in</span> data:
+        <span class="kw">raise</span> <span class="fn">TestDataError</span>(<span class="fn">f</span><span class="st">"'{filepath}' has no 'users' key"</span>)
+
+    users = data[<span class="st">"users"</span>]
+
+    <span class="kw">if not</span> <span class="fn">isinstance</span>(users, <span class="fn">list</span>) <span class="kw">or</span> <span class="fn">len</span>(users) == <span class="nm">0</span>:
+        <span class="kw">raise</span> <span class="fn">TestDataError</span>(<span class="fn">f</span><span class="st">"'users' must be a non-empty list"</span>)
+
+    <span class="cm"># Validate each user</span>
+    required = [<span class="st">"username"</span>, <span class="st">"password"</span>, <span class="st">"role"</span>]
+    <span class="kw">for</span> i, user <span class="kw">in</span> <span class="fn">enumerate</span>(users):
+        missing = [f <span class="kw">for</span> f <span class="kw">in</span> required <span class="kw">if</span> f <span class="kw">not in</span> user]
+        <span class="kw">if</span> missing:
+            <span class="kw">raise</span> <span class="fn">TestDataError</span>(
+                <span class="fn">f</span><span class="st">"User at index {i} missing fields: {missing}"</span>
+            )
+
+    <span class="kw">return</span> users
+
+<span class="cm"># ── Function 3: safe_assert ──────────────────────────</span>
+<span class="kw">def</span> <span class="fn">safe_assert</span>(
+    condition: <span class="fn">bool</span>,
+    message:   <span class="fn">str</span>,
+    on_fail:   <span class="fn">str</span> = <span class="st">"log"</span>
+) -> <span class="fn">bool</span>:
+    <span class="st">"""Soft assertion wrapper.
+
+    on_fail='raise' → raises AssertionError on failure
+    on_fail='log'   → prints failure, does not crash
+    Returns True if passed, False if failed.
+    """</span>
+    <span class="kw">try</span>:
+        assert condition, message
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ PASS: {message}"</span>)
+        <span class="kw">return</span> <span class="kw">True</span>
+    <span class="kw">except</span> <span class="err">AssertionError</span>:
+        <span class="kw">if</span> on_fail == <span class="st">"raise"</span>:
+            <span class="kw">raise</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ FAIL: {message}"</span>)
+        <span class="kw">return</span> <span class="kw">False</span>
+
+<span class="cm"># ── Function 4: run_with_teardown ────────────────────</span>
+<span class="kw">def</span> <span class="fn">run_with_teardown</span>(
+    test_fn:     Callable,
+    setup_fn:    Optional[Callable] = <span class="kw">None</span>,
+    teardown_fn: Optional[Callable] = <span class="kw">None</span>
+) -> Tuple[<span class="fn">bool</span>, Optional[<span class="fn">str</span>]]:
+    <span class="st">"""Run test_fn with optional setup and guaranteed teardown.
+
+    Returns (passed: bool, error: str | None).
+    teardown_fn always runs — even if test_fn crashes.
+    """</span>
+    <span class="cm"># Setup</span>
+    <span class="kw">if</span> setup_fn <span class="kw">is not None</span>:
+        <span class="kw">try</span>:
+            <span class="fn">setup_fn</span>()
+        <span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Setup failed: {e}"</span>)
+            <span class="kw">return</span> <span class="kw">False</span>, <span class="fn">f</span><span class="st">"Setup error: {e}"</span>
+
+    passed = <span class="kw">False</span>
+    error  = <span class="kw">None</span>
+
+    <span class="kw">try</span>:
+        <span class="fn">test_fn</span>()
+        passed = <span class="kw">True</span>
+        <span class="fn">print</span>(<span class="st">"  ✓ Test passed"</span>)
+
+    <span class="kw">except</span> <span class="err">AssertionError</span> <span class="kw">as</span> e:
+        error = <span class="fn">f</span><span class="st">"AssertionError: {e}"</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Test failed: {e}"</span>)
+
+    <span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+        error = <span class="fn">f</span><span class="st">"{type(e).__name__}: {e}"</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Unexpected error: {e}"</span>)
+
+    <span class="kw">finally</span>:
+        <span class="kw">if</span> teardown_fn <span class="kw">is not None</span>:
+            <span class="kw">try</span>:
+                <span class="fn">teardown_fn</span>()
+            <span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+                <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ⚠ Teardown error: {e}"</span>)
+
+    <span class="kw">return</span> passed, error
+
+<span class="cm"># ── Demo ─────────────────────────────────────────────</span>
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+
+    <span class="cm"># Function 1 — safe_get</span>
+    <span class="fn">print</span>(<span class="st">"── safe_get ─────────────────────────────"</span>)
+    resp = {<span class="st">"data"</span>: {<span class="st">"id"</span>: <span class="nm">2</span>, <span class="st">"email"</span>: <span class="st">"janet@reqres.in"</span>}}
+
+    <span class="fn">print</span>(<span class="fn">safe_get</span>(resp, <span class="st">"data"</span>, <span class="st">"email"</span>))          <span class="cm"># janet@reqres.in</span>
+    <span class="fn">print</span>(<span class="fn">safe_get</span>(resp, <span class="st">"data"</span>, <span class="st">"phone"</span>))          <span class="cm"># None</span>
+    <span class="fn">print</span>(<span class="fn">safe_get</span>(resp, <span class="st">"data"</span>, <span class="st">"phone"</span>, default=<span class="st">"N/A"</span>)) <span class="cm"># N/A</span>
+    <span class="fn">print</span>(<span class="fn">safe_get</span>(resp, <span class="st">"missing"</span>, <span class="st">"deep"</span>, <span class="st">"key"</span>))  <span class="cm"># None</span>
+    <span class="fn">print</span>(<span class="fn">safe_get</span>(<span class="kw">None</span>, <span class="st">"data"</span>))                    <span class="cm"># None — handles None input</span>
+
+    <span class="cm"># Function 2 — load_users</span>
+    <span class="fn">print</span>(<span class="st">"\n── load_users ───────────────────────────"</span>)
+    <span class="kw">for</span> path <span class="kw">in</span> [<span class="st">"test_data.json"</span>, <span class="st">"missing.json"</span>]:
+        <span class="kw">try</span>:
+            users = <span class="fn">load_users</span>(path)
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✓ Loaded {len(users)} users from {path}"</span>)
+        <span class="kw">except</span> <span class="fn">TestDataError</span> <span class="kw">as</span> e:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"✗ TestDataError: {e}"</span>)
+
+    <span class="cm"># Function 3 — safe_assert</span>
+    <span class="fn">print</span>(<span class="st">"\n── safe_assert ──────────────────────────"</span>)
+    <span class="fn">safe_assert</span>(<span class="nm">200</span> == <span class="nm">200</span>, <span class="st">"Status is 200"</span>)
+    <span class="fn">safe_assert</span>(<span class="nm">200</span> == <span class="nm">404</span>, <span class="st">"Status is 200"</span>, on_fail=<span class="st">"log"</span>)
+    <span class="kw">try</span>:
+        <span class="fn">safe_assert</span>(<span class="kw">False</span>, <span class="st">"This must be True"</span>, on_fail=<span class="st">"raise"</span>)
+    <span class="kw">except</span> <span class="err">AssertionError</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Caught raise: {e}"</span>)
+
+    <span class="cm"># Function 4 — run_with_teardown</span>
+    <span class="fn">print</span>(<span class="st">"\n── run_with_teardown ────────────────────"</span>)
+
+    <span class="kw">def</span> <span class="fn">my_setup</span>():    <span class="fn">print</span>(<span class="st">"  → Setup: creating test user"</span>)
+    <span class="kw">def</span> <span class="fn">my_teardown</span>(): <span class="fn">print</span>(<span class="st">"  → Teardown: deleting test user"</span>)
+    <span class="kw">def</span> <span class="fn">passing_test</span>(): assert <span class="kw">True</span>
+    <span class="kw">def</span> <span class="fn">failing_test</span>(): assert <span class="kw">False</span>, <span class="st">"Button not found"</span>
+    <span class="kw">def</span> <span class="fn">crashing_test</span>(): <span class="kw">raise</span> <span class="err">KeyError</span>(<span class="st">"email"</span>)
+
+    <span class="kw">for</span> label, fn <span class="kw">in</span> [(<span class="st">"passing"</span>, passing_test), (<span class="st">"failing"</span>, failing_test), (<span class="st">"crashing"</span>, crashing_test)]:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n  [{label} test]"</span>)
+        ok, err = <span class="fn">run_with_teardown</span>(fn, my_setup, my_teardown)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Result: passed={ok}  error={err}"</span>)</div>
+
+  <div class="sec">Expected output</div>
+  <div class="out">
+    <div class="out-lbl">Terminal</div>
+    <div class="ol">── safe_get ─────────────────────────────</div>
+    <div class="ol">janet@reqres.in</div>
+    <div class="ol">None</div>
+    <div class="ol">N/A</div>
+    <div class="ol">None</div>
+    <div class="ol">None</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── load_users ───────────────────────────</div>
+    <div class="ol">✓ Loaded 2 users from test_data.json</div>
+    <div class="ol">✗ TestDataError: File not found: 'missing.json'</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── safe_assert ──────────────────────────</div>
+    <div class="ol">  ✓ PASS: Status is 200</div>
+    <div class="ol">  ✗ FAIL: Status is 200</div>
+    <div class="ol">  Caught raise: This must be True</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── run_with_teardown ────────────────────</div>
+    <div class="ol">  [passing test]</div>
+    <div class="ol">  → Setup: creating test user</div>
+    <div class="ol">  ✓ Test passed</div>
+    <div class="ol">  → Teardown: deleting test user</div>
+    <div class="ol">  Result: passed=True  error=None</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">  [failing test]</div>
+    <div class="ol">  → Setup: creating test user</div>
+    <div class="ol">  ✗ Test failed: Button not found</div>
+    <div class="ol">  → Teardown: deleting test user</div>
+    <div class="ol">  Result: passed=False  error=AssertionError: Button not found</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">  [crashing test]</div>
+    <div class="ol">  → Setup: creating test user</div>
+    <div class="ol">  ✗ Unexpected error: 'email'</div>
+    <div class="ol">  → Teardown: deleting test user</div>
+    <div class="ol">  Result: passed=False  error=KeyError: 'email'</div>
+  </div>
+</div>
+
+<!-- FUNCTION BY FUNCTION -->
+<div class="pg" id="exp">
+
+  <div class="part"><span class="pn p1">Function 1</span> safe_get — loop + try/except per key</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">for</span> key <span class="kw">in</span> keys:
+    <span class="kw">try</span>:
+        current = current[key]
+    <span class="kw">except</span> (<span class="err">KeyError</span>, <span class="err">TypeError</span>):
+        <span class="kw">return</span> default</div>
+      <div class="eb-why"><b>Loop through keys one at a time, return default on first failure.</b> The loop lets you navigate any depth — 2 keys or 10 keys, same code. <code>TypeError</code> is caught alongside <code>KeyError</code> because if any level returns something that is not subscriptable (like <code>None</code>), Python raises <code>TypeError</code> not <code>KeyError</code>. Both mean "cannot go deeper" — both should return the default.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="fn">safe_get</span>(<span class="kw">None</span>, <span class="st">"data"</span>)  <span class="cm"># → None, no crash</span></div>
+      <div class="eb-why"><b>Handles None input gracefully.</b> If the entire response dict is None (API returned nothing), <code>None["data"]</code> raises <code>TypeError</code> — which is caught. This means safe_get never crashes regardless of what is passed in. This is the robustness that API test helpers need.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p2">Function 2</span> load_users — exception wrapping + per-user validation</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">except</span> <span class="err">FileNotFoundError</span>:
+    <span class="kw">raise</span> <span class="fn">TestDataError</span>(<span class="fn">f</span><span class="st">"File not found: '{filepath}'"</span>)</div>
+      <div class="eb-why"><b>Catch low-level, raise high-level.</b> The caller does not need to know about <code>FileNotFoundError</code> — they only need to know the test data could not be loaded. <code>TestDataError</code> with a clear message is more useful than a raw OS error. This is exception wrapping — convert implementation details into domain-meaningful errors.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code">missing = [f <span class="kw">for</span> f <span class="kw">in</span> required <span class="kw">if</span> f <span class="kw">not in</span> user]
+<span class="kw">if</span> missing:
+    <span class="kw">raise</span> <span class="fn">TestDataError</span>(<span class="fn">f</span><span class="st">"User at index {i} missing fields: {missing}"</span>)</div>
+      <div class="eb-why"><b>Validate every user, report all missing fields at once.</b> The comprehension collects all missing fields for that user before raising — so you see <code>['password', 'role']</code> not just the first missing field. The index <code>i</code> tells you exactly which user in the file is broken.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p3">Function 3</span> safe_assert — re-raise pattern</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">except</span> <span class="err">AssertionError</span>:
+    <span class="kw">if</span> on_fail == <span class="st">"raise"</span>:
+        <span class="kw">raise</span>           <span class="cm"># re-raises the same exception</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ FAIL: {message}"</span>)
+    <span class="kw">return</span> <span class="kw">False</span></div>
+      <div class="eb-why"><b>Bare <code>raise</code> re-raises the current exception.</b> When you catch an exception and then call <code>raise</code> with no argument, Python re-raises the exact same exception that was caught — same type, same message, same traceback. This is cleaner than <code>raise AssertionError(message)</code> which would create a new exception and lose context.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p4">Function 4</span> run_with_teardown — finally guarantees teardown</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">try</span>:
+    <span class="fn">test_fn</span>()
+    passed = <span class="kw">True</span>
+<span class="kw">except</span> <span class="err">AssertionError</span> <span class="kw">as</span> e:
+    error = <span class="fn">f</span><span class="st">"AssertionError: {e}"</span>
+<span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+    error = <span class="fn">f</span><span class="st">"{type(e).__name__}: {e}"</span>
+<span class="kw">finally</span>:
+    <span class="kw">if</span> teardown_fn <span class="kw">is not None</span>:
+        <span class="fn">teardown_fn</span>()</div>
+      <div class="eb-why"><b>Two except blocks — specific before general.</b> <code>AssertionError</code> is caught first for test failures. <code>Exception</code> catches everything else (crashes). Python checks excepts in order — the first match wins. If you reversed them, <code>Exception</code> would catch everything and <code>AssertionError</code> would never be reached. <code>finally</code> runs after both — teardown always happens.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">try</span>:
+    <span class="fn">teardown_fn</span>()
+<span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ⚠ Teardown error: {e}"</span>)</div>
+      <div class="eb-why"><b>Teardown itself is wrapped in try/except.</b> If teardown crashes, it should not hide the original test failure. By catching teardown errors separately, both the test result and the teardown error are reported independently. Without this, a teardown crash would propagate up and mask the actual test failure.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — safe_get catches only KeyError, misses TypeError</div>
+    <div class="diff-body"><span class="cm"># Wrong — crashes when a nested value is None or not a dict</span>
+<span class="kw">except</span> <span class="err">KeyError</span>:
+    <span class="kw">return</span> default
+<span class="cm"># safe_get({"a": None}, "a", "b")  →  TypeError: 'NoneType' not subscriptable</span>
+
+<span class="cm"># Correct — catches both</span>
+<span class="kw">except</span> (<span class="err">KeyError</span>, <span class="err">TypeError</span>):
+    <span class="kw">return</span> default</div>
+    <div class="diff-note"><b>When you navigate nested dicts, any level might be None or a non-dict.</b> <code>None["key"]</code> raises TypeError, not KeyError. Catching both means safe_get handles any input without crashing — which is the entire point of a "safe" getter.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — load_users raises generic Exception not TestDataError</div>
+    <div class="diff-body"><span class="cm"># Wrong — caller must catch generic Exception</span>
+<span class="kw">except</span> <span class="err">FileNotFoundError</span>:
+    <span class="kw">raise</span> <span class="err">Exception</span>(<span class="st">"File not found"</span>)
+
+<span class="cm"># Correct — caller catches specific TestDataError</span>
+<span class="kw">except</span> <span class="err">FileNotFoundError</span>:
+    <span class="kw">raise</span> <span class="fn">TestDataError</span>(<span class="fn">f</span><span class="st">"File not found: '{filepath}'"</span>)</div>
+    <div class="diff-note"><b>Custom exceptions make caller code cleaner and more precise.</b> <code>except TestDataError</code> only catches data loading problems. <code>except Exception</code> catches everything — including bugs in your code that you did not intend to catch. Custom exceptions are not optional in professional code.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — safe_assert always raises, ignores on_fail parameter</div>
+    <div class="diff-body"><span class="cm"># Wrong — on_fail="log" still crashes</span>
+<span class="kw">except</span> <span class="err">AssertionError</span> <span class="kw">as</span> e:
+    <span class="kw">raise</span>   <span class="cm"># always raises regardless of on_fail</span>
+
+<span class="cm"># Correct — only raise if on_fail=="raise"</span>
+<span class="kw">except</span> <span class="err">AssertionError</span>:
+    <span class="kw">if</span> on_fail == <span class="st">"raise"</span>:
+        <span class="kw">raise</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ FAIL: {message}"</span>)
+    <span class="kw">return</span> <span class="kw">False</span></div>
+    <div class="diff-note"><b>The on_fail parameter controls the behaviour.</b> "log" means collect and continue — soft assertion. "raise" means stop immediately — hard assertion. Both are useful: soft assertions let a test check multiple things before failing; hard assertions stop at the first critical failure.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — teardown outside finally, skipped on test crash</div>
+    <div class="diff-body"><span class="cm"># Wrong — teardown only runs if no exception</span>
+<span class="kw">try</span>:
+    <span class="fn">test_fn</span>()
+<span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+    error = <span class="fn">str</span>(e)
+<span class="fn">teardown_fn</span>()   <span class="cm"># NOT in finally — skipped if except re-raises</span>
+
+<span class="cm"># Correct — teardown in finally, always runs</span>
+<span class="kw">try</span>:
+    <span class="fn">test_fn</span>()
+<span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+    error = <span class="fn">str</span>(e)
+<span class="kw">finally</span>:
+    <span class="fn">teardown_fn</span>()  <span class="cm"># ALWAYS runs</span></div>
+    <div class="diff-note"><b>This is the most critical mistake of the challenge.</b> Code after a try/except block only runs if the except block did not re-raise. Code in finally runs unconditionally. Teardown must be in finally — otherwise a crash inside except leaves your test environment dirty.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — not wrapping teardown in its own try/except</div>
+    <div class="diff-body"><span class="cm"># Risky — teardown crash hides the test failure</span>
+<span class="kw">finally</span>:
+    <span class="fn">teardown_fn</span>()   <span class="cm"># if this crashes, original error is lost</span>
+
+<span class="cm"># Safe — teardown errors reported separately</span>
+<span class="kw">finally</span>:
+    <span class="kw">try</span>:
+        <span class="fn">teardown_fn</span>()
+    <span class="kw">except</span> <span class="err">Exception</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ⚠ Teardown error: {e}"</span>)</div>
+    <div class="diff-note"><b>A crash in teardown should not mask the original test failure.</b> If teardown raises an exception inside finally, it replaces the original exception — you lose the test failure information. Wrapping teardown in its own try/except means both errors are reported independently.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 1 — Catches both <code>KeyError</code> and <code>TypeError</code> in the loop</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 1 — Returns <code>default</code> immediately on first key failure, does not continue</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 2 — Raises <code>TestDataError</code> (not generic Exception) for all failure cases</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 2 — Validates every user in the list, includes index in error message</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 3 — Only raises when <code>on_fail == "raise"</code>, logs and returns False otherwise</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 3 — Uses bare <code>raise</code> to re-raise without creating a new exception</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 4 — <code>teardown_fn</code> is called inside <code>finally</code> — not after the try/except block</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 4 — Teardown is wrapped in its own try/except so teardown errors do not mask test failures</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 4 — Two separate except blocks: <code>AssertionError</code> first, then <code>Exception</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">All functions use <code>Optional</code> from typing instead of <code>int | None</code> syntax for Python 3.9 compatibility</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('I have completed Python Days 1 to 9. I am ready to start Playwright on Day 15. Teach me Playwright from scratch — installation, first test, locators, assertions, with hands-on exercises')">I am ready — start Playwright Day 15 ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me a harder Python try/except challenge — beyond Day 9, combining error handling with functions, files and custom exceptions in QA automation scenarios')">Give me a harder challenge ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#791F1F':'';
+  box.style.borderColor=on?'#791F1F':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. You have completed the Python foundation — 9 days of concepts that underpin every automation framework. Commit, push, and start Playwright.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Check Common Mistakes for what you missed, fix those parts, then move to Playwright.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Function by Function for each unchecked item, rewrite those parts, then move on.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution carefully, then rewrite all 4 functions from scratch before Playwright.</div>';
+}
+</script>
+</body>
+</html>

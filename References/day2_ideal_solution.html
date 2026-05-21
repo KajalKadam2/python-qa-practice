@@ -1,0 +1,344 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:14px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.explain-block{display:flex;flex-direction:column;gap:7px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.7;white-space:pre}
+.eb-explain{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-explain b{font-weight:500;color:var(--color-text-primary)}
+.eb-explain code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.diff-row{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.diff-label{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.diff-ok{background:#EAF3DE;color:#27500A}
+.diff-alt{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.7;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.br{background:#FCEBEB;color:#791F1F}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block}
+.ask:hover{opacity:.8}
+.checklist{margin:8px 0}
+.ci{font-size:13px;line-height:1.8;display:flex;gap:8px;align-items:baseline;cursor:pointer;padding:3px 0}
+.ci-box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#27500A;border-color:#27500A}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-area{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-n{font-size:28px;font-weight:500;color:var(--color-text-primary)}
+.score-l{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;margin:10px 0 4px;overflow:hidden}
+.score-fill{height:100%;border-radius:4px;background:#639922;transition:width .4s}
+</style>
+
+<div class="app">
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden">Day 2 ideal solution with line-by-line explanations and common mistakes</h2>
+
+<div class="tabs">
+  <button class="tab on" onclick="sw('full',this)">Full solution</button>
+  <button class="tab" onclick="sw('explain',this)">Line by line</button>
+  <button class="tab" onclick="sw('mistakes',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('check',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="full">
+  <div class="sec">Copy nothing — read and compare only</div>
+  <div class="tip">Read through this carefully. For every line that differs from yours, ask yourself WHY — not just what is different. Understanding the reason matters more than the code itself.</div>
+
+<div class="code"><span class="cm"># ─────────────────────────────────────────
+# Day 2 Challenge — Ideal Solution
+# day2_challenge.py
+# ─────────────────────────────────────────</span>
+
+<span class="cm"># ── Starting data ──────────────────────────</span>
+env            = <span class="st">"staging"</span>
+username       = <span class="st">"tomsmith"</span>
+current_url    = <span class="st">"  https://staging.myapp.com/secure  "</span>
+page_title     = <span class="st">"  Secure Area  "</span>
+flash_message  = <span class="st">"  \n You logged into a secure area! \n  "</span>
+response_time_ms = <span class="nm">843</span>
+
+<span class="cm"># ── Step 1: build login_url with f-string ──</span>
+login_url = <span class="fn">f</span><span class="st">"https://{env}.myapp.com/login"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Login URL   : {login_url}"</span>)
+
+<span class="cm"># ── Step 2: clean current_url ──────────────</span>
+clean_url = current_url.<span class="fn">strip</span>()
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Current URL : {clean_url}"</span>)
+
+<span class="cm"># ── Step 3: clean page_title ───────────────</span>
+clean_title = page_title.<span class="fn">strip</span>()
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Page title  : {clean_title}"</span>)
+
+<span class="cm"># ── Step 4: flash message contains "secure area" ──</span>
+flash_clean = flash_message.<span class="fn">strip</span>().<span class="fn">lower</span>()
+flash_ok    = <span class="st">"secure area"</span> <span class="kw">in</span> flash_clean
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Flash OK    : {flash_ok}"</span>)
+
+<span class="cm"># ── Step 5: URL starts with https ──────────</span>
+url_secure = clean_url.<span class="fn">startswith</span>(<span class="st">"https"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"URL secure  : {url_secure}"</span>)
+
+<span class="cm"># ── Step 6: URL ends with /secure ──────────</span>
+on_secure_page = clean_url.<span class="fn">endswith</span>(<span class="st">"/secure"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"On /secure  : {on_secure_page}"</span>)
+
+<span class="cm"># ── Step 7: response time under 2000ms ─────</span>
+fast_enough = response_time_ms < <span class="nm">2000</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Fast enough : {fast_enough}"</span>)
+
+<span class="cm"># ── Step 8: overall result + summary ───────</span>
+all_passed = url_secure <span class="kw">and</span> on_secure_page <span class="kw">and</span> flash_ok <span class="kw">and</span> fast_enough
+overall    = <span class="st">"PASS"</span> <span class="kw">if</span> all_passed <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'=' * 25}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"=== Login Test Result ==="</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'=' * 25}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Environment : {env}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"User        : {username}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"URL secure  : {url_secure}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"On /secure  : {on_secure_page}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Flash OK    : {flash_ok}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Fast enough : {fast_enough}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'─' * 25}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Overall     : {overall}"</span>)</div>
+
+  <div class="sec">Expected output</div>
+  <div class="out">
+    <div class="out-lbl">Terminal output</div>
+    <div class="ol">Login URL   : https://staging.myapp.com/login</div>
+    <div class="ol">Current URL : https://staging.myapp.com/secure</div>
+    <div class="ol">Page title  : Secure Area</div>
+    <div class="ol">Flash OK    : True</div>
+    <div class="ol">URL secure  : True</div>
+    <div class="ol">On /secure  : True</div>
+    <div class="ol">Fast enough : True</div>
+    <div class="ol">========================= </div>
+    <div class="ol">=== Login Test Result ===</div>
+    <div class="ol">=========================</div>
+    <div class="ol">Environment : staging</div>
+    <div class="ol">User        : tomsmith</div>
+    <div class="ol">URL secure  : True</div>
+    <div class="ol">On /secure  : True</div>
+    <div class="ol">Flash OK    : True</div>
+    <div class="ol">Fast enough : True</div>
+    <div class="ol">─────────────────────────</div>
+    <div class="ol">Overall     : PASS</div>
+  </div>
+</div>
+
+<!-- LINE BY LINE -->
+<div class="pg" id="explain">
+  <div class="sec">Every important line explained</div>
+  <div class="explain-block">
+
+    <div class="eb">
+      <div class="eb-code"><span class="fn">f</span><span class="st">"https://{env}.myapp.com/login"</span></div>
+      <div class="eb-explain"><b>Step 1 — f-string URL builder.</b> The <code>f</code> before the quote activates f-string mode. <code>{env}</code> is replaced with the value of the variable <code>env</code>. Result: <code>https://staging.myapp.com/login</code>. If you change <code>env = "prod"</code>, you get the prod URL automatically — no other changes needed.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code">clean_url = current_url.<span class="fn">strip</span>()</div>
+      <div class="eb-explain"><b>Step 2 — strip before using.</b> The raw value has spaces on both ends. If you used <code>current_url</code> directly in <code>startswith()</code> or <code>endswith()</code>, those spaces would cause it to return False even though the URL is correct. Always strip first, store in a new variable, then use the clean version everywhere else.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code">flash_clean = flash_message.<span class="fn">strip</span>().<span class="fn">lower</span>()
+flash_ok    = <span class="st">"secure area"</span> <span class="kw">in</span> flash_clean</div>
+      <div class="eb-explain"><b>Step 4 — the most important pattern in UI testing.</b> Two methods chained: strip removes outer whitespace and newlines, lower makes comparison case-insensitive. Then <code>in</code> checks if the substring exists anywhere in the string. This exact pattern is what you'll write in Playwright: <code>"secure area" in page.locator("#flash").inner_text().strip().lower()</code>.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code">url_secure = clean_url.<span class="fn">startswith</span>(<span class="st">"https"</span>)</div>
+      <div class="eb-explain"><b>Step 5 — using clean_url, not current_url.</b> This is why we stored the stripped version in step 2. If you wrote <code>current_url.startswith("https")</code>, the leading spaces would mean it starts with a space, not "https", and you'd get False. Always work with the clean variable.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code">all_passed = url_secure <span class="kw">and</span> on_secure_page <span class="kw">and</span> flash_ok <span class="kw">and</span> fast_enough
+overall    = <span class="st">"PASS"</span> <span class="kw">if</span> all_passed <span class="kw">else</span> <span class="st">"FAIL"</span></div>
+      <div class="eb-explain"><b>Step 8 — combining booleans and inline condition.</b> <code>and</code> returns True only if ALL conditions are True — one failure makes the whole thing False. The inline <code>"PASS" if all_passed else "FAIL"</code> picks a string based on the boolean. This is called a ternary expression — you'll see it constantly in test reporting code.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code"><span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'=' * 25}"</span>)</div>
+      <div class="eb-explain"><b>Separator line trick.</b> <code>"=" * 25</code> repeats the = character 25 times. Doing this inside an f-string <code>{'=' * 25}</code> lets you print a separator without hardcoding 25 equals signs. Change the number to change the width. Useful for any formatted test output.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mistakes">
+  <div class="sec">The 6 mistakes most people made on this challenge</div>
+  <div class="diff-grid">
+
+    <div class="diff-row">
+      <div class="diff-label diff-alt">Mistake 1 — using current_url directly without stripping</div>
+      <div class="diff-body"><span class="cm"># Wrong — leading space breaks startswith()</span>
+url_secure = current_url.<span class="fn">startswith</span>(<span class="st">"https"</span>)   <span class="cm"># False!</span>
+
+<span class="cm"># Correct — strip first, then check</span>
+clean_url  = current_url.<span class="fn">strip</span>()
+url_secure = clean_url.<span class="fn">startswith</span>(<span class="st">"https"</span>)    <span class="cm"># True</span></div>
+      <div class="diff-note">The raw string starts with spaces, not "https". <code>startswith()</code> is exact — a space at position 0 makes it return False. This is the most common real-world bug in UI test automation too. Scraped text always needs cleaning.</div>
+    </div>
+
+    <div class="diff-row">
+      <div class="diff-label diff-alt">Mistake 2 — not chaining .lower() on flash message</div>
+      <div class="diff-body"><span class="cm"># Wrong — case-sensitive, fragile</span>
+flash_ok = <span class="st">"secure area"</span> <span class="kw">in</span> flash_message.<span class="fn">strip</span>()
+
+<span class="cm"># Correct — lowercase both sides</span>
+flash_ok = <span class="st">"secure area"</span> <span class="kw">in</span> flash_message.<span class="fn">strip</span>().<span class="fn">lower</span>()</div>
+      <div class="diff-note">If the page ever changes "Secure Area" to "SECURE AREA" or "secure Area", your test breaks. Lowercasing both sides makes it case-insensitive and resilient to UI copy changes.</div>
+    </div>
+
+    <div class="diff-row">
+      <div class="diff-label diff-alt">Mistake 3 — hardcoding the URL instead of using f-string</div>
+      <div class="diff-body"><span class="cm"># Wrong — hardcoded, doesn't use env variable</span>
+login_url = <span class="st">"https://staging.myapp.com/login"</span>
+
+<span class="cm"># Correct — built from env variable</span>
+login_url = <span class="fn">f</span><span class="st">"https://{env}.myapp.com/login"</span></div>
+      <div class="diff-note">Both produce the same output right now, but the f-string version automatically changes when <code>env</code> changes. Hardcoded URLs are a maintenance problem — you'd have to update every URL manually when switching environments.</div>
+    </div>
+
+    <div class="diff-row">
+      <div class="diff-label diff-alt">Mistake 4 — checking response time with a string comparison</div>
+      <div class="diff-body"><span class="cm"># Wrong — comparing int to string</span>
+fast_enough = response_time_ms < <span class="st">"2000"</span>   <span class="cm"># TypeError crash</span>
+
+<span class="cm"># Correct — compare int to int (no quotes)</span>
+fast_enough = response_time_ms < <span class="nm">2000</span></div>
+      <div class="diff-note"><code>2000</code> without quotes is an integer. <code>"2000"</code> with quotes is a string. You cannot compare a number to text with <code>&lt;</code> — Python will crash with TypeError. Numbers never get quotes.</div>
+    </div>
+
+    <div class="diff-row">
+      <div class="diff-label diff-alt">Mistake 5 — repeating strip() instead of reusing clean variable</div>
+      <div class="diff-body"><span class="cm"># Repetitive — stripping the same variable 3 times</span>
+url_secure     = current_url.<span class="fn">strip</span>().<span class="fn">startswith</span>(<span class="st">"https"</span>)
+on_secure_page = current_url.<span class="fn">strip</span>().<span class="fn">endswith</span>(<span class="st">"/secure"</span>)
+<span class="fn">print</span>(current_url.<span class="fn">strip</span>())
+
+<span class="cm"># Better — strip once, reuse everywhere</span>
+clean_url      = current_url.<span class="fn">strip</span>()
+url_secure     = clean_url.<span class="fn">startswith</span>(<span class="st">"https"</span>)
+on_secure_page = clean_url.<span class="fn">endswith</span>(<span class="st">"/secure"</span>)
+<span class="fn">print</span>(clean_url)</div>
+      <div class="diff-note">Both work, but stripping once and storing it is cleaner and faster. If you need to change how you clean the value, you only change one line. This is the DRY principle — Don't Repeat Yourself — fundamental to writing maintainable test code.</div>
+    </div>
+
+    <div class="diff-row">
+      <div class="diff-label diff-alt">Mistake 6 — printing result without a label</div>
+      <div class="diff-body"><span class="cm"># Hard to read in terminal output</span>
+<span class="fn">print</span>(url_secure)      <span class="cm"># prints: True  ← True what?</span>
+<span class="fn">print</span>(flash_ok)        <span class="cm"># prints: True  ← True what?</span>
+
+<span class="cm"># Always label your output</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"URL secure  : {url_secure}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Flash OK    : {flash_ok}"</span>)</div>
+      <div class="diff-note">When a test runs and prints 5 lines of "True", you have no idea which check passed. Always print a label with the value. This habit directly translates to readable test output in pytest — it tells you exactly what succeeded or failed.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCORE CHECKER -->
+<div class="pg" id="check">
+  <div class="sec">Check off what you got right</div>
+  <div class="tip">Be honest — this is for you, not anyone else. Every unchecked item is something to review before moving to Day 3.</div>
+
+  <div class="score-area">
+    <div class="score-n" id="score-num">0 / 10</div>
+    <div class="score-l">correct concepts</div>
+    <div class="score-bar"><div class="score-fill" id="score-bar" style="width:0%"></div></div>
+  </div>
+
+  <div class="checklist" id="checklist">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg id="ck0" width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Built <code>login_url</code> using an f-string with the <code>env</code> variable — not hardcoded</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Stored the stripped URL in a variable (<code>clean_url</code>) and reused it — not stripped multiple times</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Stripped the page_title and stored it cleanly</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Used both <code>.strip()</code> AND <code>.lower()</code> on the flash message before checking</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Used <code>in</code> to check flash message contains "secure area" — not == exact match</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Used <code>startswith("https")</code> on the <b>cleaned</b> URL — not the raw one with spaces</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Used <code>endswith("/secure")</code> to check the page path</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Compared response_time_ms to <code>2000</code> (integer, no quotes) with <code>&lt;</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Combined all booleans with <code>and</code> to get a single overall result</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Every printed value had a label — used f-strings with descriptive text, not bare <code>print(variable)</code></div></div>
+  </div>
+
+  <div id="score-msg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 3 Python — lists in depth for QA automation with hands-on exercises')">Ready — go to Day 3 ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me another string practice challenge for Python — harder than Day 2, still using QA automation scenarios')">Give me a harder strings challenge ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  svg.style.display=el.classList.contains('checked')?'block':'none';
+  if(el.classList.contains('checked')){
+    el.querySelector('.ci-box').style.background='#27500A';
+    el.querySelector('.ci-box').style.borderColor='#27500A';
+  } else {
+    el.querySelector('.ci-box').style.background='';
+    el.querySelector('.ci-box').style.borderColor='';
+  }
+  updateScore();
+}
+
+function updateScore(){
+  const total=10;
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round((done/total)*100);
+  document.getElementById('score-num').textContent=done+' / '+total;
+  document.getElementById('score-bar').style.width=pct+'%';
+  const msg=document.getElementById('score-msg');
+  if(done===total){
+    msg.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:0">Perfect score. You have genuinely understood Day 2. Move to Day 3 with confidence.</div>';
+  } else if(done>=7){
+    msg.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:0">Strong result. Review the unchecked items in the Common Mistakes tab, then move to Day 3.</div>';
+  } else if(done>=4){
+    msg.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:0">Half way there. Reread the Line by Line tab for the concepts you missed, rewrite those parts, then move on.</div>';
+  } else if(done>0){
+    msg.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:0">Go back to the Full Solution tab, read every line carefully, then rewrite the whole challenge from scratch before Day 3.</div>';
+  }
+}
+</script>

@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500}
+.t0.on{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.t1.on{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.t2.on{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.t3.on{background:#FAEEDA;color:#633806;border-color:#EF9F27}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.od{color:var(--color-text-tertiary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.concept-map{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:10px 0}
+.cm-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 11px;border:0.5px solid var(--color-border-tertiary)}
+.cm-day{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.cm-skill{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.cm-use{font-size:11px;color:var(--color-text-secondary);line-height:1.35}
+.step{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:10px;overflow:hidden}
+.step-hdr{padding:10px 14px;background:var(--color-background-secondary);display:flex;align-items:center;gap:10px;cursor:pointer}
+.step-hdr:hover{background:var(--color-background-tertiary)}
+.step-num{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px;flex-shrink:0}
+.step-title{font-size:13px;font-weight:500;flex:1}
+.step-badge{font-size:11px;color:var(--color-text-tertiary)}
+.step-arr{font-size:11px;color:var(--color-text-tertiary);transition:transform .2s}
+.step-arr.open{transform:rotate(90deg)}
+.step-body{display:none;padding:13px 16px;border-top:0.5px solid var(--color-border-tertiary)}
+.step-body.open{display:block}
+.ch-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.full-project-note{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.fpn-t{font-size:14px;font-weight:500;margin-bottom:6px}
+.fpn-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.checklist{display:flex;flex-direction:column;gap:5px;margin:10px 0}
+.ci{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--color-text-secondary);line-height:1.55}
+.ci::before{content:"✓";color:var(--color-text-success);font-size:11px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="tabs">
+  <button class="tab t0 on" onclick="sw('overview',this)">Overview</button>
+  <button class="tab t1" onclick="sw('build',this)">Build it step by step</button>
+  <button class="tab t2" onclick="sw('solution',this)">Full solution</button>
+  <button class="tab t3" onclick="sw('next',this)">What comes next</button>
+</div>
+
+<!-- OVERVIEW -->
+<div class="pg on" id="overview">
+  <div class="full-project-note">
+    <div class="fpn-t">Day 7 — The QA Automation Toolkit</div>
+    <div class="fpn-b">Today you build one complete, real Python module — <code>qa_toolkit.py</code> — that a real automation project would actually use. No new concepts. Every line is a concept from Days 1–6 applied purposefully. When you finish, this file is the foundation you carry into Playwright on Day 15.</div>
+  </div>
+
+  <div class="sec">What every concept does in this project</div>
+  <div class="concept-map">
+    <div class="cm-card"><div class="cm-day">Day 1</div><div class="cm-skill">Variables + types</div><div class="cm-use">Config values, status codes, flags</div></div>
+    <div class="cm-card"><div class="cm-day">Day 2</div><div class="cm-skill">Strings + f-strings</div><div class="cm-use">URL builder, message cleaner, report formatter</div></div>
+    <div class="cm-card"><div class="cm-day">Day 3</div><div class="cm-skill">Lists</div><div class="cm-use">Test data sets, result collectors, browser lists</div></div>
+    <div class="cm-card"><div class="cm-day">Day 4</div><div class="cm-skill">Dicts</div><div class="cm-use">Test users, API responses, config objects</div></div>
+    <div class="cm-card"><div class="cm-day">Day 5</div><div class="cm-skill">Conditions</div><div class="cm-use">Guard clauses, validators, status classifiers</div></div>
+    <div class="cm-card"><div class="cm-day">Day 6</div><div class="cm-skill">Loops</div><div class="cm-use">Suite runner, retry logic, cross-browser matrix</div></div>
+  </div>
+
+  <div class="sec">What you are building — 6 functions</div>
+  <div class="checklist">
+    <div class="ci"><code>build_url(env, path)</code> — builds any URL from env + path, validates it</div>
+    <div class="ci"><code>validate_user(user)</code> — validates a test user dict, returns errors list</div>
+    <div class="ci"><code>classify_response(status, body, ms)</code> — classifies an API response fully</div>
+    <div class="ci"><code>run_test_suite(test_cases, browsers)</code> — runs all tests, collects results</div>
+    <div class="ci"><code>retry_failures(results)</code> — retries failed tests up to their retry limit</div>
+    <div class="ci"><code>generate_report(results, config)</code> — produces the full session report</div>
+  </div>
+
+  <div class="tip">These 6 functions are not exercises — they are real utility functions that a professional automation project uses. In Week 3, you will import some of these directly into your Playwright tests.</div>
+
+  <div class="sec">The file you will end up with</div>
+<div class="code"><span class="cm"># qa_toolkit.py
+# A reusable QA automation utility module
+# Built across Day 7 — used from Week 3 onward
+
+# ── Config ──────────────
+# ── build_url() ─────────
+# ── validate_user() ─────
+# ── classify_response() ─
+# ── run_test_suite() ────
+# ── retry_failures() ────
+# ── generate_report() ───
+# ── Main demo ───────────</span></div>
+
+  <div class="ok">This is not a tutorial exercise. It is a real module. The goal is to write it yourself from scratch using the Build tab, then compare with the Full Solution tab. Take your time — this is the culmination of 6 days of learning.</div>
+</div>
+
+<!-- BUILD IT -->
+<div class="pg" id="build">
+  <div class="tip">Build these one function at a time. After each one, run your file and make sure it works before moving to the next. Click each step to expand it.</div>
+
+  <div class="step">
+    <div class="step-hdr" onclick="tog(this)">
+      <span class="step-num" style="background:#E6F1FB;color:#0C447C">Step 1</span>
+      <span class="step-title">Config + build_url()</span>
+      <span class="step-badge">Day 1+2</span>
+      <span class="step-arr">▶</span>
+    </div>
+    <div class="step-body">
+      <div class="sec">Write this first — config dict and URL builder</div>
+      <div class="code"><span class="cm"># ── Config ──────────────────────────────────────────</span>
+CONFIG = {
+    <span class="st">"envs"</span>: {
+        <span class="st">"staging"</span>: <span class="st">"https://staging.myapp.com"</span>,
+        <span class="st">"prod"</span>:    <span class="st">"https://myapp.com"</span>,
+        <span class="st">"dev"</span>:     <span class="st">"http://localhost:3000"</span>
+    },
+    <span class="st">"supported_browsers"</span>: [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>],
+    <span class="st">"slow_threshold_ms"</span>: <span class="nm">2000</span>,
+    <span class="st">"pass_rate_threshold"</span>: <span class="nm">80</span>
+}
+
+<span class="cm"># ── build_url() ─────────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">build_url</span>(env, path=<span class="st">"/"</span>):
+    <span class="st">"""Build a full URL for the given environment and path.
+    Returns (url, error) — error is None if valid."""</span>
+
+    <span class="cm"># Guard: env must exist in config</span>
+    <span class="kw">if</span> env <span class="kw">not in</span> CONFIG[<span class="st">"envs"</span>]:
+        valid = <span class="fn">list</span>(CONFIG[<span class="st">"envs"</span>].<span class="fn">keys</span>())
+        <span class="kw">return</span> <span class="kw">None</span>, <span class="fn">f</span><span class="st">"Unknown env '{env}'. Valid: {valid}"</span>
+
+    <span class="cm"># Guard: path must start with /</span>
+    <span class="kw">if not</span> path.<span class="fn">startswith</span>(<span class="st">"/"</span>):
+        <span class="kw">return</span> <span class="kw">None</span>, <span class="fn">f</span><span class="st">"Path must start with '/': got '{path}'"</span>
+
+    base = CONFIG[<span class="st">"envs"</span>][env]
+    url  = <span class="fn">f</span><span class="st">"{base}{path}"</span>
+    <span class="kw">return</span> url, <span class="kw">None</span>
+
+<span class="cm"># Quick test</span>
+url, err = <span class="fn">build_url</span>(<span class="st">"staging"</span>, <span class="st">"/login"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"URL: {url}"</span>)   <span class="cm"># https://staging.myapp.com/login</span>
+
+url, err = <span class="fn">build_url</span>(<span class="st">"unknown"</span>, <span class="st">"/login"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Error: {err}"</span>)  <span class="cm"># Unknown env 'unknown'...</span></div>
+
+      <div class="tip">Returning <code>(value, error)</code> as a tuple is a common Python pattern for functions that can fail. The caller unpacks both: <code>url, err = build_url(...)</code> then checks <code>if err</code>. Clean, no exceptions needed for expected failures.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-hdr" onclick="tog(this)">
+      <span class="step-num" style="background:#EAF3DE;color:#27500A">Step 2</span>
+      <span class="step-title">validate_user()</span>
+      <span class="step-badge">Day 4+5</span>
+      <span class="step-arr">▶</span>
+    </div>
+    <div class="step-body">
+<div class="code"><span class="cm"># ── validate_user() ─────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">validate_user</span>(user):
+    <span class="st">"""Validate a test user dict. Returns list of error strings.
+    Empty list means valid."""</span>
+    errors = []
+
+    <span class="cm"># Guard: must be a dict</span>
+    <span class="kw">if not</span> <span class="fn">isinstance</span>(user, <span class="fn">dict</span>):
+        <span class="kw">return</span> [<span class="st">"user must be a dict"</span>]
+
+    <span class="cm"># Required fields</span>
+    <span class="kw">for</span> field <span class="kw">in</span> [<span class="st">"username"</span>, <span class="st">"password"</span>, <span class="st">"role"</span>]:
+        <span class="kw">if</span> field <span class="kw">not in</span> user:
+            errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"missing field: '{field}'"</span>)
+
+    <span class="cm"># Only validate values if fields exist</span>
+    <span class="kw">if</span> <span class="st">"username"</span> <span class="kw">in</span> user:
+        <span class="kw">if not</span> user[<span class="st">"username"</span>].<span class="fn">strip</span>():
+            errors.<span class="fn">append</span>(<span class="st">"username is empty"</span>)
+        <span class="kw">elif</span> <span class="fn">len</span>(user[<span class="st">"username"</span>]) <span class="op">&lt;</span> <span class="nm">3</span>:
+            errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"username too short ({len(user['username'])} chars)"</span>)
+
+    <span class="kw">if</span> <span class="st">"password"</span> <span class="kw">in</span> user:
+        <span class="kw">if not</span> user[<span class="st">"password"</span>]:
+            errors.<span class="fn">append</span>(<span class="st">"password is empty"</span>)
+        <span class="kw">elif</span> <span class="fn">len</span>(user[<span class="st">"password"</span>]) <span class="op">&lt;</span> <span class="nm">8</span>:
+            errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"password too short ({len(user['password'])} chars)"</span>)
+
+    <span class="kw">if</span> <span class="st">"role"</span> <span class="kw">in</span> user:
+        valid_roles = [<span class="st">"admin"</span>, <span class="st">"editor"</span>, <span class="st">"viewer"</span>]
+        <span class="kw">if</span> user[<span class="st">"role"</span>] <span class="kw">not in</span> valid_roles:
+            errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"invalid role '{user['role']}' — must be {valid_roles}"</span>)
+
+    <span class="kw">return</span> errors
+
+<span class="cm"># Quick test</span>
+good = {<span class="st">"username"</span>: <span class="st">"tomsmith"</span>, <span class="st">"password"</span>: <span class="st">"SuperSecret!"</span>, <span class="st">"role"</span>: <span class="st">"admin"</span>}
+bad  = {<span class="st">"username"</span>: <span class="st">"ab"</span>,       <span class="st">"password"</span>: <span class="st">"short"</span>,       <span class="st">"role"</span>: <span class="st">"superuser"</span>}
+
+<span class="fn">print</span>(<span class="fn">validate_user</span>(good))   <span class="cm"># []</span>
+<span class="fn">print</span>(<span class="fn">validate_user</span>(bad))    <span class="cm"># ['username too short...', 'password too short...', 'invalid role...']</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-hdr" onclick="tog(this)">
+      <span class="step-num" style="background:#EEEDFE;color:#3C3489">Step 3</span>
+      <span class="step-title">classify_response()</span>
+      <span class="step-badge">Day 5</span>
+      <span class="step-arr">▶</span>
+    </div>
+    <div class="step-body">
+<div class="code"><span class="cm"># ── classify_response() ─────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">classify_response</span>(status, body=<span class="kw">None</span>, ms=<span class="nm">0</span>):
+    <span class="st">"""Classify an API response. Returns a result dict."""</span>
+
+    <span class="cm"># Status category</span>
+    <span class="kw">if</span> <span class="nm">200</span> <span class="op">&lt;=</span> status <span class="op">&lt;</span> <span class="nm">300</span>:   category = <span class="st">"success"</span>
+    <span class="kw">elif</span> status == <span class="nm">401</span>:          category = <span class="st">"unauthorized"</span>
+    <span class="kw">elif</span> status == <span class="nm">403</span>:          category = <span class="st">"forbidden"</span>
+    <span class="kw">elif</span> status == <span class="nm">404</span>:          category = <span class="st">"not_found"</span>
+    <span class="kw">elif</span> <span class="nm">400</span> <span class="op">&lt;=</span> status <span class="op">&lt;</span> <span class="nm">500</span>:   category = <span class="st">"client_error"</span>
+    <span class="kw">elif</span> <span class="nm">500</span> <span class="op">&lt;=</span> status <span class="op">&lt;</span> <span class="nm">600</span>:   category = <span class="st">"server_error"</span>
+    <span class="kw">else</span>:                          category = <span class="st">"unknown"</span>
+
+    <span class="cm"># Body assessment</span>
+    has_body  = body <span class="kw">is not None</span> <span class="kw">and</span> <span class="fn">bool</span>(body)
+    has_error = <span class="fn">isinstance</span>(body, <span class="fn">dict</span>) <span class="kw">and</span> <span class="st">"error"</span> <span class="kw">in</span> body
+
+    <span class="cm"># Performance</span>
+    slow_ms = CONFIG[<span class="st">"slow_threshold_ms"</span>]
+    perf    = <span class="st">"fast"</span> <span class="kw">if</span> ms <span class="op">&lt;</span> <span class="nm">500</span> <span class="kw">else</span> <span class="st">"ok"</span> <span class="kw">if</span> ms <span class="op">&lt;</span> slow_ms <span class="kw">else</span> <span class="st">"slow"</span>
+
+    <span class="cm"># Overall verdict</span>
+    passed = category == <span class="st">"success"</span> <span class="kw">and</span> has_body <span class="kw">and not</span> has_error
+
+    <span class="kw">return</span> {
+        <span class="st">"status"</span>:   status,
+        <span class="st">"category"</span>: category,
+        <span class="st">"has_body"</span>: has_body,
+        <span class="st">"perf"</span>:     perf,
+        <span class="st">"passed"</span>:   passed,
+        <span class="st">"verdict"</span>:  <span class="st">"PASS"</span> <span class="kw">if</span> passed <span class="kw">else</span> <span class="st">"FAIL"</span>
+    }
+
+<span class="cm"># Quick test</span>
+r = <span class="fn">classify_response</span>(<span class="nm">200</span>, {<span class="st">"id"</span>: <span class="nm">1</span>, <span class="st">"email"</span>: <span class="st">"a@b.com"</span>}, <span class="nm">320</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"200 with body: {r['verdict']} ({r['perf']})"</span>)  <span class="cm"># PASS (fast)</span>
+
+r = <span class="fn">classify_response</span>(<span class="nm">200</span>, {}, <span class="nm">150</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"200 empty body: {r['verdict']}"</span>)              <span class="cm"># FAIL</span></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-hdr" onclick="tog(this)">
+      <span class="step-num" style="background:#FAEEDA;color:#633806">Step 4</span>
+      <span class="step-title">run_test_suite()</span>
+      <span class="step-badge">Day 3+6</span>
+      <span class="step-arr">▶</span>
+    </div>
+    <div class="step-body">
+<div class="code"><span class="cm"># ── run_test_suite() ────────────────────────────────</span>
+<span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">run_test_suite</span>(test_cases, browsers, seed=<span class="nm">42</span>):
+    <span class="st">"""Run all test cases across all browsers.
+    Returns list of result dicts."""</span>
+    random.<span class="fn">seed</span>(seed)
+
+    <span class="cm"># Validate browsers first</span>
+    invalid = [b <span class="kw">for</span> b <span class="kw">in</span> browsers <span class="kw">if</span> b <span class="kw">not in</span> CONFIG[<span class="st">"supported_browsers"</span>]]
+    <span class="kw">if</span> invalid:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Warning: unsupported browsers will be skipped: {invalid}"</span>)
+        browsers = [b <span class="kw">for</span> b <span class="kw">in</span> browsers <span class="kw">if</span> b <span class="kw">in</span> CONFIG[<span class="st">"supported_browsers"</span>]]
+
+    results = []
+
+    <span class="kw">for</span> browser <span class="kw">in</span> browsers:
+        <span class="kw">for</span> tc <span class="kw">in</span> test_cases:
+            <span class="cm"># Skip P3 tests</span>
+            <span class="kw">if</span> tc.<span class="fn">get</span>(<span class="st">"priority"</span>) == <span class="st">"P3"</span>:
+                <span class="kw">continue</span>
+
+            <span class="cm"># Simulate: higher pass rate for P1 tests</span>
+            rate   = <span class="nm">0.85</span> <span class="kw">if</span> tc.<span class="fn">get</span>(<span class="st">"priority"</span>) == <span class="st">"P1"</span> <span class="kw">else</span> <span class="nm">0.7</span>
+            status = <span class="st">"PASS"</span> <span class="kw">if</span> random.<span class="fn">random</span>() <span class="op">&lt;</span> rate <span class="kw">else</span> <span class="st">"FAIL"</span>
+            ms     = random.<span class="fn">randint</span>(<span class="nm">150</span>, <span class="nm">3500</span>)
+
+            results.<span class="fn">append</span>({
+                <span class="st">"browser"</span>:   browser,
+                <span class="st">"test_id"</span>:   tc[<span class="st">"id"</span>],
+                <span class="st">"test_name"</span>: tc[<span class="st">"name"</span>],
+                <span class="st">"priority"</span>:  tc.<span class="fn">get</span>(<span class="st">"priority"</span>, <span class="st">"P2"</span>),
+                <span class="st">"retries"</span>:   tc.<span class="fn">get</span>(<span class="st">"retries"</span>, <span class="nm">2</span>),
+                <span class="st">"status"</span>:    status,
+                <span class="st">"duration_ms"</span>: ms
+            })
+
+    <span class="kw">return</span> results</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-hdr" onclick="tog(this)">
+      <span class="step-num" style="background:#EAF3DE;color:#27500A">Step 5</span>
+      <span class="step-title">retry_failures()</span>
+      <span class="step-badge">Day 6</span>
+      <span class="step-arr">▶</span>
+    </div>
+    <div class="step-body">
+<div class="code"><span class="cm"># ── retry_failures() ────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">retry_failures</span>(results, verbose=<span class="kw">True</span>):
+    <span class="st">"""Retry failed tests up to their retry count.
+    Mutates results in place. Returns count of recovered tests."""</span>
+    recovered = <span class="nm">0</span>
+
+    <span class="kw">for</span> result <span class="kw">in</span> results:
+        <span class="kw">if</span> result[<span class="st">"status"</span>] != <span class="st">"FAIL"</span>:
+            <span class="kw">continue</span>
+
+        attempt = <span class="nm">0</span>
+        max_r   = result[<span class="st">"retries"</span>]
+
+        <span class="kw">if</span> verbose:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Retrying [{result['test_id']}] on {result['browser']}..."</span>)
+
+        <span class="kw">while</span> attempt <span class="op">&lt;</span> max_r <span class="kw">and</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+            attempt <span class="op">+=</span> <span class="nm">1</span>
+            <span class="kw">if</span> random.<span class="fn">random</span>() <span class="op">&gt;</span> <span class="nm">0.4</span>:
+                result[<span class="st">"status"</span>] = <span class="st">"PASS"</span>
+                result[<span class="st">"recovered"</span>] = <span class="kw">True</span>
+                recovered <span class="op">+=</span> <span class="nm">1</span>
+                <span class="kw">if</span> verbose:
+                    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"    ✓ Recovered on retry {attempt}"</span>)
+            <span class="kw">elif</span> verbose:
+                <span class="fn">print</span>(<span class="fn">f</span><span class="st">"    ✗ Retry {attempt}/{max_r} failed"</span>)
+
+    <span class="kw">return</span> recovered</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-hdr" onclick="tog(this)">
+      <span class="step-num" style="background:#E6F1FB;color:#0C447C">Step 6</span>
+      <span class="step-title">generate_report()</span>
+      <span class="step-badge">Days 1–6</span>
+      <span class="step-arr">▶</span>
+    </div>
+    <div class="step-body">
+<div class="code"><span class="cm"># ── generate_report() ───────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">generate_report</span>(results, config=<span class="kw">None</span>):
+    <span class="st">"""Generate a full session report from results list."""</span>
+    <span class="kw">if not</span> results:
+        <span class="kw">return</span> <span class="st">"No results to report."</span>
+
+    config = config <span class="kw">or</span> {}
+    env    = config.<span class="fn">get</span>(<span class="st">"env"</span>, <span class="st">"unknown"</span>)
+
+    <span class="cm"># Aggregate counts</span>
+    total     = <span class="fn">len</span>(results)
+    passed    = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"PASS"</span>)
+    failed    = total - passed
+    recovered = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.<span class="fn">get</span>(<span class="st">"recovered"</span>))
+    pass_rate = <span class="fn">round</span>(passed / total * <span class="nm">100</span>, <span class="nm">1</span>)
+
+    <span class="cm"># Performance analysis</span>
+    durations  = [r[<span class="st">"duration_ms"</span>] <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> <span class="st">"duration_ms"</span> <span class="kw">in</span> r]
+    avg_ms     = <span class="fn">round</span>(<span class="fn">sum</span>(durations) / <span class="fn">len</span>(durations)) <span class="kw">if</span> durations <span class="kw">else</span> <span class="nm">0</span>
+    slow_count = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> ms <span class="kw">in</span> durations <span class="kw">if</span> ms <span class="op">&gt;</span> CONFIG[<span class="st">"slow_threshold_ms"</span>])
+
+    <span class="cm"># Priority analysis</span>
+    p1_results    = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"priority"</span>] == <span class="st">"P1"</span>]
+    all_p1_passed = <span class="fn">all</span>(r[<span class="st">"status"</span>] == <span class="st">"PASS"</span> <span class="kw">for</span> r <span class="kw">in</span> p1_results) <span class="kw">if</span> p1_results <span class="kw">else</span> <span class="kw">True</span>
+
+    <span class="cm"># Failed test names</span>
+    failures = [<span class="fn">f</span><span class="st">"[{r['test_id']}] {r['test_name']} on {r['browser']}"</span>
+                <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>]
+
+    <span class="cm"># Overall gate</span>
+    threshold = CONFIG[<span class="st">"pass_rate_threshold"</span>]
+    overall   = <span class="st">"PASS"</span> <span class="kw">if</span> pass_rate <span class="op">&gt;=</span> threshold <span class="kw">and</span> all_p1_passed <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+    <span class="cm"># Build the report string</span>
+    lines = [
+        <span class="fn">f</span><span class="st">"{'='*45}"</span>,
+        <span class="fn">f</span><span class="st">"  QA SESSION REPORT"</span>,
+        <span class="fn">f</span><span class="st">"  Environment : {env}"</span>,
+        <span class="fn">f</span><span class="st">"{'='*45}"</span>,
+        <span class="fn">f</span><span class="st">"  Total runs   : {total}"</span>,
+        <span class="fn">f</span><span class="st">"  Passed       : {passed} ({pass_rate}%)"</span>,
+        <span class="fn">f</span><span class="st">"  Failed       : {failed}"</span>,
+        <span class="fn">f</span><span class="st">"  Recovered    : {recovered}"</span>,
+        <span class="fn">f</span><span class="st">"  Avg duration : {avg_ms}ms"</span>,
+        <span class="fn">f</span><span class="st">"  Slow tests   : {slow_count}"</span>,
+        <span class="fn">f</span><span class="st">"  All P1 pass  : {all_p1_passed}"</span>,
+        <span class="fn">f</span><span class="st">"{'─'*45}"</span>,
+        <span class="fn">f</span><span class="st">"  OVERALL      : {overall}"</span>,
+        <span class="fn">f</span><span class="st">"{'='*45}"</span>,
+    ]
+
+    <span class="kw">if</span> failures:
+        lines.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"\n  Failures ({len(failures)}):"</span>)
+        <span class="kw">for</span> f <span class="kw">in</span> failures:
+            lines.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"    ✗ {f}"</span>)
+
+    <span class="kw">return</span> <span class="st">"\n"</span>.<span class="fn">join</span>(lines)</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-hdr" onclick="tog(this)">
+      <span class="step-num" style="background:#FFF3C4;color:#7A5000">Step 7</span>
+      <span class="step-title">Main demo — wire everything together</span>
+      <span class="step-badge">All days</span>
+      <span class="step-arr">▶</span>
+    </div>
+    <div class="step-body">
+<div class="code"><span class="cm"># ── Main demo ────────────────────────────────────────</span>
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+
+    <span class="cm"># Test data</span>
+    TEST_USERS = [
+        {<span class="st">"username"</span>: <span class="st">"tomsmith"</span>, <span class="st">"password"</span>: <span class="st">"SuperSecretPassword!"</span>, <span class="st">"role"</span>: <span class="st">"admin"</span>},
+        {<span class="st">"username"</span>: <span class="st">"ab"</span>,        <span class="st">"password"</span>: <span class="st">"short"</span>,                <span class="st">"role"</span>: <span class="st">"superuser"</span>},
+    ]
+
+    TEST_CASES = [
+        {<span class="st">"id"</span>:<span class="st">"TC01"</span>, <span class="st">"name"</span>:<span class="st">"valid_login"</span>,    <span class="st">"priority"</span>:<span class="st">"P1"</span>, <span class="st">"retries"</span>:<span class="nm">3</span>},
+        {<span class="st">"id"</span>:<span class="st">"TC02"</span>, <span class="st">"name"</span>:<span class="st">"invalid_login"</span>,  <span class="st">"priority"</span>:<span class="st">"P1"</span>, <span class="st">"retries"</span>:<span class="nm">2</span>},
+        {<span class="st">"id"</span>:<span class="st">"TC03"</span>, <span class="st">"name"</span>:<span class="st">"checkout_flow"</span>,  <span class="st">"priority"</span>:<span class="st">"P1"</span>, <span class="st">"retries"</span>:<span class="nm">3</span>},
+        {<span class="st">"id"</span>:<span class="st">"TC04"</span>, <span class="st">"name"</span>:<span class="st">"profile_update"</span>, <span class="st">"priority"</span>:<span class="st">"P2"</span>, <span class="st">"retries"</span>:<span class="nm">2</span>},
+        {<span class="st">"id"</span>:<span class="st">"TC05"</span>, <span class="st">"name"</span>:<span class="st">"logout"</span>,         <span class="st">"priority"</span>:<span class="st">"P3"</span>, <span class="st">"retries"</span>:<span class="nm">1</span>},
+    ]
+
+    BROWSERS = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>]
+
+    <span class="cm"># 1. Validate URLs</span>
+    <span class="fn">print</span>(<span class="st">"── URL validation ──────────────────"</span>)
+    <span class="kw">for</span> env, path <span class="kw">in</span> [(<span class="st">"staging"</span>,<span class="st">"/login"</span>),(<span class="st">"prod"</span>,<span class="st">"login"</span>),(<span class="st">"unknown"</span>,<span class="st">"/x"</span>)]:
+        url, err = <span class="fn">build_url</span>(env, path)
+        <span class="kw">if</span> err:   <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Error: {err}"</span>)
+        <span class="kw">else</span>:     <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ {url}"</span>)
+
+    <span class="cm"># 2. Validate users</span>
+    <span class="fn">print</span>(<span class="st">"\n── User validation ─────────────────"</span>)
+    <span class="kw">for</span> user <span class="kw">in</span> TEST_USERS:
+        errs = <span class="fn">validate_user</span>(user)
+        status = <span class="st">"✓ valid"</span> <span class="kw">if not</span> errs <span class="kw">else</span> <span class="fn">f</span><span class="st">"✗ {len(errs)} errors"</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {user['username']:<span class="nm">12</span>} : {status}"</span>)
+        <span class="kw">for</span> e <span class="kw">in</span> errs:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"      → {e}"</span>)
+
+    <span class="cm"># 3. Run suite</span>
+    <span class="fn">print</span>(<span class="st">"\n── Running test suite ──────────────"</span>)
+    results = <span class="fn">run_test_suite</span>(TEST_CASES, BROWSERS)
+    passed_first = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"PASS"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {len(results)} runs, {passed_first} passed initially"</span>)
+
+    <span class="cm"># 4. Retry failures</span>
+    <span class="fn">print</span>(<span class="st">"\n── Retrying failures ───────────────"</span>)
+    recovered = <span class="fn">retry_failures</span>(results)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Recovered: {recovered} tests"</span>)
+
+    <span class="cm"># 5. Generate report</span>
+    <span class="fn">print</span>(<span class="st">"\n"</span> + <span class="fn">generate_report</span>(results, {<span class="st">"env"</span>: <span class="st">"staging"</span>}))</div>
+
+      <div class="ok">The <code>if __name__ == "__main__":</code> block runs only when you execute the file directly. When another file imports from qa_toolkit, the demo code does not run automatically. This is the correct structure for every Python module you write.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg" id="solution">
+  <div class="tip">This tab shows the complete file in one block. Use this to check your solution after building it step by step — not as a shortcut.</div>
+
+  <div class="out">
+    <div class="out-lbl">Sample output when you run python qa_toolkit.py</div>
+    <div class="ol">── URL validation ──────────────────</div>
+    <div class="ol">  ✓ https://staging.myapp.com/login</div>
+    <div class="ol">  ✗ Error: Path must start with '/': got 'login'</div>
+    <div class="ol">  ✗ Error: Unknown env 'unknown'. Valid: ['staging', 'prod', 'dev']</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── User validation ─────────────────</div>
+    <div class="ol">  tomsmith     : ✓ valid</div>
+    <div class="ol">  ab           : ✗ 3 errors</div>
+    <div class="ol">      → username too short (2 chars)</div>
+    <div class="ol">      → password too short (5 chars)</div>
+    <div class="ol">      → invalid role 'superuser'</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── Running test suite ──────────────</div>
+    <div class="ol">  8 runs, 6 passed initially</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── Retrying failures ───────────────</div>
+    <div class="ol">  Retrying [TC02] on chromium...</div>
+    <div class="ol">    ✓ Recovered on retry 1</div>
+    <div class="ol">  Retrying [TC03] on firefox...</div>
+    <div class="ol">    ✗ Retry 1/3 failed</div>
+    <div class="ol">    ✓ Recovered on retry 2</div>
+    <div class="ol">  Recovered: 2 tests</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">=============================================</div>
+    <div class="ol">  QA SESSION REPORT</div>
+    <div class="ol">  Environment : staging</div>
+    <div class="ol">=============================================</div>
+    <div class="ol">  Total runs   : 8</div>
+    <div class="ol">  Passed       : 8 (100.0%)</div>
+    <div class="ol">  Failed       : 0</div>
+    <div class="ol">  Recovered    : 2</div>
+    <div class="ol">  Avg duration : 1847ms</div>
+    <div class="ol">  Slow tests   : 3</div>
+    <div class="ol">  All P1 pass  : True</div>
+    <div class="ol">  ─────────────────────────────────────────────</div>
+    <div class="ol">  OVERALL      : PASS</div>
+    <div class="ol">=============================================</div>
+  </div>
+
+  <div class="sec">The key pattern on every line of generate_report()</div>
+  <div class="code"><span class="cm"># Every metric uses a generator expression</span>
+passed    = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"PASS"</span>)
+recovered = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.<span class="fn">get</span>(<span class="st">"recovered"</span>))
+durations = [r[<span class="st">"duration_ms"</span>] <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> <span class="st">"duration_ms"</span> <span class="kw">in</span> r]
+failures  = [<span class="fn">f</span><span class="st">"..."</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>]
+
+<span class="cm"># Report assembled as a list of strings, joined at the end</span>
+lines = [<span class="fn">f</span><span class="st">"line 1"</span>, <span class="fn">f</span><span class="st">"line 2"</span>, ...]
+<span class="kw">return</span> <span class="st">"\n"</span>.<span class="fn">join</span>(lines)</div>
+
+  <div class="tip">Building a report as a list of strings and joining with <code>"\n".join(lines)</code> at the end is the professional pattern. It is more flexible than printing directly — the caller can print it, write it to a file, or send it anywhere.</div>
+</div>
+
+<!-- WHAT COMES NEXT -->
+<div class="pg" id="next">
+  <div class="full-project-note">
+    <div class="fpn-t">You have completed the Python foundation</div>
+    <div class="fpn-b">Days 1–7 gave you every Python concept used in professional QA automation. Not all of Python — the parts that matter for the job. Variables, strings, lists, dicts, conditions, loops, functions, and a real utility module. Day 15 is Playwright.</div>
+  </div>
+
+  <div class="sec">What happens in weeks 3–6</div>
+  <div class="code"><span class="cm"># Week 3 (Days 15–21) — Playwright</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+<span class="kw">from</span> qa_toolkit <span class="kw">import</span> build_url, validate_user   <span class="cm"># ← your file</span>
+
+<span class="kw">def</span> <span class="fn">test_login</span>(page: Page):
+    url, _ = <span class="fn">build_url</span>(<span class="st">"staging"</span>, <span class="st">"/login"</span>)
+    page.<span class="fn">goto</span>(url)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    expect(page.<span class="fn">get_by_text</span>(<span class="st">"secure area"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="cm"># Week 4 (Days 22–28) — API testing</span>
+<span class="kw">import</span> requests
+<span class="kw">from</span> qa_toolkit <span class="kw">import</span> classify_response
+
+<span class="kw">def</span> <span class="fn">test_get_user</span>():
+    r    = requests.<span class="fn">get</span>(<span class="st">"https://reqres.in/api/users/2"</span>)
+    data = r.<span class="fn">json</span>()[<span class="st">"data"</span>]
+    result = <span class="fn">classify_response</span>(r.status_code, data, <span class="nm">0</span>)
+    assert result[<span class="st">"verdict"</span>] == <span class="st">"PASS"</span>, <span class="fn">f</span><span class="st">"API check failed: {result}"</span></div>
+
+  <div class="ok">Your qa_toolkit.py already contains functions that will be imported into real Playwright and API tests. You built the utility layer before the automation layer — which is exactly the right order.</div>
+
+  <div class="sec">Days 8–14 — what to do before Playwright starts</div>
+  <div class="code"><span class="cm"># Days 8–9:  Python functions in depth (def, args, return, *args, **kwargs)
+# Days 10–11: try/except in depth, reading files, JSON
+# Days 12–13: Git from zero — push qa_toolkit.py to GitHub
+# Day 14:     Review everything, fix any gaps
+# Day 15:     Playwright begins</span></div>
+
+  <div class="tip">Push <code>qa_toolkit.py</code> to a GitHub repo called <code>python-qa-practice</code> today. This is your first portfolio item — a real utility module, not a tutorial exercise. A recruiter who sees this in week 6 sees someone who writes structured, reusable code before they even touch a framework.</div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 8 Python — functions in depth for QA automation: default args, return values, *args, **kwargs, with hands-on exercises')">Go to Day 8 — functions in depth ↗</button>
+    <button class="ask" onclick="sendPrompt('How do I push my qa_toolkit.py file to GitHub from scratch — git init, add, commit, push, step by step')">Push qa_toolkit.py to GitHub ↗</button>
+    <button class="ask" onclick="sendPrompt('Review my qa_toolkit.py and tell me what to improve before I use it in Playwright tests')">Review my qa_toolkit.py ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tog(hdr){
+  const body=hdr.nextElementSibling;
+  const arr=hdr.querySelector('.step-arr');
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  arr.classList.toggle('open',!open);
+}
+</script>
+</body>
+</html>

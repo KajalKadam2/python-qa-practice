@@ -1,0 +1,484 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part{font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px}
+.pn{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#0C447C;border-color:#0C447C}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#185FA5;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Function by function</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every function that differs from yours, understand the reason before moving on.</div>
+
+<div class="code"><span class="cm"># ────────────────────────────────────────────────────
+# Day 8 Challenge — Ideal Solution
+# day8_challenge.py
+# ────────────────────────────────────────────────────</span>
+<span class="kw">from</span> typing <span class="kw">import</span> Any, Callable, Dict, List, Optional, Tuple
+<span class="kw">import</span> random
+random.<span class="fn">seed</span>(<span class="nm">42</span>)
+
+<span class="cm"># ── Function 1: log_result ───────────────────────────</span>
+<span class="kw">def</span> <span class="fn">log_result</span>(
+    test_id: <span class="fn">str</span>,
+    status:  <span class="fn">str</span>,
+    *details: <span class="fn">str</span>,
+    **meta: Any
+) -> <span class="kw">None</span>:
+    <span class="st">"""Log a test result with optional detail strings and metadata."""</span>
+    detail_str = <span class="st">", "</span>.<span class="fn">join</span>(details) <span class="kw">if</span> details <span class="kw">else</span> <span class="st">"no details"</span>
+    meta_str   = <span class="st">" "</span>.<span class="fn">join</span>(<span class="fn">f</span><span class="st">"{k}={v}"</span> <span class="kw">for</span> k, v <span class="kw">in</span> meta.<span class="fn">items</span>())
+    line       = <span class="fn">f</span><span class="st">"[{status}] {test_id} | Details: {detail_str}"</span>
+    <span class="kw">if</span> meta_str:
+        line  += <span class="fn">f</span><span class="st">" | {meta_str}"</span>
+    <span class="fn">print</span>(line)
+
+<span class="cm"># ── Function 2: build_report ─────────────────────────</span>
+<span class="kw">def</span> <span class="fn">build_report</span>(
+    title:    <span class="fn">str</span>,
+    *results: Dict[<span class="fn">str</span>, <span class="fn">str</span>],
+    show_passed:  <span class="fn">bool</span> = <span class="kw">True</span>,
+    max_failures: <span class="fn">int</span>  = <span class="nm">10</span>
+) -> <span class="fn">str</span>:
+    <span class="st">"""Build a formatted report string from any number of result dicts."""</span>
+    <span class="kw">if not</span> results:
+        <span class="kw">return</span> <span class="fn">f</span><span class="st">"Report '{title}': no results provided"</span>
+
+    total   = <span class="fn">len</span>(results)
+    passed  = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.<span class="fn">get</span>(<span class="st">"status"</span>) == <span class="st">"PASS"</span>)
+    failed  = total - passed
+    all_ok  = <span class="fn">all</span>(r.<span class="fn">get</span>(<span class="st">"status"</span>) == <span class="st">"PASS"</span> <span class="kw">for</span> r <span class="kw">in</span> results)
+    any_fail= <span class="fn">any</span>(r.<span class="fn">get</span>(<span class="st">"status"</span>) == <span class="st">"FAIL"</span> <span class="kw">for</span> r <span class="kw">in</span> results)
+    overall = <span class="st">"PASS"</span> <span class="kw">if</span> all_ok <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+    lines = [
+        <span class="fn">f</span><span class="st">"{'='*45}"</span>,
+        <span class="fn">f</span><span class="st">"  {title}"</span>,
+        <span class="fn">f</span><span class="st">"{'='*45}"</span>,
+        <span class="fn">f</span><span class="st">"  Total   : {total}"</span>,
+        <span class="fn">f</span><span class="st">"  Passed  : {passed}"</span>,
+        <span class="fn">f</span><span class="st">"  Failed  : {failed}"</span>,
+        <span class="fn">f</span><span class="st">"  All pass: {all_ok}  |  Any fail: {any_fail}"</span>,
+        <span class="fn">f</span><span class="st">"{'─'*45}"</span>,
+        <span class="fn">f</span><span class="st">"  OVERALL : {overall}"</span>,
+        <span class="fn">f</span><span class="st">"{'='*45}"</span>,
+    ]
+
+    failures = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.<span class="fn">get</span>(<span class="st">"status"</span>) == <span class="st">"FAIL"</span>]
+    <span class="kw">if</span> failures:
+        lines.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"\n  Failures (showing max {max_failures}):"</span>)
+        <span class="kw">for</span> r <span class="kw">in</span> failures[:max_failures]:
+            lines.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"    ✗ {r.get('id','?')} — {r.get('name','unknown')}"</span>)
+
+    <span class="kw">if</span> show_passed:
+        passed_list = [r <span class="kw">for</span> r <span class="kw">in</span> results <span class="kw">if</span> r.<span class="fn">get</span>(<span class="st">"status"</span>) == <span class="st">"PASS"</span>]
+        <span class="kw">if</span> passed_list:
+            lines.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"\n  Passed:"</span>)
+            <span class="kw">for</span> r <span class="kw">in</span> passed_list:
+                lines.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"    ✓ {r.get('id','?')} — {r.get('name','unknown')}"</span>)
+
+    <span class="kw">return</span> <span class="st">"\n"</span>.<span class="fn">join</span>(lines)
+
+<span class="cm"># ── Function 3: assert_response ──────────────────────</span>
+<span class="kw">def</span> <span class="fn">assert_response</span>(
+    status:          <span class="fn">int</span>,
+    body:            Dict[<span class="fn">str</span>, Any],
+    expected_status: <span class="fn">int</span>            = <span class="nm">200</span>,
+    required_fields: Optional[List[<span class="fn">str</span>]] = <span class="kw">None</span>
+) -> Tuple[<span class="fn">bool</span>, List[<span class="fn">str</span>]]:
+    <span class="st">"""Validate an API response status and body fields.
+
+    Returns:
+        (passed: bool, errors: list of strings)
+    """</span>
+    required_fields = required_fields <span class="kw">or</span> []
+    errors = []
+
+    <span class="cm"># Status check</span>
+    <span class="kw">if</span> status != expected_status:
+        errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"Status {status} != expected {expected_status}"</span>)
+
+    <span class="cm"># Body field checks</span>
+    <span class="kw">if not</span> body:
+        errors.<span class="fn">append</span>(<span class="st">"Response body is empty"</span>)
+    <span class="kw">else</span>:
+        <span class="kw">for</span> field <span class="kw">in</span> required_fields:
+            <span class="kw">if</span> field <span class="kw">not in</span> body:
+                errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"Missing required field: '{field}'"</span>)
+            <span class="kw">elif</span> body[field] <span class="kw">is None</span>:
+                errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"Field '{field}' is None"</span>)
+
+    passed = <span class="fn">len</span>(errors) == <span class="nm">0</span>
+    <span class="kw">return</span> passed, errors
+
+<span class="cm"># ── Function 4: retry ────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">retry</span>(
+    func:         Callable,
+    *args:        Any,
+    max_attempts: <span class="fn">int</span> = <span class="nm">3</span>,
+    **kwargs:     Any
+) -> Optional[Any]:
+    <span class="st">"""Call func(*args, **kwargs) up to max_attempts times.
+
+    Returns the result on success, None if all attempts fail.
+    func is expected to return a truthy value on success.
+    """</span>
+    attempt = <span class="nm">0</span>
+    <span class="kw">while</span> attempt <span class="op">&lt;</span> max_attempts:
+        attempt <span class="op">+=</span> <span class="nm">1</span>
+        <span class="kw">try</span>:
+            result = <span class="fn">func</span>(*args, **kwargs)
+            <span class="kw">if</span> result:
+                <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✓ Succeeded on attempt {attempt}/{max_attempts}"</span>)
+                <span class="kw">return</span> result
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Attempt {attempt}/{max_attempts} — returned falsy"</span>)
+        <span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> e:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Attempt {attempt}/{max_attempts} — error: {e}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Gave up after {max_attempts} attempts"</span>)
+    <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="cm"># ── Demo ─────────────────────────────────────────────</span>
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+
+    <span class="cm"># Function 1 — log_result</span>
+    <span class="fn">print</span>(<span class="st">"── log_result ──────────────────────────"</span>)
+    <span class="fn">log_result</span>(<span class="st">"TC01"</span>, <span class="st">"PASS"</span>)
+    <span class="fn">log_result</span>(<span class="st">"TC02"</span>, <span class="st">"PASS"</span>, <span class="st">"login ok"</span>, <span class="st">"element found"</span>, browser=<span class="st">"chromium"</span>, env=<span class="st">"staging"</span>)
+    <span class="fn">log_result</span>(<span class="st">"TC03"</span>, <span class="st">"FAIL"</span>, <span class="st">"button not found"</span>, browser=<span class="st">"firefox"</span>)
+
+    <span class="cm"># Function 2 — build_report</span>
+    <span class="fn">print</span>(<span class="st">"\n── build_report ────────────────────────"</span>)
+    test_results = [
+        {<span class="st">"id"</span>:<span class="st">"TC01"</span>, <span class="st">"name"</span>:<span class="st">"valid_login"</span>,   <span class="st">"status"</span>:<span class="st">"PASS"</span>},
+        {<span class="st">"id"</span>:<span class="st">"TC02"</span>, <span class="st">"name"</span>:<span class="st">"invalid_login"</span>, <span class="st">"status"</span>:<span class="st">"PASS"</span>},
+        {<span class="st">"id"</span>:<span class="st">"TC03"</span>, <span class="st">"name"</span>:<span class="st">"checkout"</span>,      <span class="st">"status"</span>:<span class="st">"FAIL"</span>},
+        {<span class="st">"id"</span>:<span class="st">"TC04"</span>, <span class="st">"name"</span>:<span class="st">"profile"</span>,       <span class="st">"status"</span>:<span class="st">"FAIL"</span>},
+    ]
+    <span class="fn">print</span>(<span class="fn">build_report</span>(<span class="st">"Smoke Test Suite"</span>, *test_results, show_passed=<span class="kw">False</span>))
+
+    <span class="cm"># Function 3 — assert_response</span>
+    <span class="fn">print</span>(<span class="st">"\n── assert_response ─────────────────────"</span>)
+    ok, errs = <span class="fn">assert_response</span>(<span class="nm">200</span>, {<span class="st">"id"</span>:<span class="nm">1</span>, <span class="st">"email"</span>:<span class="st">"a@b.com"</span>}, required_fields=[<span class="st">"id"</span>,<span class="st">"email"</span>])
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Valid response: {ok}"</span>)
+
+    ok, errs = <span class="fn">assert_response</span>(<span class="nm">404</span>, {}, expected_status=<span class="nm">200</span>, required_fields=[<span class="st">"id"</span>,<span class="st">"email"</span>])
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Bad response: {ok} — errors: {errs}"</span>)
+
+    <span class="cm"># Function 4 — retry</span>
+    <span class="fn">print</span>(<span class="st">"\n── retry ───────────────────────────────"</span>)
+
+    <span class="kw">def</span> <span class="fn">flaky_check</span>(url: <span class="fn">str</span>) -> <span class="fn">str</span>:
+        <span class="st">"""Simulates a flaky operation — succeeds ~60% of the time."""</span>
+        <span class="kw">return</span> <span class="st">"OK"</span> <span class="kw">if</span> random.<span class="fn">random</span>() <span class="op">&gt;</span> <span class="nm">0.4</span> <span class="kw">else</span> <span class="st">""</span>
+
+    result = <span class="fn">retry</span>(flaky_check, <span class="st">"https://staging.myapp.com"</span>, max_attempts=<span class="nm">5</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Retry result: {result}"</span>)</div>
+
+  <div class="sec">Expected output</div>
+  <div class="out">
+    <div class="out-lbl">Terminal</div>
+    <div class="ol">── log_result ──────────────────────────</div>
+    <div class="ol">[PASS] TC01 | Details: no details</div>
+    <div class="ol">[PASS] TC02 | Details: login ok, element found | browser=chromium env=staging</div>
+    <div class="ol">[FAIL] TC03 | Details: button not found | browser=firefox</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── build_report ────────────────────────</div>
+    <div class="ol">=============================================</div>
+    <div class="ol">  Smoke Test Suite</div>
+    <div class="ol">=============================================</div>
+    <div class="ol">  Total   : 4</div>
+    <div class="ol">  Passed  : 2</div>
+    <div class="ol">  Failed  : 2</div>
+    <div class="ol">  All pass: False  |  Any fail: True</div>
+    <div class="ol">  ─────────────────────────────────────────────</div>
+    <div class="ol">  OVERALL : FAIL</div>
+    <div class="ol">=============================================</div>
+    <div class="ol">  Failures (showing max 10):</div>
+    <div class="ol">    ✗ TC03 — checkout</div>
+    <div class="ol">    ✗ TC04 — profile</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── assert_response ─────────────────────</div>
+    <div class="ol">Valid response: True</div>
+    <div class="ol">Bad response: False — errors: ['Status 404 != expected 200', 'Response body is empty']</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">── retry ───────────────────────────────</div>
+    <div class="ol">  ✓ Succeeded on attempt 1/5</div>
+    <div class="ol">Retry result: OK</div>
+  </div>
+</div>
+
+<!-- FUNCTION BY FUNCTION -->
+<div class="pg" id="exp">
+
+  <div class="part"><span class="pn p1">Function 1</span> log_result — *args and **kwargs together</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">detail_str = <span class="st">", "</span>.<span class="fn">join</span>(details) <span class="kw">if</span> details <span class="kw">else</span> <span class="st">"no details"</span>
+meta_str   = <span class="st">" "</span>.<span class="fn">join</span>(<span class="fn">f</span><span class="st">"{k}={v}"</span> <span class="kw">for</span> k, v <span class="kw">in</span> meta.<span class="fn">items</span>())</div>
+      <div class="eb-why"><b>Joining args and kwargs into strings cleanly.</b> <code>", ".join(details)</code> converts the tuple into a comma-separated string. <code>f"{k}={v}"</code> formats each kwarg as <code>browser=chromium</code>. Both use generator expressions — no manual loops needed. The ternary <code>if details else "no details"</code> handles the case where nothing is passed.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">if</span> meta_str:
+    line += <span class="fn">f</span><span class="st">" | {meta_str}"</span></div>
+      <div class="eb-why"><b>Only append metadata section if there is any.</b> If no kwargs were passed, <code>meta_str</code> is an empty string — falsy. The <code>if meta_str</code> guard means the output line stays clean without a trailing <code>|</code>.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p2">Function 2</span> build_report — *results unpacked at the call site</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="fn">print</span>(<span class="fn">build_report</span>(<span class="st">"Smoke Test Suite"</span>, *test_results, show_passed=<span class="kw">False</span>))</div>
+      <div class="eb-why"><b>*test_results unpacks the list into individual positional args.</b> Inside the function, <code>results</code> is a tuple of dicts. This is the key pattern — you build a list dynamically then unpack it with <code>*</code> at the call site. Without the <code>*</code>, <code>results</code> would be a tuple containing one item: the whole list. That would break <code>len(results)</code> and all the comprehensions.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code">failures[:max_failures]</div>
+      <div class="eb-why"><b>Slicing to respect the max_failures limit.</b> If there are 50 failures but <code>max_failures=10</code>, only the first 10 are shown. This is a keyword-only argument — it cannot be passed positionally because <code>*results</code> comes before it in the signature.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p3">Function 3</span> assert_response — None safe default + tuple return</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">required_fields = required_fields <span class="kw">or</span> []</div>
+      <div class="eb-why"><b>Safe default pattern for mutable arguments.</b> The parameter default is <code>None</code> — not <code>[]</code>. The first line inside the function converts <code>None</code> to an empty list. <code>or []</code> is shorthand for <code>if required_fields is None: required_fields = []</code>. Both work — <code>or []</code> is more concise.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">elif</span> body[field] <span class="kw">is None</span>:
+    errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"Field '{field}' is None"</span>)</div>
+      <div class="eb-why"><b>Check for None values, not just missing keys.</b> A field can exist in the response body but be set to None — which is still invalid for most required fields. Checking existence alone misses this case. The <code>elif</code> means: only check the value if the key exists — preventing a KeyError.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p4">Function 4</span> retry — the higher-order function</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">def</span> <span class="fn">retry</span>(func: Callable, *args: Any, max_attempts: <span class="fn">int</span> = <span class="nm">3</span>, **kwargs: Any):</div>
+      <div class="eb-why"><b>max_attempts is keyword-only because *args comes before it.</b> Any parameter after <code>*args</code> can only be passed by name — never positionally. This means <code>retry(my_func, "url", 5)</code> would pass 5 as another positional arg, not as max_attempts. You must write <code>retry(my_func, "url", max_attempts=5)</code>. This is intentional — it prevents the caller from accidentally passing the wrong thing.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code">result = <span class="fn">func</span>(*args, **kwargs)
+<span class="kw">if</span> result:
+    <span class="kw">return</span> result</div>
+      <div class="eb-why"><b>This is what a higher-order function does.</b> <code>func</code> is just a variable that holds a function. <code>func(*args, **kwargs)</code> calls whatever function was passed in, with whatever args and kwargs were passed in. The retry wrapper does not know or care what <code>func</code> does — it just calls it and checks if it returned something truthy. This is how pytest's retry plugin, Playwright's wait helpers, and every decorator in Python works internally.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ Attempt {attempt}/{max_attempts} — error: {e}"</span>)</div>
+      <div class="eb-why"><b>Catch exceptions so the retry continues.</b> Without the try/except, a crash inside <code>func</code> would bubble up and stop all retries. Wrapping in try/except means an exception on attempt 1 is logged and retried on attempt 2. The function only gives up after all attempts are exhausted.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — not joining *args into a string for log_result</div>
+    <div class="diff-body"><span class="cm"># Wrong — prints the raw tuple</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"[{status}] {test_id} | Details: {details}"</span>)
+<span class="cm"># Output: [PASS] TC02 | Details: ('login ok', 'element found')</span>
+
+<span class="cm"># Correct — join into a readable string</span>
+detail_str = <span class="st">", "</span>.<span class="fn">join</span>(details) <span class="kw">if</span> details <span class="kw">else</span> <span class="st">"no details"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"[{status}] {test_id} | Details: {detail_str}"</span>)
+<span class="cm"># Output: [PASS] TC02 | Details: login ok, element found</span></div>
+    <div class="diff-note"><b>*args arrives as a tuple.</b> Printing it directly shows the tuple brackets and quotes. <code>", ".join(details)</code> produces clean human-readable output. Always join *args before displaying.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — passing test_results without * to build_report</div>
+    <div class="diff-body"><span class="cm"># Wrong — passes the list as ONE argument</span>
+<span class="fn">build_report</span>(<span class="st">"Suite"</span>, test_results)
+<span class="cm"># Inside: results = ([{...}, {...}, {...}],)  ← tuple of one list</span>
+<span class="cm"># len(results) = 1, not 4!</span>
+
+<span class="cm"># Correct — unpack the list into individual args</span>
+<span class="fn">build_report</span>(<span class="st">"Suite"</span>, *test_results)
+<span class="cm"># Inside: results = ({...}, {...}, {...}, {...})  ← tuple of 4 dicts</span>
+<span class="cm"># len(results) = 4</span></div>
+    <div class="diff-note"><b>The * at the call site is as important as the * in the definition.</b> Without it, the whole list is one argument. With it, each item is a separate argument. This is the most common *args mistake.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — using [] as default for required_fields</div>
+    <div class="diff-body"><span class="cm"># Wrong — shared list across all calls (mutable default trap)</span>
+<span class="kw">def</span> <span class="fn">assert_response</span>(status, body, expected_status=<span class="nm">200</span>, required_fields=[]):
+    required_fields.<span class="fn">append</span>(<span class="st">"something"</span>)  <span class="cm"># mutates the shared default!</span>
+
+<span class="cm"># Correct — None default, create list inside</span>
+<span class="kw">def</span> <span class="fn">assert_response</span>(status, body, expected_status=<span class="nm">200</span>, required_fields=<span class="kw">None</span>):
+    required_fields = required_fields <span class="kw">or</span> []</div>
+    <div class="diff-note"><b>The mutable default trap from the lesson.</b> If the function ever modifies the list (even accidentally), future calls share the contaminated list. Always use None and create the list inside.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — retry crashes on exception instead of continuing</div>
+    <div class="diff-body"><span class="cm"># Wrong — exception stops all retries</span>
+<span class="kw">while</span> attempt <span class="op">&lt;</span> max_attempts:
+    attempt <span class="op">+=</span> <span class="nm">1</span>
+    result = <span class="fn">func</span>(*args, **kwargs)   <span class="cm"># crashes here — no more retries</span>
+    <span class="kw">if</span> result:
+        <span class="kw">return</span> result
+
+<span class="cm"># Correct — catch exceptions and continue retrying</span>
+<span class="kw">while</span> attempt <span class="op">&lt;</span> max_attempts:
+    attempt <span class="op">+=</span> <span class="nm">1</span>
+    <span class="kw">try</span>:
+        result = <span class="fn">func</span>(*args, **kwargs)
+        <span class="kw">if</span> result:
+            <span class="kw">return</span> result
+    <span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ error: {e}"</span>)</div>
+    <div class="diff-note"><b>A retry wrapper that doesn't catch exceptions is useless.</b> The whole point of retry is to handle transient failures — which includes crashes. Wrapping the call in try/except means any failure type (return value or exception) triggers a retry.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — missing type hints or incomplete signature</div>
+    <div class="diff-body"><span class="cm"># Incomplete — no type hints, no docstring</span>
+<span class="kw">def</span> <span class="fn">retry</span>(func, *args, max_attempts=<span class="nm">3</span>, **kwargs):
+    <span class="kw">pass</span>
+
+<span class="cm"># Complete — typed, documented</span>
+<span class="kw">def</span> <span class="fn">retry</span>(
+    func:         Callable,
+    *args:        Any,
+    max_attempts: <span class="fn">int</span> = <span class="nm">3</span>,
+    **kwargs:     Any
+) -> Optional[Any]:
+    <span class="st">"""Call func(*args, **kwargs) up to max_attempts times."""</span></div>
+    <div class="diff-note"><b>Type hints on *args and **kwargs use the item type, not the container.</b> <code>*args: Any</code> means each individual arg is Any — not that args is Any. <code>Callable</code> from typing tells VS Code and other tools that func is a callable. These make your code self-documenting and enable autocomplete.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 1 — Joined <code>*details</code> with <code>", ".join()</code> — not printed as raw tuple</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 1 — Only appended meta section to output line if kwargs were passed</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 2 — Returns a string (not prints directly) — caller decides what to do with it</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 2 — Called with <code>*test_results</code> to unpack list into individual args</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 3 — Used <code>None</code> as default for <code>required_fields</code>, not <code>[]</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 3 — Returns <code>(bool, list)</code> tuple — not raises or prints</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 4 — Signature has <code>func, *args, max_attempts=3, **kwargs</code> in the correct order</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 4 — Calls <code>func(*args, **kwargs)</code> to forward all arguments correctly</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Function 4 — Wrapped call in <code>try/except</code> so exceptions trigger retry not crash</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">All 4 functions have type hints and a docstring</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 9 Python — try/except error handling in depth for QA automation with hands-on exercises')">Go to Day 9 — try/except ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me a harder Python functions challenge — beyond Day 8 level, using *args **kwargs and higher-order functions in QA automation scenarios')">Give me a harder functions challenge ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#0C447C':'';
+  box.style.borderColor=on?'#0C447C':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. Writing a higher-order retry function is genuinely intermediate Python — you nailed it. Commit and push, then go to Day 9.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Check Common Mistakes for what you missed, fix those parts, then move to Day 9.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Function by Function for unchecked items, rewrite those parts, then move on.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution carefully, then rewrite all 4 functions from scratch before Day 9.</div>';
+}
+</script>
+</body>
+</html>

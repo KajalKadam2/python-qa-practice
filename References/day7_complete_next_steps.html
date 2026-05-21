@@ -1,0 +1,105 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.hero{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:16px;margin-bottom:14px;border:0.5px solid var(--color-border-tertiary);text-align:center}
+.hero-title{font-size:18px;font-weight:500;margin-bottom:4px}
+.hero-sub{font-size:13px;color:var(--color-text-secondary)}
+.progress-row{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:14px 0}
+.day-pill{border-radius:var(--border-radius-md);padding:8px 4px;text-align:center;border:0.5px solid var(--color-border-tertiary)}
+.dp-num{font-size:11px;font-weight:500}
+.dp-lbl{font-size:10px;color:var(--color-text-tertiary);margin-top:2px;line-height:1.3}
+.done{background:#EAF3DE;border-color:#97C459}
+.done .dp-num{color:#27500A}
+.next{background:#E6F1FB;border-color:#85B7EB}
+.next .dp-num{color:#0C447C}
+.future{background:var(--color-background-secondary)}
+.future .dp-num{color:var(--color-text-tertiary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px}
+.next-cards{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.nc{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:12px 14px;border:0.5px solid var(--color-border-tertiary);display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:border-color .15s}
+.nc:hover{border-color:var(--color-border-secondary)}
+.nc-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.nc-right{flex:1}
+.nc-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.nc-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.nc-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:5px}
+.tag-now{background:#E6F1FB;color:#0C447C}
+.tag-soon{background:#EAF3DE;color:#27500A}
+.tag-week{background:#EEEDFE;color:#3C3489}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+</style>
+<div class="app">
+  <div class="hero">
+    <div class="hero-title">Python foundation complete ✓</div>
+    <div class="hero-sub">Days 1–7 done. You now have every Python skill needed for automation.</div>
+  </div>
+
+  <div class="sec">Your progress — week 1 done, week 2 starting</div>
+  <div class="progress-row">
+    <div class="day-pill done"><div class="dp-num">✓ D1</div><div class="dp-lbl">Variables</div></div>
+    <div class="day-pill done"><div class="dp-num">✓ D2</div><div class="dp-lbl">Strings</div></div>
+    <div class="day-pill done"><div class="dp-num">✓ D3</div><div class="dp-lbl">Lists</div></div>
+    <div class="day-pill done"><div class="dp-num">✓ D4</div><div class="dp-lbl">Dicts</div></div>
+    <div class="day-pill done"><div class="dp-num">✓ D5</div><div class="dp-lbl">Conditions</div></div>
+    <div class="day-pill done"><div class="dp-num">✓ D6</div><div class="dp-lbl">Loops</div></div>
+    <div class="day-pill done"><div class="dp-num">✓ D7</div><div class="dp-lbl">Toolkit</div></div>
+  </div>
+  <div class="progress-row">
+    <div class="day-pill next"><div class="dp-num">D8</div><div class="dp-lbl">Functions</div></div>
+    <div class="day-pill next"><div class="dp-num">D9</div><div class="dp-lbl">Functions+</div></div>
+    <div class="day-pill future"><div class="dp-num">D10</div><div class="dp-lbl">try/except</div></div>
+    <div class="day-pill future"><div class="dp-num">D11</div><div class="dp-lbl">Files/JSON</div></div>
+    <div class="day-pill future"><div class="dp-num">D12</div><div class="dp-lbl">Git</div></div>
+    <div class="day-pill future"><div class="dp-num">D13</div><div class="dp-lbl">Git+</div></div>
+    <div class="day-pill future"><div class="dp-num">D14</div><div class="dp-lbl">Review</div></div>
+  </div>
+  <div class="progress-row">
+    <div class="day-pill" style="background:#FFF3C4;border-color:#E8B84B"><div class="dp-num" style="color:#7A5000">D15</div><div class="dp-lbl" style="color:#7A5000">Playwright!</div></div>
+    <div class="day-pill future"><div class="dp-num">D16</div><div class="dp-lbl">Locators</div></div>
+    <div class="day-pill future"><div class="dp-num">D17</div><div class="dp-lbl">Assertions</div></div>
+    <div class="day-pill future"><div class="dp-num">D18</div><div class="dp-lbl">Fixtures</div></div>
+    <div class="day-pill future"><div class="dp-num">D19</div><div class="dp-lbl">Parametrize</div></div>
+    <div class="day-pill future"><div class="dp-num">D20</div><div class="dp-lbl">POM</div></div>
+    <div class="day-pill future"><div class="dp-num">D21</div><div class="dp-lbl">Project #1</div></div>
+  </div>
+
+  <div class="sec">What to do right now</div>
+  <div class="next-cards">
+    <div class="nc" onclick="sendPrompt('How do I push my qa_toolkit.py file to GitHub from scratch — git init, add, commit, push, step by step for a complete beginner')">
+      <div class="nc-icon">📤</div>
+      <div class="nc-right">
+        <div class="nc-title">Push qa_toolkit.py to GitHub</div>
+        <div class="nc-desc">Your first real portfolio file. Takes 5 minutes. Do this before Day 8.</div>
+        <span class="nc-tag tag-now">Do now</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('Teach me Day 8 Python — functions in depth for QA automation: default args, *args, **kwargs, return values, with hands-on exercises')">
+      <div class="nc-icon">⚙️</div>
+      <div class="nc-right">
+        <div class="nc-title">Day 8 — Functions in depth</div>
+        <div class="nc-desc">Default args, *args, **kwargs, return tuples. These complete your function knowledge before Playwright.</div>
+        <span class="nc-tag tag-soon">Next lesson</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('Teach me Day 12 Python — Git from absolute zero: install, init, add, commit, push to GitHub, branching basics, step by step')">
+      <div class="nc-icon">🌿</div>
+      <div class="nc-right">
+        <div class="nc-title">Day 12 — Git from zero</div>
+        <div class="nc-desc">Essential before Playwright. Every automation job requires Git on day one.</div>
+        <span class="nc-tag tag-week">This week</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('Give me a harder Python challenge combining everything from Days 1-7 — dicts, lists, loops, functions, conditions — at a senior level')">
+      <div class="nc-icon">💪</div>
+      <div class="nc-right">
+        <div class="nc-title">Bonus: harder challenge</div>
+        <div class="nc-desc">Want more practice before moving on? One harder challenge to stretch your skills.</div>
+        <span class="nc-tag tag-week">Optional</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ok">You are exactly on track. 7 days of Python done, 8 days until Playwright begins. Your qa_toolkit.py is sitting on your machine — push it to GitHub today and your portfolio starts now.</div>
+</div>

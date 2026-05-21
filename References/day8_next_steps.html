@@ -1,0 +1,45 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.cards{display:flex;flex-direction:column;gap:8px}
+.nc{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:12px 14px;border:0.5px solid var(--color-border-tertiary);display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:border-color .15s}
+.nc:hover{border-color:var(--color-border-secondary)}
+.nc-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.nc-right{flex:1}
+.nc-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.nc-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.nc-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:5px}
+.t1{background:#EAF3DE;color:#27500A}
+.t2{background:#E6F1FB;color:#0C447C}
+.t3{background:#EEEDFE;color:#3C3489}
+</style>
+<div class="app">
+  <div class="cards">
+    <div class="nc" onclick="sendPrompt('I finished the Day 8 Python functions challenge. Show me the ideal solution so I can compare mine.')">
+      <div class="nc-icon">✅</div>
+      <div class="nc-right">
+        <div class="nc-title">I finished — show me the Day 8 solution</div>
+        <div class="nc-desc">Compare your 4 functions against the ideal solution with explanations.</div>
+        <span class="nc-tag t1">When done</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('I am stuck on the Day 8 Python challenge — the retry function that accepts another function — help me understand how it works')">
+      <div class="nc-icon">🐛</div>
+      <div class="nc-right">
+        <div class="nc-title">I am stuck on Function 4 — the retry wrapper</div>
+        <div class="nc-desc">The higher-order function pattern explained step by step.</div>
+        <span class="nc-tag t2">If stuck</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('Teach me Day 9 Python — try/except error handling in depth for QA automation with hands-on exercises')">
+      <div class="nc-icon">⚙️</div>
+      <div class="nc-right">
+        <div class="nc-title">Skip to Day 9 — try/except error handling</div>
+        <div class="nc-desc">The last Python concept before Playwright begins on Day 15.</div>
+        <span class="nc-tag t3">Next lesson</span>
+      </div>
+    </div>
+  </div>
+</div>

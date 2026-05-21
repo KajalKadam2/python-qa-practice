@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b,.ch-b b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;font-weight:500}
+.btn-n:hover{background:#D8D5FB}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.br{background:#FCEBEB;color:#791F1F}
+.vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.vs-card{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.vs-head{font-size:12px;font-weight:500;padding:6px 12px;text-transform:uppercase;letter-spacing:.04em}
+.vs-body{padding:10px 12px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;font-family:var(--font-mono);background:var(--color-background-secondary)}
+.method-rows{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.mr{display:grid;grid-template-columns:140px 1fr;gap:0;border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.mr-name{background:#EEEDFE;color:#3C3489;font-family:var(--font-mono);font-size:12px;font-weight:500;padding:8px 12px;display:flex;align-items:center}
+.mr-body{background:var(--color-background-secondary);padding:8px 12px;display:flex;flex-direction:column;justify-content:center}
+.mr-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.4}
+.mr-ex{font-size:11px;font-family:var(--font-mono);color:var(--color-text-tertiary);margin-top:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT IS A DICT -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">What is a dictionary — and why it is everywhere in QA</div>
+    <div class="card-b">A dictionary stores data as <b>key-value pairs</b> — like a real dictionary where you look up a word (key) to find its definition (value). Instead of numbered positions like a list, you access values by a meaningful name.<br><br>In QA automation, dicts are used for: <b>test user data</b> (username, password, role), <b>API JSON responses</b> (every API returns a dict), <b>test configuration</b> (base URL, timeout, browser), <b>expected vs actual results</b>. When your Playwright test reads <code>response.json()["data"]["email"]</code> — it is reading a dict.</div>
+  </div>
+
+  <div class="sec">List vs Dict — when to use which</div>
+  <div class="vs-grid">
+    <div class="vs-card">
+      <div class="vs-head" style="background:#E6F1FB;color:#0C447C">List — ordered items</div>
+      <div class="vs-body">browsers = ["chromium","firefox"]
+results  = ["PASS","FAIL","PASS"]
+urls     = ["/login","/dashboard"]
+
+Access by position:
+browsers[0]  →  "chromium"
+
+Use when: order matters,
+items are the same type</div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-head" style="background:#EEEDFE;color:#3C3489">Dict — named fields</div>
+      <div class="vs-body">user = {
+  "username": "tomsmith",
+  "password": "Secret!",
+  "role":     "admin"
+}
+
+Access by name:
+user["username"]  →  "tomsmith"
+
+Use when: items have
+different meanings</div>
+    </div>
+  </div>
+
+  <div class="try-lbl">Type this into day4.py</div>
+  <div class="code"><span class="cm"># Create a dict — curly braces, key: value pairs</span>
+test_user = {
+    <span class="st">"username"</span>: <span class="st">"tomsmith"</span>,
+    <span class="st">"password"</span>: <span class="st">"SuperSecretPassword!"</span>,
+    <span class="st">"role"</span>:     <span class="st">"admin"</span>,
+    <span class="st">"active"</span>:   <span class="kw">True</span>,
+    <span class="st">"login_count"</span>: <span class="nm">42</span>
+}
+
+<span class="cm"># Access by key — use the name, not a number</span>
+<span class="fn">print</span>(test_user[<span class="st">"username"</span>])     <span class="cm"># tomsmith</span>
+<span class="fn">print</span>(test_user[<span class="st">"role"</span>])         <span class="cm"># admin</span>
+<span class="fn">print</span>(test_user[<span class="st">"active"</span>])      <span class="cm"># True</span>
+<span class="fn">print</span>(test_user[<span class="st">"login_count"</span>]) <span class="cm"># 42</span>
+
+<span class="cm"># f-string with dict access</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Logging in as: {test_user['username']}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Role: {test_user['role']} | Active: {test_user['active']}"</span>)
+
+<span class="cm"># Check the type</span>
+<span class="fn">print</span>(<span class="fn">type</span>(test_user))   <span class="cm"># &lt;class 'dict'&gt;</span>
+<span class="fn">print</span>(<span class="fn">len</span>(test_user))    <span class="cm"># 5  (number of key-value pairs)</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">tomsmith</div>
+    <div class="ol">admin</div>
+    <div class="ol">True</div>
+    <div class="ol">42</div>
+    <div class="ol">Logging in as: tomsmith</div>
+    <div class="ol">Role: admin | Active: True</div>
+    <div class="ol">&lt;class 'dict'&gt;</div>
+    <div class="ol">5</div>
+  </div>
+
+  <div class="warn">Inside an f-string, use <b>single quotes</b> for dict keys when the f-string itself uses double quotes: <code>f"User: {user['name']}"</code>. Mixing them wrongly causes a SyntaxError. The outer string uses double quotes, the inner key uses single quotes.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">Safe access + methods →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: SAFE ACCESS + METHODS -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">Safe access and dict methods</div>
+    <div class="card-b">Accessing a key that doesn't exist <b>crashes</b> with a KeyError. The <code>.get()</code> method solves this — it returns a default value instead of crashing. In API testing, response fields are sometimes missing — <code>.get()</code> makes your tests resilient.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># Simulating an API response — some fields may be missing</span>
+api_response = {
+    <span class="st">"id"</span>:    <span class="nm">2</span>,
+    <span class="st">"email"</span>: <span class="st">"janet.weaver@reqres.in"</span>,
+    <span class="st">"first_name"</span>: <span class="st">"Janet"</span>
+    <span class="cm"># "phone" is missing — not all APIs return all fields</span>
+}
+
+<span class="cm"># Direct access — crashes if key missing</span>
+<span class="fn">print</span>(api_response[<span class="st">"email"</span>])      <span class="cm"># OK</span>
+<span class="cm"># print(api_response["phone"])   # KeyError: 'phone' — CRASH</span>
+
+<span class="cm"># .get() — safe, returns None by default</span>
+<span class="fn">print</span>(api_response.<span class="fn">get</span>(<span class="st">"email"</span>))   <span class="cm"># janet.weaver@reqres.in</span>
+<span class="fn">print</span>(api_response.<span class="fn">get</span>(<span class="st">"phone"</span>))   <span class="cm"># None  (no crash!)</span>
+
+<span class="cm"># .get() with a default value</span>
+<span class="fn">print</span>(api_response.<span class="fn">get</span>(<span class="st">"phone"</span>, <span class="st">"not provided"</span>))  <span class="cm"># not provided</span>
+<span class="fn">print</span>(api_response.<span class="fn">get</span>(<span class="st">"id"</span>, <span class="nm">0</span>))                  <span class="cm"># 2  (key exists, uses real value)</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">janet.weaver@reqres.in</div>
+    <div class="ol">janet.weaver@reqres.in</div>
+    <div class="ol">None</div>
+    <div class="ol">not provided</div>
+    <div class="ol">2</div>
+  </div>
+
+  <div class="sec">The dict methods you will actually use</div>
+  <div class="method-rows">
+    <div class="mr"><div class="mr-name">.get(k, default)</div><div class="mr-body"><div class="mr-desc">Safe access — returns default if key missing</div><div class="mr-ex">d.get("phone","N/A") → "N/A"</div></div></div>
+    <div class="mr"><div class="mr-name">.keys()</div><div class="mr-body"><div class="mr-desc">Returns all keys — check what fields exist</div><div class="mr-ex">d.keys() → dict_keys(["id","email"])</div></div></div>
+    <div class="mr"><div class="mr-name">.values()</div><div class="mr-body"><div class="mr-desc">Returns all values — check the data</div><div class="mr-ex">d.values() → dict_values([2,"janet..."])</div></div></div>
+    <div class="mr"><div class="mr-name">.items()</div><div class="mr-body"><div class="mr-desc">Returns key-value pairs — for looping</div><div class="mr-ex">for k, v in d.items(): ...</div></div></div>
+    <div class="mr"><div class="mr-name">"key" in d</div><div class="mr-body"><div class="mr-desc">Check if key exists — returns True/False</div><div class="mr-ex">"email" in d → True</div></div></div>
+    <div class="mr"><div class="mr-name">.update(other)</div><div class="mr-body"><div class="mr-desc">Merge another dict in — add/overwrite keys</div><div class="mr-ex">d.update({"role":"admin"})</div></div></div>
+    <div class="mr"><div class="mr-name">.pop(key)</div><div class="mr-body"><div class="mr-desc">Remove and return a key's value</div><div class="mr-ex">d.pop("password") → "Secret!"</div></div></div>
+    <div class="mr"><div class="mr-name">d[key] = val</div><div class="mr-body"><div class="mr-desc">Add or update a key</div><div class="mr-ex">d["status"] = "verified"</div></div></div>
+  </div>
+
+  <div class="tip">The three most used in QA automation are <code>.get()</code> for safe API field access, <code>.items()</code> for looping over config, and <code>"key" in dict</code> for checking if a response field exists. Learn these three cold.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">Modifying + looping →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: MODIFYING + LOOPING -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">Modifying dicts + looping over them</div>
+    <div class="card-b">Dicts are mutable — you can add, update, and remove keys after creation. Looping with <code>.items()</code> gives you both the key and value together, which is the standard way to print or process all fields in a test config or API response.</div>
+  </div>
+
+  <div class="try-lbl">Type this — modifying a dict step by step</div>
+  <div class="code"><span class="cm"># Start with a basic config</span>
+config = {
+    <span class="st">"env"</span>:     <span class="st">"staging"</span>,
+    <span class="st">"browser"</span>: <span class="st">"chromium"</span>,
+    <span class="st">"timeout"</span>: <span class="nm">5000</span>
+}
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Original: {config}"</span>)
+
+<span class="cm"># Add a new key</span>
+config[<span class="st">"headless"</span>] = <span class="kw">True</span>
+config[<span class="st">"retries"</span>]  = <span class="nm">3</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"After add: {config}"</span>)
+
+<span class="cm"># Update an existing key</span>
+config[<span class="st">"timeout"</span>] = <span class="nm">8000</span>
+config[<span class="st">"env"</span>]     = <span class="st">"prod"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"After update: {config}"</span>)
+
+<span class="cm"># Remove a key</span>
+removed = config.<span class="fn">pop</span>(<span class="st">"retries"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Removed 'retries' (value was {removed}): {config}"</span>)
+
+<span class="cm"># Check if a key exists before using it</span>
+<span class="kw">if</span> <span class="st">"headless"</span> <span class="kw">in</span> config:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Headless mode: {config['headless']}"</span>)
+
+<span class="cm"># Loop over ALL key-value pairs</span>
+<span class="fn">print</span>(<span class="st">"\n--- Config dump ---"</span>)
+<span class="kw">for</span> key, value <span class="kw">in</span> config.<span class="fn">items</span>():
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {key:<span class="nm">10</span>} : {value}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Original: {'env': 'staging', 'browser': 'chromium', 'timeout': 5000}</div>
+    <div class="ol">After add: {'env': 'staging', 'browser': 'chromium', 'timeout': 5000, 'headless': True, 'retries': 3}</div>
+    <div class="ol">After update: {'env': 'prod', 'browser': 'chromium', 'timeout': 8000, 'headless': True, 'retries': 3}</div>
+    <div class="ol">Removed 'retries' (value was 3): {'env': 'prod', ...}</div>
+    <div class="ol">Headless mode: True</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">--- Config dump ---</div>
+    <div class="ol">  env        : prod</div>
+    <div class="ol">  browser    : chromium</div>
+    <div class="ol">  timeout    : 8000</div>
+    <div class="ol">  headless   : True</div>
+  </div>
+
+  <div class="tip"><code>{key:10}</code> inside an f-string pads the key to 10 characters wide — lines up the colons perfectly in the output. Small detail, big readability improvement in test logs. The number after the colon is the column width.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">Nested dicts →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: NESTED DICTS -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">Nested dicts — dicts inside dicts <span class="badge bp" style="margin-left:6px">what real API responses look like</span></div>
+    <div class="card-b">Real API responses are nested — a dict containing dicts containing lists. When reqres.in returns <code>{"data": {"id": 2, "email": "..."}, "support": {"url": "..."}}</code>, every level is a dict. You access nested fields by chaining square brackets.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># Simulating reqres.in/api/users/2 response</span>
+response = {
+    <span class="st">"data"</span>: {
+        <span class="st">"id"</span>:         <span class="nm">2</span>,
+        <span class="st">"email"</span>:      <span class="st">"janet.weaver@reqres.in"</span>,
+        <span class="st">"first_name"</span>: <span class="st">"Janet"</span>,
+        <span class="st">"last_name"</span>:  <span class="st">"Weaver"</span>,
+        <span class="st">"avatar"</span>:     <span class="st">"https://reqres.in/img/faces/2-image.jpg"</span>
+    },
+    <span class="st">"support"</span>: {
+        <span class="st">"url"</span>:  <span class="st">"https://contentcaddy.io?utm_source=reqres"</span>,
+        <span class="st">"text"</span>: <span class="st">"Tired of writing endless social media content?"</span>
+    }
+}
+
+<span class="cm"># Access nested fields — chain the brackets</span>
+user_id    = response[<span class="st">"data"</span>][<span class="st">"id"</span>]
+email      = response[<span class="st">"data"</span>][<span class="st">"email"</span>]
+first      = response[<span class="st">"data"</span>][<span class="st">"first_name"</span>]
+last       = response[<span class="st">"data"</span>][<span class="st">"last_name"</span>]
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"ID:    {user_id}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Email: {email}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Name:  {first} {last}"</span>)
+
+<span class="cm"># Safe nested access with .get()</span>
+phone = response[<span class="st">"data"</span>].<span class="fn">get</span>(<span class="st">"phone"</span>, <span class="st">"not in response"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Phone: {phone}"</span>)
+
+<span class="cm"># Assert nested fields — what a real API test does</span>
+assert response[<span class="st">"data"</span>][<span class="st">"id"</span>] == <span class="nm">2</span>, <span class="st">"User ID should be 2"</span>
+assert <span class="st">"@"</span> <span class="kw">in</span> response[<span class="st">"data"</span>][<span class="st">"email"</span>], <span class="st">"Email should contain @"</span>
+assert response[<span class="st">"data"</span>][<span class="st">"first_name"</span>] == <span class="st">"Janet"</span>, <span class="st">"First name mismatch"</span>
+<span class="fn">print</span>(<span class="st">"All assertions passed!"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">ID:    2</div>
+    <div class="ol">Email: janet.weaver@reqres.in</div>
+    <div class="ol">Name:  Janet Weaver</div>
+    <div class="ol">Phone: not in response</div>
+    <div class="ol">All assertions passed!</div>
+  </div>
+
+  <div class="tip">The pattern <code>response["data"]["email"]</code> is exactly what you write in Week 4 API tests after <code>response.json()</code>. The <code>.json()</code> method converts the API response into a Python dict — then you access it with these exact same brackets. You are writing real API assertion logic right now.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">List of dicts →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: LIST OF DICTS -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">List of dicts — the most common API pattern <span class="badge ba" style="margin-left:6px">appears in every real project</span></div>
+    <div class="card-b">When an API returns multiple records — a list of users, a list of products, a list of orders — it sends a <b>list of dicts</b>. Each dict is one record. You loop over the list and access fields from each dict. This is the single most important data pattern in API test automation.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># Simulating reqres.in/api/users  — list of user dicts</span>
+users = [
+    {<span class="st">"id"</span>: <span class="nm">1</span>, <span class="st">"email"</span>: <span class="st">"george.bluth@reqres.in"</span>,  <span class="st">"first_name"</span>: <span class="st">"George"</span>, <span class="st">"active"</span>: <span class="kw">True</span>},
+    {<span class="st">"id"</span>: <span class="nm">2</span>, <span class="st">"email"</span>: <span class="st">"janet.weaver@reqres.in"</span>,  <span class="st">"first_name"</span>: <span class="st">"Janet"</span>,  <span class="st">"active"</span>: <span class="kw">True</span>},
+    {<span class="st">"id"</span>: <span class="nm">3</span>, <span class="st">"email"</span>: <span class="st">"emma.wong@reqres.in"</span>,    <span class="st">"first_name"</span>: <span class="st">"Emma"</span>,   <span class="st">"active"</span>: <span class="kw">False</span>},
+    {<span class="st">"id"</span>: <span class="nm">4</span>, <span class="st">"email"</span>: <span class="st">"eve.holt@reqres.in"</span>,     <span class="st">"first_name"</span>: <span class="st">"Eve"</span>,    <span class="st">"active"</span>: <span class="kw">True</span>},
+]
+
+<span class="cm"># Loop over list, access dict fields for each user</span>
+<span class="fn">print</span>(<span class="st">"All users:"</span>)
+<span class="kw">for</span> user <span class="kw">in</span> users:
+    status = <span class="st">"ACTIVE"</span> <span class="kw">if</span> user[<span class="st">"active"</span>] <span class="kw">else</span> <span class="st">"INACTIVE"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  [{status}] ID {user['id']}: {user['first_name']} — {user['email']}"</span>)
+
+<span class="cm"># Filter — only active users</span>
+active_users = [u <span class="kw">for</span> u <span class="kw">in</span> users <span class="kw">if</span> u[<span class="st">"active"</span>]]
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nActive users: {len(active_users)}/{len(users)}"</span>)
+
+<span class="cm"># Extract just the emails into a list</span>
+all_emails = [u[<span class="st">"email"</span>] <span class="kw">for</span> u <span class="kw">in</span> users]
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Emails: {all_emails}"</span>)
+
+<span class="cm"># Find a specific user by ID</span>
+target_id = <span class="nm">3</span>
+found = <span class="kw">None</span>
+<span class="kw">for</span> user <span class="kw">in</span> users:
+    <span class="kw">if</span> user[<span class="st">"id"</span>] == target_id:
+        found = user
+        <span class="kw">break</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nUser {target_id}: {found['first_name'] if found else 'not found'}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">All users:</div>
+    <div class="ol">  [ACTIVE] ID 1: George — george.bluth@reqres.in</div>
+    <div class="ol">  [ACTIVE] ID 2: Janet — janet.weaver@reqres.in</div>
+    <div class="ol">  [INACTIVE] ID 3: Emma — emma.wong@reqres.in</div>
+    <div class="ol">  [ACTIVE] ID 4: Eve — eve.holt@reqres.in</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Active users: 3/4</div>
+    <div class="ol">Emails: ['george.bluth@reqres.in', 'janet.weaver@reqres.in', ...]</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">User 3: Emma</div>
+  </div>
+
+  <div class="tip">The list comprehension <code>[u["email"] for u in users]</code> extracts one field from every dict into a flat list. You will use this constantly in API tests to get all IDs, all emails, all statuses — so you can assert on the whole collection at once.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">QA Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: QA EXAMPLE 1 — TEST CONFIG -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">QA Example 1 — Test configuration system <span class="badge bg" style="margin-left:6px">real project pattern</span></div>
+    <div class="card-b">Every real automation project has a central config dict. All tests import it and use values from it. Change one value in the config — every test updates automatically. No hardcoding URLs or timeouts scattered across 50 test files.</div>
+  </div>
+  <div class="try-lbl">Create day4_ex1.py</div>
+  <div class="code"><span class="cm"># Central test configuration — one place to rule them all</span>
+config = {
+    <span class="st">"env"</span>:      <span class="st">"staging"</span>,
+    <span class="st">"base_url"</span>: <span class="st">"https://staging.myapp.com"</span>,
+    <span class="st">"browser"</span>:  <span class="st">"chromium"</span>,
+    <span class="st">"timeout"</span>:  <span class="nm">5000</span>,
+    <span class="st">"headless"</span>: <span class="kw">True</span>,
+    <span class="st">"retries"</span>:  <span class="nm">2</span>,
+    <span class="st">"screenshot_on_fail"</span>: <span class="kw">True</span>,
+    <span class="st">"credentials"</span>: {
+        <span class="st">"valid"</span>:   {<span class="st">"username"</span>: <span class="st">"tomsmith"</span>, <span class="st">"password"</span>: <span class="st">"SuperSecretPassword!"</span>},
+        <span class="st">"invalid"</span>: {<span class="st">"username"</span>: <span class="st">"wronguser"</span>, <span class="st">"password"</span>: <span class="st">"wrongpass"</span>}
+    }
+}
+
+<span class="cm"># Build URLs from config — never hardcoded</span>
+login_url     = <span class="fn">f</span><span class="st">"{config['base_url']}/login"</span>
+dashboard_url = <span class="fn">f</span><span class="st">"{config['base_url']}/dashboard"</span>
+api_url       = <span class="fn">f</span><span class="st">"{config['base_url']}/api/v1"</span>
+
+<span class="cm"># Access nested credentials</span>
+valid_user   = config[<span class="st">"credentials"</span>][<span class="st">"valid"</span>]
+invalid_user = config[<span class="st">"credentials"</span>][<span class="st">"invalid"</span>]
+
+<span class="cm"># Print the full config — loop over top-level keys</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*35}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Test Configuration"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*35}"</span>)
+<span class="kw">for</span> key, value <span class="kw">in</span> config.<span class="fn">items</span>():
+    <span class="kw">if</span> key != <span class="st">"credentials"</span>:   <span class="cm"># skip nested dict for now</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {key:<span class="nm">22</span>}: {value}"</span>)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'─'*35}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Login URL    : {login_url}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Valid user   : {valid_user['username']}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Invalid user : {invalid_user['username']}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">===================================</div>
+    <div class="ol">  Test Configuration</div>
+    <div class="ol">===================================</div>
+    <div class="ol">  env                   : staging</div>
+    <div class="ol">  base_url              : https://staging.myapp.com</div>
+    <div class="ol">  browser               : chromium</div>
+    <div class="ol">  timeout               : 5000</div>
+    <div class="ol">  headless              : True</div>
+    <div class="ol">  retries               : 2</div>
+    <div class="ol">  screenshot_on_fail    : True</div>
+    <div class="ol">  ───────────────────────────────────</div>
+    <div class="ol">  Login URL    : https://staging.myapp.com/login</div>
+    <div class="ol">  Valid user   : tomsmith</div>
+    <div class="ol">  Invalid user : wronguser</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">QA Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA EXAMPLE 2 — API VALIDATOR -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">QA Example 2 — API response field validator <span class="badge bb" style="margin-left:6px">week 4 preview</span></div>
+    <div class="card-b">This is what your Week 4 API tests will look like — take a dict (from a JSON response), check that required fields exist, validate their values, and assert. The only difference in Week 4 is the dict comes from <code>response.json()</code> instead of being hardcoded here.</div>
+  </div>
+  <div class="try-lbl">Create day4_ex2.py</div>
+  <div class="code"><span class="cm"># Simulating: data = requests.get(url).json()["data"]</span>
+api_data = {
+    <span class="st">"id"</span>:         <span class="nm">2</span>,
+    <span class="st">"email"</span>:      <span class="st">"janet.weaver@reqres.in"</span>,
+    <span class="st">"first_name"</span>: <span class="st">"Janet"</span>,
+    <span class="st">"last_name"</span>:  <span class="st">"Weaver"</span>,
+    <span class="st">"avatar"</span>:     <span class="st">"https://reqres.in/img/faces/2-image.jpg"</span>
+}
+
+<span class="cm"># Define what fields MUST exist in the response</span>
+required_fields = [<span class="st">"id"</span>, <span class="st">"email"</span>, <span class="st">"first_name"</span>, <span class="st">"last_name"</span>, <span class="st">"avatar"</span>]
+
+<span class="cm"># Check all required fields are present</span>
+missing = [f <span class="kw">for</span> f <span class="kw">in</span> required_fields <span class="kw">if</span> f <span class="kw">not in</span> api_data]
+<span class="kw">if</span> missing:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"FAIL: Missing fields: {missing}"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"PASS: All required fields present"</span>)
+
+<span class="cm"># Validate field values</span>
+checks = {
+    <span class="st">"id is integer"</span>:         <span class="fn">isinstance</span>(api_data[<span class="st">"id"</span>], <span class="fn">int</span>),
+    <span class="st">"id is positive"</span>:        api_data[<span class="st">"id"</span>] > <span class="nm">0</span>,
+    <span class="st">"email has @"</span>:           <span class="st">"@"</span> <span class="kw">in</span> api_data[<span class="st">"email"</span>],
+    <span class="st">"first_name not empty"</span>:  <span class="fn">len</span>(api_data[<span class="st">"first_name"</span>]) > <span class="nm">0</span>,
+    <span class="st">"avatar is https"</span>:       api_data[<span class="st">"avatar"</span>].<span class="fn">startswith</span>(<span class="st">"https"</span>),
+    <span class="st">"avatar is image"</span>:       api_data[<span class="st">"avatar"</span>].<span class="fn">endswith</span>((<span class="st">".jpg"</span>,<span class="st">".png"</span>,<span class="st">".webp"</span>)),
+}
+
+<span class="fn">print</span>(<span class="st">"\nField validation:"</span>)
+all_ok = <span class="kw">True</span>
+<span class="kw">for</span> check_name, result <span class="kw">in</span> checks.<span class="fn">items</span>():
+    icon = <span class="st">"✓"</span> <span class="kw">if</span> result <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {icon} {check_name}"</span>)
+    <span class="kw">if not</span> result:
+        all_ok = <span class="kw">False</span>
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\nOverall: {'PASS' if all_ok else 'FAIL'}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">PASS: All required fields present</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Field validation:</div>
+    <div class="ol">  ✓ id is integer</div>
+    <div class="ol">  ✓ id is positive</div>
+    <div class="ol">  ✓ email has @</div>
+    <div class="ol">  ✓ first_name not empty</div>
+    <div class="ol">  ✓ avatar is https</div>
+    <div class="ol">  ✓ avatar is image</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Overall: PASS</div>
+  </div>
+
+  <div class="tip">The <code>checks</code> dict maps a human-readable description to a boolean expression. Looping over <code>checks.items()</code> gives you a clean, readable validation report. This pattern scales to 50 checks without adding complexity — just add more entries to the dict.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example 3 →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE 3 — TEST USERS -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example 3 — Multi-user test data bank <span class="badge bp" style="margin-left:6px">parametrize preview</span></div>
+    <div class="card-b">Storing all test users as a list of dicts is the cleanest way to manage test data. When you move to pytest in Week 3, you'll feed this list directly into <code>@pytest.mark.parametrize</code> — the structure is identical.</div>
+  </div>
+  <div class="try-lbl">Create day4_ex3.py</div>
+  <div class="code"><span class="cm"># Complete test user data bank</span>
+test_users = [
+    {
+        <span class="st">"id"</span>:            <span class="st">"valid_admin"</span>,
+        <span class="st">"username"</span>:     <span class="st">"tomsmith"</span>,
+        <span class="st">"password"</span>:     <span class="st">"SuperSecretPassword!"</span>,
+        <span class="st">"role"</span>:         <span class="st">"admin"</span>,
+        <span class="st">"expect_login"</span>: <span class="kw">True</span>,
+        <span class="st">"expect_msg"</span>:   <span class="st">"You logged into a secure area!"</span>
+    },
+    {
+        <span class="st">"id"</span>:            <span class="st">"wrong_password"</span>,
+        <span class="st">"username"</span>:     <span class="st">"tomsmith"</span>,
+        <span class="st">"password"</span>:     <span class="st">"wrongpassword"</span>,
+        <span class="st">"role"</span>:         <span class="kw">None</span>,
+        <span class="st">"expect_login"</span>: <span class="kw">False</span>,
+        <span class="st">"expect_msg"</span>:   <span class="st">"Your password is invalid!"</span>
+    },
+    {
+        <span class="st">"id"</span>:            <span class="st">"wrong_username"</span>,
+        <span class="st">"username"</span>:     <span class="st">"baduser"</span>,
+        <span class="st">"password"</span>:     <span class="st">"SuperSecretPassword!"</span>,
+        <span class="st">"role"</span>:         <span class="kw">None</span>,
+        <span class="st">"expect_login"</span>: <span class="kw">False</span>,
+        <span class="st">"expect_msg"</span>:   <span class="st">"Your username is invalid!"</span>
+    },
+]
+
+<span class="cm"># Loop and simulate running each test case</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Running {len(test_users)} login test cases\n"</span>)
+
+<span class="kw">for</span> i, user <span class="kw">in</span> <span class="fn">enumerate</span>(test_users, <span class="nm">1</span>):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Test {i}: {user['id']}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Username     : {user['username']}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Expect login : {user['expect_login']}"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Expect msg   : {user['expect_msg']}"</span>)
+
+    <span class="cm"># In Week 3 Playwright, this becomes:</span>
+    <span class="cm"># page.get_by_label("Username").fill(user["username"])</span>
+    <span class="cm"># page.get_by_label("Password").fill(user["password"])</span>
+    <span class="cm"># page.get_by_role("button", name="Login").click()</span>
+    <span class="cm"># expect(page.locator("#flash")).to_contain_text(user["expect_msg"])</span>
+
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  → Would fill form and assert message\n"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Running 3 login test cases</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Test 1: valid_admin</div>
+    <div class="ol">  Username     : tomsmith</div>
+    <div class="ol">  Expect login : True</div>
+    <div class="ol">  Expect msg   : You logged into a secure area!</div>
+    <div class="ol">  → Would fill form and assert message</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Test 2: wrong_password</div>
+    <div class="ol">  Username     : tomsmith</div>
+    <div class="ol">  Expect login : False</div>
+    <div class="ol">  Expect msg   : Your password is invalid!</div>
+    <div class="ol">  → Would fill form and assert message</div>
+    <div class="ol">  (continues...)</div>
+  </div>
+
+  <div class="ok">In Week 3, you replace the comment block with real Playwright code and the <code>for</code> loop becomes <code>@pytest.mark.parametrize</code>. The data structure — a list of dicts — stays exactly the same. You are building the right foundation right now.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 4 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 4 challenge — write it all from scratch</div>
+    <div class="card-b">New file: <b>day4_challenge.py</b>. This brings together dicts, lists, loops, f-strings, string methods, and assertions — everything from Days 1 to 4.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build an API response auditor</div>
+    <div class="ch-b">
+      Copy only these two variables — write everything else yourself:<br><br>
+      <code>api_users = [</code><br>
+      &nbsp;&nbsp;<code>{"id":1,"email":"george.bluth@reqres.in","first_name":"George","last_name":"Bluth","active":True},</code><br>
+      &nbsp;&nbsp;<code>{"id":2,"email":"janet.weaver@reqres.in","first_name":"Janet","last_name":"Weaver","active":True},</code><br>
+      &nbsp;&nbsp;<code>{"id":3,"email":"emma.wong","first_name":"Emma","last_name":"Wong","active":False},</code><br>
+      &nbsp;&nbsp;<code>{"id":4,"email":"","first_name":"Eve","last_name":"Holt","active":True},</code><br>
+      &nbsp;&nbsp;<code>{"id":5,"email":"charles.morris@reqres.in","first_name":"","last_name":"Morris","active":True},</code><br>
+      <code>]</code><br>
+      <code>required_fields = ["id","email","first_name","last_name","active"]</code><br><br>
+
+      <b>Part 1 — Field presence check</b><br>
+      Loop over each user. Check all <code>required_fields</code> exist in the user dict using <code>in</code>. Print PASS or FAIL per user.<br><br>
+
+      <b>Part 2 — Value validation</b><br>
+      For each user check: email contains "@", first_name is not empty, id is greater than 0. Collect all failures in a list.<br><br>
+
+      <b>Part 3 — Extract and analyse</b><br>
+      Using list comprehension: build a list of all emails, a list of all IDs, a list of only active users. Print each.<br><br>
+
+      <b>Part 4 — Safe access</b><br>
+      For each user, use <code>.get()</code> to safely get a <code>"phone"</code> field with default <code>"N/A"</code>. Print it.<br><br>
+
+      <b>Part 5 — Summary report</b><br>
+      Print: total users, active count, inactive count, users with invalid emails, users with empty first_name, overall PASS/FAIL status.
+    </div>
+  </div>
+
+  <div class="ok">This challenge is a complete API response validator — the same thing you will write in Week 4 with real HTTP responses. The only difference there: the list of dicts comes from <code>requests.get(url).json()["data"]</code>. The validation logic is identical.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 4 Python dictionaries challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 4 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 4 Python challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 5 Python — conditions in depth for QA automation with hands-on exercises')">Go to Day 5 — conditions ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['What is a dict','Safe access','Modify+loop','Nested dicts','List of dicts','Ex 1 Config','Ex 2 Validator','Ex 3 Users','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

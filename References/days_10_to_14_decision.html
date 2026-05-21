@@ -1,0 +1,47 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.cards{display:flex;flex-direction:column;gap:8px}
+.nc{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 15px;border:0.5px solid var(--color-border-tertiary);display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:border-color .15s}
+.nc:hover{border-color:var(--color-border-secondary)}
+.nc-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.nc-right{flex:1}
+.nc-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.nc-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.nc-tag{font-size:10px;font-weight:500;padding:2px 9px;border-radius:10px;display:inline-block;margin-top:5px}
+.t1{background:#EAF3DE;color:#27500A}
+.t2{background:#E6F1FB;color:#0C447C}
+.t3{background:#EEEDFE;color:#3C3489}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin-bottom:12px}
+</style>
+<div class="app">
+  <div class="ok">Days 10–12 content is done. You are ahead of schedule. Pick what comes next.</div>
+  <div class="cards">
+    <div class="nc" onclick="sendPrompt('I have completed Python Days 1 to 9. I am ready to start Playwright on Day 15. Teach me Playwright from scratch — installation, first test, locators, assertions, with hands-on exercises')">
+      <div class="nc-icon">🚀</div>
+      <div class="nc-right">
+        <div class="nc-title">Start Playwright now — skip to Day 15</div>
+        <div class="nc-desc">You have everything you need. Git branching can be learned in parallel. Recommended given your timeline.</div>
+        <span class="nc-tag t1">Recommended</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('Teach me Git branching and pull requests from scratch — create a branch, make changes, open a pull request, merge it, step by step for a QA automation project')">
+      <div class="nc-icon">🌿</div>
+      <div class="nc-right">
+        <div class="nc-title">Day 13 — Git branching and pull requests</div>
+        <div class="nc-desc">Branches, pull requests, merging. How professional teams work. Takes one day. Then straight to Playwright.</div>
+        <span class="nc-tag t2">One day extra</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('Give me a Python consolidation review — test my knowledge of everything from Days 1 to 9 with 10 questions covering variables strings lists dicts conditions loops functions and error handling')">
+      <div class="nc-icon">📋</div>
+      <div class="nc-right">
+        <div class="nc-title">Day 14 — Quick knowledge review</div>
+        <div class="nc-desc">10 questions covering all 9 Python days. Confirm you have no gaps before starting Playwright.</div>
+        <span class="nc-tag t3">Optional</span>
+      </div>
+    </div>
+  </div>
+</div>

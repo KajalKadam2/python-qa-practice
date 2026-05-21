@@ -1,0 +1,444 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+
+.progress{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0}
+.step-dot:hover{background:var(--color-background-tertiary)}
+.step-dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.step-dot.active{background:#E6F1FB;color:#0C447C;border-color:#85B7EB;font-weight:500}
+
+.pg{display:none}.pg.on{display:block}
+
+.concept-bar{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:14px;border:0.5px solid var(--color-border-tertiary)}
+.concept-title{font-size:15px;font-weight:500;margin-bottom:6px}
+.concept-body{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.concept-body b{font-weight:500;color:var(--color-text-primary)}
+
+.code-block{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:14px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.9;margin:10px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+
+.output-block{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.8;margin:10px 0}
+.out-label{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.out-line{color:var(--color-text-primary)}
+.out-dim{color:var(--color-text-tertiary)}
+
+.section{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px}
+
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:10px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:10px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:10px 0}
+
+.try-label{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+
+.challenge{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:10px 0}
+.ch-title{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-body{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.ch-body code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+
+.nav-btns{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-next{background:#E6F1FB;color:#0C447C;border-color:#85B7EB;font-weight:500}
+.btn-next:hover{background:#B5D4F4}
+.btn:disabled{opacity:.4;cursor:default}
+
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block}
+.ask:hover{opacity:.8}
+
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.b-g{background:#EAF3DE;color:#27500A}
+.b-b{background:#E6F1FB;color:#0C447C}
+.b-p{background:#EEEDFE;color:#3C3489}
+.b-a{background:#FAEEDA;color:#633806}
+
+.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.rule-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 12px;border:0.5px solid var(--color-border-tertiary)}
+.rc-t{font-size:12px;font-weight:500;margin-bottom:3px}
+.rc-d{font-size:12px;color:var(--color-text-secondary);line-height:1.45;font-family:var(--font-mono)}
+
+.page-indicator{font-size:12px;color:var(--color-text-tertiary)}
+</style>
+
+<div class="app">
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden">Day 1 Python lesson — variables, strings, integers, booleans with 5 QA automation examples</h2>
+
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: INTRO + CONCEPT -->
+<div class="pg on" id="pg0">
+  <div class="concept-bar">
+    <div class="concept-title">What is a variable?</div>
+    <div class="concept-body">A variable is a <b>named box that holds a value</b>. You give the box a name, put something in it, and refer to it by name later.<br><br>In Python you don't declare a type — you just write <b>name = value</b> and Python figures out the type automatically.</div>
+  </div>
+
+  <div class="section">The 4 types you learn today</div>
+  <div class="rule-grid">
+    <div class="rule-card"><div class="rc-t"><span class="badge b-g">str</span> String</div><div class="rc-d">"any text in quotes"<br>'single quotes work too'</div></div>
+    <div class="rule-card"><div class="rc-t"><span class="badge b-b">int</span> Integer</div><div class="rc-d">5000 &nbsp; 200 &nbsp; 0 &nbsp; -1<br>whole numbers, no quotes</div></div>
+    <div class="rule-card"><div class="rc-t"><span class="badge b-p">bool</span> Boolean</div><div class="rc-d">True &nbsp;&nbsp; False<br>capital T and F always</div></div>
+    <div class="rule-card"><div class="rc-t"><span class="badge b-a">float</span> Decimal</div><div class="rc-d">3.14 &nbsp; 0.5 &nbsp; 99.9<br>numbers with decimal point</div></div>
+  </div>
+
+  <div class="section">Naming rules — important</div>
+  <div class="tip">Variable names: lowercase, words separated by underscores. <br>Good: <code style="font-family:var(--font-mono);font-size:12px">base_url</code> &nbsp; <code style="font-family:var(--font-mono);font-size:12px">timeout_ms</code> &nbsp; <code style="font-family:var(--font-mono);font-size:12px">is_logged_in</code><br>Bad: <code style="font-family:var(--font-mono);font-size:12px">BaseUrl</code> &nbsp; <code style="font-family:var(--font-mono);font-size:12px">timeout ms</code> &nbsp; <code style="font-family:var(--font-mono);font-size:12px">2url</code> (can't start with number)</div>
+
+  <div class="nav-btns">
+    <button class="btn" disabled>← Back</button>
+    <span class="page-indicator" id="pi0">1 of 7</span>
+    <button class="btn btn-next" onclick="next(0)">Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: EXAMPLE 1 -->
+<div class="pg" id="pg1">
+  <div class="concept-bar">
+    <div class="concept-title">Example 1 — Test environment config <span class="badge b-g" style="margin-left:6px">str + int + bool</span></div>
+    <div class="concept-body">Every automation project has a config — the URL to test against, the browser, the timeout. This is the first thing you store in variables.</div>
+  </div>
+
+  <div class="try-label">Type this into day1.py and run it</div>
+  <div class="code-block"><span class="cm"># Test environment configuration</span>
+base_url  = <span class="st">"https://staging.myapp.com"</span>
+browser   = <span class="st">"chromium"</span>
+timeout   = <span class="nm">5000</span>
+headless  = <span class="kw">True</span>
+retry_max = <span class="nm">3</span>
+
+<span class="fn">print</span>(base_url)
+<span class="fn">print</span>(browser)
+<span class="fn">print</span>(timeout)
+<span class="fn">print</span>(headless)
+<span class="fn">print</span>(retry_max)</div>
+
+  <div class="section">What you should see in the terminal</div>
+  <div class="output-block">
+    <div class="out-label">Output</div>
+    <div class="out-line">https://staging.myapp.com</div>
+    <div class="out-line">chromium</div>
+    <div class="out-line">5000</div>
+    <div class="out-line">True</div>
+    <div class="out-line">3</div>
+  </div>
+
+  <div class="section">Now check the types</div>
+  <div class="code-block"><span class="cm"># Add these lines below your print statements</span>
+<span class="fn">print</span>(<span class="fn">type</span>(base_url))
+<span class="fn">print</span>(<span class="fn">type</span>(timeout))
+<span class="fn">print</span>(<span class="fn">type</span>(headless))</div>
+
+  <div class="output-block">
+    <div class="out-label">Output</div>
+    <div class="out-line">&lt;class 'str'&gt;</div>
+    <div class="out-line">&lt;class 'int'&gt;</div>
+    <div class="out-line">&lt;class 'bool'&gt;</div>
+  </div>
+
+  <div class="tip">Notice: <code style="font-family:var(--font-mono);font-size:12px">timeout = 5000</code> has no quotes — it's a number. <code style="font-family:var(--font-mono);font-size:12px">timeout = "5000"</code> with quotes would be text. Python treats them completely differently. Numbers can do maths. Text cannot.</div>
+
+  <div class="nav-btns">
+    <button class="btn" onclick="prev(1)">← Back</button>
+    <span class="page-indicator">2 of 7</span>
+    <button class="btn btn-next" onclick="next(1)">Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: EXAMPLE 2 -->
+<div class="pg" id="pg2">
+  <div class="concept-bar">
+    <div class="concept-title">Example 2 — Test user credentials <span class="badge b-g" style="margin-left:6px">str</span></div>
+    <div class="concept-body">Test users are something you'll store in every test project. Username, password, role, expected values after login — all strings.</div>
+  </div>
+
+  <div class="try-label">Type this — it's a new section in day1.py</div>
+  <div class="code-block"><span class="cm"># Test user credentials</span>
+username         = <span class="st">"tomsmith"</span>
+password         = <span class="st">"SuperSecretPassword!"</span>
+user_role        = <span class="st">"admin"</span>
+expected_message = <span class="st">"You logged into a secure area!"</span>
+
+<span class="fn">print</span>(username)
+<span class="fn">print</span>(password)
+<span class="fn">print</span>(user_role)
+<span class="fn">print</span>(expected_message)</div>
+
+  <div class="output-block">
+    <div class="out-label">Output</div>
+    <div class="out-line">tomsmith</div>
+    <div class="out-line">SuperSecretPassword!</div>
+    <div class="out-line">admin</div>
+    <div class="out-line">You logged into a secure area!</div>
+  </div>
+
+  <div class="section">Now update a variable and reuse it</div>
+  <div class="code-block"><span class="cm"># Change the value — just reassign it</span>
+username = <span class="st">"wronguser"</span>
+<span class="fn">print</span>(username)   <span class="cm"># now prints: wronguser</span>
+
+<span class="cm"># The old value is gone — Python only remembers the latest</span></div>
+
+  <div class="warn">Strings must always be in quotes. If you write <code style="font-family:var(--font-mono);font-size:12px">username = tomsmith</code> without quotes, Python thinks <code style="font-family:var(--font-mono);font-size:12px">tomsmith</code> is another variable — and will crash with NameError because that variable doesn't exist.</div>
+
+  <div class="challenge">
+    <div class="ch-title">Mini challenge — try it yourself</div>
+    <div class="ch-body">Add 3 more variables below your existing ones:<br>• <code>error_message</code> — store the text "Your username is invalid!"<br>• <code>page_title</code> — store "The Internet"<br>• <code>login_url</code> — store "https://the-internet.herokuapp.com/login"<br><br>Print all 3. Then print their types with <code>type()</code>.</div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn" onclick="prev(2)">← Back</button>
+    <span class="page-indicator">3 of 7</span>
+    <button class="btn btn-next" onclick="next(2)">Example 3 →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: EXAMPLE 3 -->
+<div class="pg" id="pg3">
+  <div class="concept-bar">
+    <div class="concept-title">Example 3 — HTTP status codes <span class="badge b-b" style="margin-left:6px">int</span></div>
+    <div class="concept-body">Integers are whole numbers — no decimal point, no quotes. Status codes, timeout values, retry counts, port numbers — all integers in automation.</div>
+  </div>
+
+  <div class="try-label">Type this</div>
+  <div class="code-block"><span class="cm"># HTTP status codes you'll assert in API tests</span>
+status_ok       = <span class="nm">200</span>
+status_created  = <span class="nm">201</span>
+status_no_content = <span class="nm">204</span>
+status_not_found  = <span class="nm">404</span>
+status_server_err = <span class="nm">500</span>
+
+<span class="fn">print</span>(status_ok)
+<span class="fn">print</span>(status_not_found)
+
+<span class="cm"># Integers can do maths</span>
+timeout_seconds = <span class="nm">5000</span>
+timeout_minutes = timeout_seconds <span class="op">/</span> <span class="nm">60000</span>
+<span class="fn">print</span>(timeout_minutes)   <span class="cm"># 0.08333...</span>
+
+<span class="cm"># Compare integers</span>
+actual_status = <span class="nm">200</span>
+<span class="fn">print</span>(actual_status <span class="op">==</span> status_ok)     <span class="cm"># True</span>
+<span class="fn">print</span>(actual_status <span class="op">==</span> status_not_found)  <span class="cm"># False</span></div>
+
+  <div class="output-block">
+    <div class="out-label">Output</div>
+    <div class="out-line">200</div>
+    <div class="out-line">404</div>
+    <div class="out-line">0.08333333333333333</div>
+    <div class="out-line">True</div>
+    <div class="out-line">False</div>
+  </div>
+
+  <div class="tip">The <code style="font-family:var(--font-mono);font-size:12px">==</code> operator compares two values and gives back True or False. This is the foundation of every assertion you'll ever write in test automation. When you later write <code style="font-family:var(--font-mono);font-size:12px">assert response.status_code == 200</code> in an API test — that <code style="font-family:var(--font-mono);font-size:12px">==</code> is doing exactly this.</div>
+
+  <div class="challenge">
+    <div class="ch-title">Mini challenge</div>
+    <div class="ch-body">Create a variable <code>actual_response_time</code> = 1250 (milliseconds) and <code>max_allowed_time</code> = 2000.<br>Print whether actual is less than max using <code>&lt;</code>.<br>You should see: <code>True</code></div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn" onclick="prev(3)">← Back</button>
+    <span class="page-indicator">4 of 7</span>
+    <button class="btn btn-next" onclick="next(3)">Example 4 →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: EXAMPLE 4 -->
+<div class="pg" id="pg4">
+  <div class="concept-bar">
+    <div class="concept-title">Example 4 — Test flags and switches <span class="badge b-p" style="margin-left:6px">bool</span></div>
+    <div class="concept-body">Booleans are only ever <b>True</b> or <b>False</b> — capital first letter, no quotes. Used for: headless mode on/off, test enabled/disabled, login state, feature flags.</div>
+  </div>
+
+  <div class="try-label">Type this</div>
+  <div class="code-block"><span class="cm"># Boolean flags in test configuration</span>
+headless_mode    = <span class="kw">True</span>
+slow_motion      = <span class="kw">False</span>
+take_screenshot  = <span class="kw">True</span>
+record_video     = <span class="kw">False</span>
+is_logged_in     = <span class="kw">False</span>
+
+<span class="fn">print</span>(headless_mode)
+<span class="fn">print</span>(is_logged_in)
+<span class="fn">print</span>(<span class="fn">type</span>(headless_mode))   <span class="cm"># &lt;class 'bool'&gt;</span>
+
+<span class="cm"># Booleans come from comparisons too</span>
+status = <span class="nm">200</span>
+test_passed = (status <span class="op">==</span> <span class="nm">200</span>)   <span class="cm"># True</span>
+test_failed = (status <span class="op">==</span> <span class="nm">404</span>)   <span class="cm"># False</span>
+
+<span class="fn">print</span>(test_passed)
+<span class="fn">print</span>(test_failed)
+
+<span class="cm"># not flips a boolean</span>
+<span class="fn">print</span>(<span class="kw">not</span> test_passed)    <span class="cm"># False</span>
+<span class="fn">print</span>(<span class="kw">not</span> is_logged_in)   <span class="cm"># True  (not False = True)</span></div>
+
+  <div class="output-block">
+    <div class="out-label">Output</div>
+    <div class="out-line">True</div>
+    <div class="out-line">False</div>
+    <div class="out-line">&lt;class 'bool'&gt;</div>
+    <div class="out-line">True</div>
+    <div class="out-line">False</div>
+    <div class="out-line">False</div>
+    <div class="out-line">True</div>
+  </div>
+
+  <div class="warn">Common mistake: writing <code style="font-family:var(--font-mono);font-size:12px">headless_mode = true</code> (lowercase t). Python will crash with NameError — it thinks <code style="font-family:var(--font-mono);font-size:12px">true</code> is a variable name. It must always be <code style="font-family:var(--font-mono);font-size:12px">True</code> and <code style="font-family:var(--font-mono);font-size:12px">False</code> with capital letters.</div>
+
+  <div class="nav-btns">
+    <button class="btn" onclick="prev(4)">← Back</button>
+    <span class="page-indicator">5 of 7</span>
+    <button class="btn btn-next" onclick="next(4)">Example 5 →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: EXAMPLE 5 -->
+<div class="pg" id="pg5">
+  <div class="concept-bar">
+    <div class="concept-title">Example 5 — print() with labels <span class="badge b-a" style="margin-left:6px">putting it all together</span></div>
+    <div class="concept-body">Printing a bare value isn't useful in real tests. You need to print labels with values so you understand the output. Three ways to do it — you'll use all three this week.</div>
+  </div>
+
+  <div class="try-label">Type this — all 3 print styles</div>
+  <div class="code-block"><span class="cm"># Method 1: comma-separated (simplest)</span>
+url     = <span class="st">"https://staging.myapp.com"</span>
+status  = <span class="nm">200</span>
+passed  = <span class="kw">True</span>
+
+<span class="fn">print</span>(<span class="st">"URL:"</span>, url)
+<span class="fn">print</span>(<span class="st">"Status:"</span>, status)
+<span class="fn">print</span>(<span class="st">"Passed:"</span>, passed)
+
+<span class="cm"># Method 2: f-string (most useful — you'll use this every day)</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Testing URL: {url}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Response status: {status}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Test passed: {passed}"</span>)
+
+<span class="cm"># Method 3: string concatenation with + (works but messy)</span>
+<span class="cm"># Note: + only works between strings</span>
+<span class="cm"># print("Status: " + status)  ← this CRASHES</span>
+<span class="fn">print</span>(<span class="st">"Status: "</span> <span class="op">+</span> <span class="fn">str</span>(status))   <span class="cm"># must convert int to str</span></div>
+
+  <div class="output-block">
+    <div class="out-label">Output</div>
+    <div class="out-line">URL: https://staging.myapp.com</div>
+    <div class="out-line">Status: 200</div>
+    <div class="out-line">Passed: True</div>
+    <div class="out-line">Testing URL: https://staging.myapp.com</div>
+    <div class="out-line">Response status: 200</div>
+    <div class="out-line">Test passed: True</div>
+    <div class="out-line">Status: 200</div>
+  </div>
+
+  <div class="tip">Use f-strings from now on. The syntax is: put <code style="font-family:var(--font-mono);font-size:12px">f</code> before the quote, then wrap any variable in <code style="font-family:var(--font-mono);font-size:12px">{curly braces}</code>. It works with strings, integers, and booleans — no conversion needed.</div>
+
+  <div class="nav-btns">
+    <button class="btn" onclick="prev(5)">← Back</button>
+    <span class="page-indicator">6 of 7</span>
+    <button class="btn btn-next" onclick="next(5)">Day 1 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: FINAL CHALLENGE -->
+<div class="pg" id="pg6">
+  <div class="concept-bar">
+    <div class="concept-title">Day 1 challenge — write it all yourself</div>
+    <div class="concept-body">No looking back at the examples. Open a new file called <b>day1_challenge.py</b> and write everything from scratch.</div>
+  </div>
+
+  <div class="section">The challenge</div>
+  <div class="challenge">
+    <div class="ch-title">Build a test session summary — from memory</div>
+    <div class="ch-body">
+      Create these variables and print them all with f-strings:<br><br>
+      <b style="font-weight:500">Strings (4):</b><br>
+      • <code>app_name</code> = name of the app you're testing (make one up)<br>
+      • <code>test_env</code> = "staging"<br>
+      • <code>tester_name</code> = your name<br>
+      • <code>browser</code> = "chromium"<br><br>
+      <b style="font-weight:500">Integers (3):</b><br>
+      • <code>total_tests</code> = 42<br>
+      • <code>tests_passed</code> = 38<br>
+      • <code>tests_failed</code> = 4<br><br>
+      <b style="font-weight:500">Booleans (2):</b><br>
+      • <code>all_critical_passed</code> = True<br>
+      • <code>blocking_bug_found</code> = False<br><br>
+      <b style="font-weight:500">Print:</b> a formatted summary like:<br>
+      <code>Test session: MyApp on staging</code><br>
+      <code>Tester: Your Name | Browser: chromium</code><br>
+      <code>Results: 38/42 passed</code><br>
+      <code>Critical tests passed: True</code><br>
+      <code>Blocking bug found: False</code><br><br>
+      <b style="font-weight:500">Then print the type of:</b> <code>total_tests</code>, <code>test_env</code>, <code>all_critical_passed</code>
+    </div>
+  </div>
+
+  <div class="section">Expected output (yours will differ slightly)</div>
+  <div class="output-block">
+    <div class="out-label">What it should look like</div>
+    <div class="out-line">Test session: MyApp on staging</div>
+    <div class="out-line">Tester: Your Name | Browser: chromium</div>
+    <div class="out-line">Results: 38/42 passed</div>
+    <div class="out-line">Critical tests passed: True</div>
+    <div class="out-line">Blocking bug found: False</div>
+    <div class="out-line">&lt;class 'int'&gt;</div>
+    <div class="out-line">&lt;class 'str'&gt;</div>
+    <div class="out-line">&lt;class 'bool'&gt;</div>
+  </div>
+
+  <div class="ok">If this runs without errors and prints what you expect — Day 1 is done. You genuinely understand Python variables. Tomorrow is strings and f-strings in depth.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 1 Python challenge. Check my understanding — ask me 3 quick questions about variables, strings, integers and booleans to confirm I am ready for Day 2')">Check if I am ready for Day 2 ↗</button>
+    <button class="ask" onclick="sendPrompt('I am getting an error in my Day 1 Python code. Help me debug it — I will paste the error message')">Help me debug an error ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 2 Python — strings and f-strings in depth for QA automation with hands-on exercises')">Go to Day 2 — strings ↗</button>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn" onclick="prev(6)">← Back</button>
+    <span class="page-indicator">7 of 7</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const total = 7;
+const labels = ['Concept','Ex 1','Ex 2','Ex 3','Ex 4','Ex 5','Challenge'];
+let cur = 0;
+
+function renderDots() {
+  const c = document.getElementById('dots');
+  c.innerHTML = '';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='step-dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labels[i];
+    d.onclick=(()=>{const idx=i;return()=>goTo(idx)})();
+    c.appendChild(d);
+  }
+}
+
+function goTo(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  renderDots();
+  window.scrollTo&&window.scrollTo({top:0});
+}
+
+function next(from){goTo(from+1)}
+function prev(from){goTo(from-1)}
+
+renderDots();
+</script>

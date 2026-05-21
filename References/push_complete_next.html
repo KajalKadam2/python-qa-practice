@@ -1,0 +1,61 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.hero{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.hero-t{font-size:15px;font-weight:500;margin-bottom:4px}
+.hero-s{font-size:13px;color:var(--color-text-secondary);line-height:1.5}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center;border:0.5px solid var(--color-border-tertiary)}
+.sn{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.sl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.cards{display:flex;flex-direction:column;gap:8px}
+.nc{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:12px 14px;border:0.5px solid var(--color-border-tertiary);display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:border-color .15s}
+.nc:hover{border-color:var(--color-border-secondary)}
+.nc-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.nc-right{flex:1}
+.nc-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.nc-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.nc-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:5px}
+.t1{background:#EAF3DE;color:#27500A}
+.t2{background:#E6F1FB;color:#0C447C}
+.t3{background:#EEEDFE;color:#3C3489}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin-bottom:12px}
+</style>
+<div class="app">
+  <div class="ok">✓ github.com/KajalKadam2/python-qa-practice — 26 files live on GitHub. Portfolio started.</div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="sn">7</div><div class="sl">days complete</div></div>
+    <div class="stat"><div class="sn">26</div><div class="sl">files on GitHub</div></div>
+    <div class="stat"><div class="sn">38</div><div class="sl">days to Playwright → job</div></div>
+  </div>
+
+  <div class="cards">
+    <div class="nc" onclick="sendPrompt('Teach me Day 8 Python — functions in depth for QA automation: default args, *args, **kwargs, return values, with hands-on exercises')">
+      <div class="nc-icon">⚙️</div>
+      <div class="nc-right">
+        <div class="nc-title">Day 8 — Functions in depth</div>
+        <div class="nc-desc">Default args, *args, **kwargs, return tuples. Last Python concept before Playwright on Day 15.</div>
+        <span class="nc-tag t1">Next lesson</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('Teach me Day 12 Python — Git branching, pull requests, and the professional Git workflow for QA automation projects')">
+      <div class="nc-icon">🌿</div>
+      <div class="nc-right">
+        <div class="nc-title">Day 12 — Git branching and PRs</div>
+        <div class="nc-desc">Branches, pull requests, and the workflow every QA team uses. Coming up in week 2.</div>
+        <span class="nc-tag t2">This week</span>
+      </div>
+    </div>
+    <div class="nc" onclick="sendPrompt('What should a QA automation portfolio on GitHub look like by week 6 — what 3 repos, what structure, what README, what CI/CD badges')">
+      <div class="nc-icon">💼</div>
+      <div class="nc-right">
+        <div class="nc-title">What your portfolio looks like at week 6</div>
+        <div class="nc-desc">3 repos, CI/CD badges, professional READMEs — see the target you are building toward.</div>
+        <span class="nc-tag t3">Portfolio goal</span>
+      </div>
+    </div>
+  </div>
+</div>

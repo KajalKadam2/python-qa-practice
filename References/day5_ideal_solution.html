@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#FCEBEB;color:#791F1F;border-color:#F09595}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part{font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px}
+.pn{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.p5{background:#FCEBEB;color:#791F1F}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#791F1F;border-color:#791F1F}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#791F1F;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Part by part</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every line that differs from yours, understand the reason before moving on.</div>
+
+<div class="code"><span class="cm"># ──────────────────────────────────────────────────────
+# Day 5 Challenge — Ideal Solution
+# day5_challenge.py
+# ──────────────────────────────────────────────────────</span>
+
+session = {
+    <span class="st">"env"</span>:              <span class="st">"staging"</span>,
+    <span class="st">"browser"</span>:          <span class="st">"chromium"</span>,
+    <span class="st">"base_url"</span>:         <span class="st">"https://staging.myapp.com"</span>,
+    <span class="st">"total_tests"</span>:      <span class="nm">12</span>,
+    <span class="st">"response_times_ms"</span>:[<span class="nm">320</span>,<span class="nm">840</span>,<span class="nm">1200</span>,<span class="nm">450</span>,<span class="nm">3500</span>,<span class="nm">290</span>,<span class="nm">780</span>,<span class="nm">4100</span>,<span class="nm">520</span>,<span class="nm">670</span>,<span class="nm">390</span>,<span class="nm">1850</span>],
+    <span class="st">"results"</span>:          [<span class="st">"PASS"</span>,<span class="st">"PASS"</span>,<span class="st">"FAIL"</span>,<span class="st">"PASS"</span>,<span class="st">"FAIL"</span>,<span class="st">"PASS"</span>,<span class="st">"PASS"</span>,<span class="st">"FAIL"</span>,<span class="st">"PASS"</span>,<span class="st">"PASS"</span>,<span class="st">"PASS"</span>,<span class="st">"PASS"</span>],
+    <span class="st">"errors"</span>:           [<span class="st">"Timeout on checkout"</span>, <span class="st">"Button not found"</span>, <span class="st">"API 500 on payment"</span>]
+}
+
+<span class="cm"># ── Part 1: basic counts ───────────────────────────────</span>
+results     = session[<span class="st">"results"</span>]
+passed      = results.<span class="fn">count</span>(<span class="st">"PASS"</span>)
+failed      = results.<span class="fn">count</span>(<span class="st">"FAIL"</span>)
+total       = <span class="fn">len</span>(results)
+pass_rate   = <span class="fn">round</span>(passed / total * <span class="nm">100</span>, <span class="nm">1</span>)
+suite_status = <span class="st">"PASS"</span> <span class="kw">if</span> pass_rate <span class="op">&gt;=</span> <span class="nm">80</span> <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+<span class="fn">print</span>(<span class="st">"Part 1 — Test counts"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Passed    : {passed}/{total}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Failed    : {failed}/{total}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Pass rate : {pass_rate}%"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Status    : {suite_status}"</span>)
+
+<span class="cm"># ── Part 2: response time analysis ────────────────────</span>
+times       = session[<span class="st">"response_times_ms"</span>]
+fastest     = <span class="fn">min</span>(times)
+slowest     = <span class="fn">max</span>(times)
+average     = <span class="fn">round</span>(<span class="fn">sum</span>(times) / <span class="fn">len</span>(times), <span class="nm">1</span>)
+slow_count  = <span class="fn">len</span>([t <span class="kw">for</span> t <span class="kw">in</span> times <span class="kw">if</span> t <span class="op">&gt;</span> <span class="nm">2000</span>])
+
+<span class="kw">if</span> average <span class="op">&lt;</span> <span class="nm">800</span>:
+    perf_label = <span class="st">"FAST"</span>
+<span class="kw">elif</span> average <span class="op">&lt;</span> <span class="nm">1500</span>:
+    perf_label = <span class="st">"ACCEPTABLE"</span>
+<span class="kw">else</span>:
+    perf_label = <span class="st">"SLOW"</span>
+
+<span class="fn">print</span>(<span class="st">"\nPart 2 — Response times"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Fastest   : {fastest}ms"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Slowest   : {slowest}ms"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Average   : {average}ms"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Over 2s   : {slow_count} tests"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Perf      : {perf_label}"</span>)
+
+<span class="cm"># ── Part 3: error audit ────────────────────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 3 — Error audit"</span>)
+<span class="kw">for</span> error <span class="kw">in</span> session[<span class="st">"errors"</span>]:
+    error_lower = error.<span class="fn">lower</span>()
+    <span class="kw">if</span> <span class="st">"timeout"</span> <span class="kw">in</span> error_lower:
+        label = <span class="st">"TIMEOUT"</span>
+    <span class="kw">elif</span> <span class="st">"500"</span> <span class="kw">in</span> error_lower:
+        label = <span class="st">"SERVER ERROR"</span>
+    <span class="kw">else</span>:
+        label = <span class="st">"TEST FAILURE"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  [{label}] {error}"</span>)
+
+<span class="cm"># ── Part 4: environment safety check ──────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 4 — Environment check"</span>)
+supported_browsers = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+warnings = []
+
+<span class="kw">if not</span> session[<span class="st">"base_url"</span>].<span class="fn">startswith</span>(<span class="st">"https"</span>):
+    warnings.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"URL not secure: {session['base_url']}"</span>)
+<span class="kw">if</span> session[<span class="st">"env"</span>] <span class="op">==</span> <span class="st">"prod"</span>:
+    warnings.<span class="fn">append</span>(<span class="st">"Running against PRODUCTION — dangerous!"</span>)
+<span class="kw">if</span> session[<span class="st">"browser"</span>] <span class="kw">not in</span> supported_browsers:
+    warnings.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"Unsupported browser: {session['browser']}"</span>)
+
+<span class="kw">if</span> warnings:
+    <span class="kw">for</span> w <span class="kw">in</span> warnings:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ⚠ {w}"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"  Environment OK"</span>)
+
+env_safe = <span class="kw">not</span> warnings
+
+<span class="cm"># ── Part 5: full audit report ──────────────────────────</span>
+overall = <span class="st">"PASS"</span> <span class="kw">if</span> (pass_rate <span class="op">&gt;=</span> <span class="nm">80</span> <span class="kw">and</span> slow_count <span class="op">==</span> <span class="nm">0</span> <span class="kw">and</span> env_safe) <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n{'='*40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  SESSION AUDIT REPORT"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Environment : {session['env']} ({session['browser']})"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Tests       : {passed}/{total} passed ({pass_rate}%)"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Performance : avg {average}ms — {perf_label}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Slow tests  : {slow_count}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Errors      : {len(session['errors'])}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Env safe    : {env_safe}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'─'*40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  OVERALL     : {overall}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*40}"</span>)</div>
+
+  <div class="sec">Expected output</div>
+  <div class="out">
+    <div class="out-lbl">Terminal</div>
+    <div class="ol">Part 1 — Test counts</div>
+    <div class="ol">  Passed    : 9/12</div>
+    <div class="ol">  Failed    : 3/12</div>
+    <div class="ol">  Pass rate : 75.0%</div>
+    <div class="ol">  Status    : FAIL</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 2 — Response times</div>
+    <div class="ol">  Fastest   : 290ms</div>
+    <div class="ol">  Slowest   : 4100ms</div>
+    <div class="ol">  Average   : 1157.5ms</div>
+    <div class="ol">  Over 2s   : 2 tests</div>
+    <div class="ol">  Perf      : ACCEPTABLE</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 3 — Error audit</div>
+    <div class="ol">  [TIMEOUT] Timeout on checkout</div>
+    <div class="ol">  [TEST FAILURE] Button not found</div>
+    <div class="ol">  [SERVER ERROR] API 500 on payment</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 4 — Environment check</div>
+    <div class="ol">  Environment OK</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">========================================</div>
+    <div class="ol">  SESSION AUDIT REPORT</div>
+    <div class="ol">========================================</div>
+    <div class="ol">  Environment : staging (chromium)</div>
+    <div class="ol">  Tests       : 9/12 passed (75.0%)</div>
+    <div class="ol">  Performance : avg 1157.5ms — ACCEPTABLE</div>
+    <div class="ol">  Slow tests  : 2</div>
+    <div class="ol">  Errors      : 3</div>
+    <div class="ol">  Env safe    : True</div>
+    <div class="ol">  ────────────────────────────────────────</div>
+    <div class="ol">  OVERALL     : FAIL</div>
+    <div class="ol">========================================</div>
+  </div>
+
+  <div class="tip">OVERALL is FAIL even though the environment is safe — because <code>pass_rate</code> is 75% (below 80) AND <code>slow_count</code> is 2 (not 0). All three conditions must be True for PASS. One failure brings down the whole result — exactly how a real CI gate works.</div>
+</div>
+
+<!-- PART BY PART -->
+<div class="pg" id="exp">
+
+  <div class="part"><span class="pn p1">Part 1</span> Pass rate + suite status</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">pass_rate    = <span class="fn">round</span>(passed / total * <span class="nm">100</span>, <span class="nm">1</span>)
+suite_status = <span class="st">"PASS"</span> <span class="kw">if</span> pass_rate <span class="op">&gt;=</span> <span class="nm">80</span> <span class="kw">else</span> <span class="st">"FAIL"</span></div>
+      <div class="eb-why"><b>Ternary for binary labels.</b> Suite status is either PASS or FAIL — exactly two outcomes, simple condition. Ternary is the right tool. <code>round(..., 1)</code> keeps one decimal place — <code>75.0%</code> not <code>75.00000000001%</code> from floating point arithmetic. Always round percentages before displaying them.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p2">Part 2</span> Response time analysis with min/max/sum</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">fastest    = <span class="fn">min</span>(times)
+slowest    = <span class="fn">max</span>(times)
+average    = <span class="fn">round</span>(<span class="fn">sum</span>(times) / <span class="fn">len</span>(times), <span class="nm">1</span>)
+slow_count = <span class="fn">len</span>([t <span class="kw">for</span> t <span class="kw">in</span> times <span class="kw">if</span> t <span class="op">&gt;</span> <span class="nm">2000</span>])</div>
+      <div class="eb-why"><b>Python built-ins <code>min()</code>, <code>max()</code>, <code>sum()</code> work directly on any list of numbers.</b> No loop needed. <code>sum(times) / len(times)</code> is the mean — no library required. <code>len([comprehension])</code> counts filtered items — the same pattern from Day 4. These four lines replace what would take 10+ lines of manual looping.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">if</span> average <span class="op">&lt;</span> <span class="nm">800</span>:
+    perf_label = <span class="st">"FAST"</span>
+<span class="kw">elif</span> average <span class="op">&lt;</span> <span class="nm">1500</span>:
+    perf_label = <span class="st">"ACCEPTABLE"</span>
+<span class="kw">else</span>:
+    perf_label = <span class="st">"SLOW"</span></div>
+      <div class="eb-why"><b>Three outcomes — use if/elif/else, not ternary.</b> A chained ternary with three options works but becomes hard to read. When you have 3+ outcomes with different labels, <code>if/elif/else</code> is cleaner and easier to extend. The rule: ternary for 2 options, if/elif/else for 3 or more.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p3">Part 3</span> Error classification with if/elif/else</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">error_lower = error.<span class="fn">lower</span>()
+<span class="kw">if</span> <span class="st">"timeout"</span> <span class="kw">in</span> error_lower:
+    label = <span class="st">"TIMEOUT"</span>
+<span class="kw">elif</span> <span class="st">"500"</span> <span class="kw">in</span> error_lower:
+    label = <span class="st">"SERVER ERROR"</span>
+<span class="kw">else</span>:
+    label = <span class="st">"TEST FAILURE"</span></div>
+      <div class="eb-why"><b>Three distinct categories — if/elif/else is the right choice.</b> <code>elif</code> means once one branch matches, the others are skipped — an error containing both "timeout" and "500" gets labelled "TIMEOUT", not both. <code>.lower()</code> before the check makes it case-insensitive — "TIMEOUT" and "Timeout" and "timeout" all match. Always lowercase before checking for keywords in user-facing text.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p4">Part 4</span> Guard-clause style environment check</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">warnings = []
+
+<span class="kw">if not</span> session[<span class="st">"base_url"</span>].<span class="fn">startswith</span>(<span class="st">"https"</span>):
+    warnings.<span class="fn">append</span>(...)
+<span class="kw">if</span> session[<span class="st">"env"</span>] <span class="op">==</span> <span class="st">"prod"</span>:
+    warnings.<span class="fn">append</span>(...)
+<span class="kw">if</span> session[<span class="st">"browser"</span>] <span class="kw">not in</span> supported_browsers:
+    warnings.<span class="fn">append</span>(...)
+
+env_safe = <span class="kw">not</span> warnings</div>
+      <div class="eb-why"><b>Three independent checks — three separate if statements, not if/elif.</b> Unlike Part 3 where categories are mutually exclusive, here all three checks can fail simultaneously. Using <code>elif</code> would skip the second and third checks if the first fails. <code>env_safe = not warnings</code> is clean truthiness — an empty list is falsy, so <code>not []</code> is True. A non-empty warnings list is truthy, so <code>not [...]</code> is False.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p5">Part 5</span> Three-condition overall gate</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">overall = <span class="st">"PASS"</span> <span class="kw">if</span> (pass_rate <span class="op">&gt;=</span> <span class="nm">80</span> <span class="kw">and</span> slow_count <span class="op">==</span> <span class="nm">0</span> <span class="kw">and</span> env_safe) <span class="kw">else</span> <span class="st">"FAIL"</span></div>
+      <div class="eb-why"><b>The parentheses make the compound condition readable.</b> Three things must all be true: pass rate good enough, no slow tests, environment safe. <code>and</code> means all three must pass — one failure brings FAIL. This is how CI/CD quality gates work in real projects. Variables computed in earlier parts (<code>pass_rate</code>, <code>slow_count</code>, <code>env_safe</code>) are reused here — the single source of truth pattern from Day 4 applied to conditions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — using elif for independent environment checks</div>
+    <div class="diff-body"><span class="cm"># Wrong — elif skips checks if first one fails</span>
+<span class="kw">if not</span> session[<span class="st">"base_url"</span>].<span class="fn">startswith</span>(<span class="st">"https"</span>):
+    warnings.<span class="fn">append</span>(<span class="st">"URL not secure"</span>)
+<span class="kw">elif</span> session[<span class="st">"env"</span>] <span class="op">==</span> <span class="st">"prod"</span>:      <span class="cm"># never checked if URL fails!</span>
+    warnings.<span class="fn">append</span>(<span class="st">"Running on prod"</span>)
+
+<span class="cm"># Correct — three separate if statements</span>
+<span class="kw">if not</span> session[<span class="st">"base_url"</span>].<span class="fn">startswith</span>(<span class="st">"https"</span>):
+    warnings.<span class="fn">append</span>(<span class="st">"URL not secure"</span>)
+<span class="kw">if</span> session[<span class="st">"env"</span>] <span class="op">==</span> <span class="st">"prod"</span>:
+    warnings.<span class="fn">append</span>(<span class="st">"Running on prod"</span>)</div>
+    <div class="diff-note"><b>This is the most important condition lesson.</b> Use <code>elif</code> when categories are mutually exclusive (one error message per error). Use separate <code>if</code> statements when checks are independent (all failures should be found and reported). Getting this wrong means silently missing environment problems.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — not lowercasing before keyword checks in Part 3</div>
+    <div class="diff-body"><span class="cm"># Fragile — misses "TIMEOUT", "TimeOut", etc.</span>
+<span class="kw">if</span> <span class="st">"timeout"</span> <span class="kw">in</span> error:
+    label = <span class="st">"TIMEOUT"</span>
+
+<span class="cm"># Correct — lowercase first, then check</span>
+error_lower = error.<span class="fn">lower</span>()
+<span class="kw">if</span> <span class="st">"timeout"</span> <span class="kw">in</span> error_lower:
+    label = <span class="st">"TIMEOUT"</span></div>
+    <div class="diff-note"><b>Error messages come from many sources</b> — browsers, servers, test frameworks — each with different capitalisation conventions. Lowercasing before checking is the same pattern you learned for flash messages in Day 2. Apply it consistently to any text you do not control.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — computing average without round()</div>
+    <div class="diff-body"><span class="cm"># Ugly floating point output</span>
+average = <span class="fn">sum</span>(times) / <span class="fn">len</span>(times)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Average: {average}ms"</span>)
+<span class="cm"># Average: 1157.5000000000002ms  ← ugly</span>
+
+<span class="cm"># Clean output</span>
+average = <span class="fn">round</span>(<span class="fn">sum</span>(times) / <span class="fn">len</span>(times), <span class="nm">1</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Average: {average}ms"</span>)
+<span class="cm"># Average: 1157.5ms  ← clean</span></div>
+    <div class="diff-note"><b>Floating point arithmetic produces tiny errors.</b> Division in Python sometimes returns values like <code>1157.5000000000002</code> due to how computers store decimal numbers. Always <code>round()</code> before displaying or comparing floats. The second argument to round is decimal places — <code>round(x, 1)</code> gives one decimal place.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — duplicating the overall condition logic</div>
+    <div class="diff-body"><span class="cm"># Redundant — recomputes what was already found</span>
+overall = <span class="st">"PASS"</span> <span class="kw">if</span> (
+    results.<span class="fn">count</span>(<span class="st">"FAIL"</span>) == <span class="nm">0</span> <span class="kw">and</span>
+    <span class="fn">len</span>([t <span class="kw">for</span> t <span class="kw">in</span> times <span class="kw">if</span> t <span class="op">&gt;</span> <span class="nm">2000</span>]) == <span class="nm">0</span>
+) <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+<span class="cm"># Correct — reuse variables already computed</span>
+overall = <span class="st">"PASS"</span> <span class="kw">if</span> (pass_rate <span class="op">&gt;=</span> <span class="nm">80</span> <span class="kw">and</span> slow_count <span class="op">==</span> <span class="nm">0</span> <span class="kw">and</span> env_safe) <span class="kw">else</span> <span class="st">"FAIL"</span></div>
+    <div class="diff-note"><b>Single source of truth applies to conditions too.</b> <code>pass_rate</code>, <code>slow_count</code>, and <code>env_safe</code> were already computed in Parts 1–4. Reuse them. Recomputing means two places to update if the threshold changes, and the risk that the Part 5 logic silently diverges from the detailed output above it.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — using a chained ternary for 3+ performance labels</div>
+    <div class="diff-body"><span class="cm"># Hard to read with 3 outcomes</span>
+perf = <span class="st">"FAST"</span> <span class="kw">if</span> average <span class="op">&lt;</span> <span class="nm">800</span> <span class="kw">else</span> <span class="st">"ACCEPTABLE"</span> <span class="kw">if</span> average <span class="op">&lt;</span> <span class="nm">1500</span> <span class="kw">else</span> <span class="st">"SLOW"</span>
+
+<span class="cm"># Cleaner for 3+ outcomes</span>
+<span class="kw">if</span> average <span class="op">&lt;</span> <span class="nm">800</span>:
+    perf_label = <span class="st">"FAST"</span>
+<span class="kw">elif</span> average <span class="op">&lt;</span> <span class="nm">1500</span>:
+    perf_label = <span class="st">"ACCEPTABLE"</span>
+<span class="kw">else</span>:
+    perf_label = <span class="st">"SLOW"</span></div>
+    <div class="diff-note"><b>The rule: ternary for 2 outcomes, if/elif/else for 3+.</b> Chained ternaries work but force the reader to parse the whole line before understanding any of it. With if/elif/else, each branch is obvious at a glance. Code is read 10x more than it is written — optimise for reading, not writing.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 1 — Used <code>.count()</code> for pass/fail counts and ternary for suite_status</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 1 — <code>round()</code> applied to pass_rate before display</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — Used <code>min()</code>, <code>max()</code>, <code>sum()/len()</code> for time analysis — no manual loops</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — Used <code>if/elif/else</code> for 3 performance labels, not chained ternary</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 3 — Lowercased error text before keyword check for case-insensitive matching</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 3 — Used <code>if/elif/else</code> for mutually exclusive error categories</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 4 — Used three <b>separate</b> <code>if</code> statements (not elif) for independent checks</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 4 — Stored <code>env_safe = not warnings</code> for reuse in Part 5</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — Overall uses <code>pass_rate</code>, <code>slow_count</code>, <code>env_safe</code> already computed — no re-calculation</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — OVERALL is FAIL because pass_rate (75%) is below 80 AND slow_count is 2, not zero</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 6 Python — loops in depth for QA automation with hands-on exercises')">Go to Day 6 — loops in depth ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me a harder Python conditions challenge — beyond Day 5 level, using real QA automation scenarios')">Give me a harder conditions challenge ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#791F1F':'';
+  box.style.borderColor=on?'#791F1F':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. The if vs elif distinction for independent vs mutually exclusive checks is the single hardest concept this week — you understood it. Day 6 is loops in depth and then you start Playwright on Day 15.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Review the Common Mistakes tab for what you missed, fix those lines, then move to Day 6.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Part by Part for each unchecked item, rewrite those sections, then move on.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution carefully, then rewrite the whole challenge from scratch before Day 6.</div>';
+}
+</script>
+</body>
+</html>

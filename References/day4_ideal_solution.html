@@ -1,0 +1,407 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part{font-size:13px;font-weight:500;color:var(--color-text-primary);padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px}
+.pn{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.p5{background:#FCEBEB;color:#791F1F}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#3C3489;border-color:#3C3489}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#534AB7;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Part by part</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every line that differs from yours, understand why before moving on.</div>
+
+<div class="code"><span class="cm"># ──────────────────────────────────────────────────
+# Day 4 Challenge — Ideal Solution
+# day4_challenge.py
+# ──────────────────────────────────────────────────</span>
+
+<span class="cm"># ── Given data ─────────────────────────────────────</span>
+api_users = [
+    {<span class="st">"id"</span>:<span class="nm">1</span>, <span class="st">"email"</span>:<span class="st">"george.bluth@reqres.in"</span>,  <span class="st">"first_name"</span>:<span class="st">"George"</span>, <span class="st">"last_name"</span>:<span class="st">"Bluth"</span>,  <span class="st">"active"</span>:<span class="kw">True</span>},
+    {<span class="st">"id"</span>:<span class="nm">2</span>, <span class="st">"email"</span>:<span class="st">"janet.weaver@reqres.in"</span>,  <span class="st">"first_name"</span>:<span class="st">"Janet"</span>,  <span class="st">"last_name"</span>:<span class="st">"Weaver"</span>, <span class="st">"active"</span>:<span class="kw">True</span>},
+    {<span class="st">"id"</span>:<span class="nm">3</span>, <span class="st">"email"</span>:<span class="st">"emma.wong"</span>,              <span class="st">"first_name"</span>:<span class="st">"Emma"</span>,   <span class="st">"last_name"</span>:<span class="st">"Wong"</span>,   <span class="st">"active"</span>:<span class="kw">False</span>},
+    {<span class="st">"id"</span>:<span class="nm">4</span>, <span class="st">"email"</span>:<span class="st">""</span>,                      <span class="st">"first_name"</span>:<span class="st">"Eve"</span>,    <span class="st">"last_name"</span>:<span class="st">"Holt"</span>,   <span class="st">"active"</span>:<span class="kw">True</span>},
+    {<span class="st">"id"</span>:<span class="nm">5</span>, <span class="st">"email"</span>:<span class="st">"charles.morris@reqres.in"</span>,<span class="st">"first_name"</span>:<span class="st">""</span>,       <span class="st">"last_name"</span>:<span class="st">"Morris"</span>, <span class="st">"active"</span>:<span class="kw">True</span>},
+]
+required_fields = [<span class="st">"id"</span>, <span class="st">"email"</span>, <span class="st">"first_name"</span>, <span class="st">"last_name"</span>, <span class="st">"active"</span>]
+
+<span class="cm"># ── Part 1: field presence check ───────────────────</span>
+<span class="fn">print</span>(<span class="st">"Part 1 — Required field presence"</span>)
+<span class="fn">print</span>(<span class="st">"─" * 38</span>)
+<span class="kw">for</span> user <span class="kw">in</span> api_users:
+    missing = [f <span class="kw">for</span> f <span class="kw">in</span> required_fields <span class="kw">if</span> f <span class="kw">not in</span> user]
+    status  = <span class="st">"PASS"</span> <span class="kw">if not</span> missing <span class="kw">else</span> <span class="fn">f</span><span class="st">"FAIL — missing: {missing}"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  User {user['id']}: {status}"</span>)
+
+<span class="cm"># ── Part 2: value validation ────────────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 2 — Value validation"</span>)
+<span class="fn">print</span>(<span class="st">"─" * 38</span>)
+all_failures = []
+
+<span class="kw">for</span> user <span class="kw">in</span> api_users:
+    uid      = user[<span class="st">"id"</span>]
+    failures = []
+
+    <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">not in</span> user[<span class="st">"email"</span>]:
+        failures.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"email invalid ({repr(user['email'])})"</span>)
+    <span class="kw">if not</span> user[<span class="st">"first_name"</span>].<span class="fn">strip</span>():
+        failures.<span class="fn">append</span>(<span class="st">"first_name is empty"</span>)
+    <span class="kw">if</span> user[<span class="st">"id"</span>] <= <span class="nm">0</span>:
+        failures.<span class="fn">append</span>(<span class="st">"id must be > 0"</span>)
+
+    <span class="kw">if</span> failures:
+        all_failures.<span class="fn">extend</span>(failures)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  User {uid} FAIL:"</span>)
+        <span class="kw">for</span> f <span class="kw">in</span> failures:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"    ✗ {f}"</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  User {uid} ✓ PASS"</span>)
+
+<span class="cm"># ── Part 3: extract and analyse ────────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 3 — Extracted data"</span>)
+<span class="fn">print</span>(<span class="st">"─" * 38</span>)
+all_emails   = [u[<span class="st">"email"</span>]  <span class="kw">for</span> u <span class="kw">in</span> api_users]
+all_ids      = [u[<span class="st">"id"</span>]     <span class="kw">for</span> u <span class="kw">in</span> api_users]
+active_users = [u            <span class="kw">for</span> u <span class="kw">in</span> api_users <span class="kw">if</span> u[<span class="st">"active"</span>]]
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  All IDs      : {all_ids}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  All emails   : {all_emails}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Active users : {[u['first_name'] for u in active_users]}"</span>)
+
+<span class="cm"># ── Part 4: safe access with .get() ────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 4 — Safe field access"</span>)
+<span class="fn">print</span>(<span class="st">"─" * 38</span>)
+<span class="kw">for</span> user <span class="kw">in</span> api_users:
+    phone = user.<span class="fn">get</span>(<span class="st">"phone"</span>, <span class="st">"N/A"</span>)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  User {user['id']} phone: {phone}"</span>)
+
+<span class="cm"># ── Part 5: summary report ──────────────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 5 — Summary Report"</span>)
+total          = <span class="fn">len</span>(api_users)
+active_count   = <span class="fn">len</span>([u <span class="kw">for</span> u <span class="kw">in</span> api_users <span class="kw">if</span> u[<span class="st">"active"</span>]])
+inactive_count = total - active_count
+bad_emails     = <span class="fn">len</span>([u <span class="kw">for</span> u <span class="kw">in</span> api_users <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">not in</span> u[<span class="st">"email"</span>]])
+empty_names    = <span class="fn">len</span>([u <span class="kw">for</span> u <span class="kw">in</span> api_users <span class="kw">if not</span> u[<span class="st">"first_name"</span>].<span class="fn">strip</span>()])
+overall        = <span class="st">"PASS"</span> <span class="kw">if not</span> all_failures <span class="kw">else</span> <span class="fn">f</span><span class="st">"FAIL ({len(all_failures)} issues)"</span>
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*38}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Total users      : {total}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Active           : {active_count}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Inactive         : {inactive_count}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Invalid emails   : {bad_emails}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Empty first_name : {empty_names}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'─'*38}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Overall          : {overall}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*38}"</span>)</div>
+
+  <div class="sec">Expected output</div>
+  <div class="out">
+    <div class="out-lbl">Terminal</div>
+    <div class="ol">Part 1 — Required field presence</div>
+    <div class="ol">──────────────────────────────────────</div>
+    <div class="ol">  User 1: PASS</div>
+    <div class="ol">  User 2: PASS</div>
+    <div class="ol">  User 3: PASS</div>
+    <div class="ol">  User 4: PASS</div>
+    <div class="ol">  User 5: PASS</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 2 — Value validation</div>
+    <div class="ol">──────────────────────────────────────</div>
+    <div class="ol">  User 1 ✓ PASS</div>
+    <div class="ol">  User 2 ✓ PASS</div>
+    <div class="ol">  User 3 FAIL:</div>
+    <div class="ol">    ✗ email invalid ('emma.wong')</div>
+    <div class="ol">  User 4 FAIL:</div>
+    <div class="ol">    ✗ email invalid ('')</div>
+    <div class="ol">  User 5 FAIL:</div>
+    <div class="ol">    ✗ first_name is empty</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 3 — Extracted data</div>
+    <div class="ol">  All IDs      : [1, 2, 3, 4, 5]</div>
+    <div class="ol">  All emails   : ['george.bluth@reqres.in', ...]</div>
+    <div class="ol">  Active users : ['George', 'Janet', 'Eve', 'Charles']</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 4 — Safe field access</div>
+    <div class="ol">  User 1 phone: N/A</div>
+    <div class="ol">  User 2 phone: N/A  (all 5 show N/A)</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">======================================</div>
+    <div class="ol">  Total users      : 5</div>
+    <div class="ol">  Active           : 4</div>
+    <div class="ol">  Inactive         : 1</div>
+    <div class="ol">  Invalid emails   : 2</div>
+    <div class="ol">  Empty first_name : 1</div>
+    <div class="ol">  ────────────────────────────────────</div>
+    <div class="ol">  Overall          : FAIL (3 issues)</div>
+    <div class="ol">======================================</div>
+  </div>
+</div>
+
+<!-- PART BY PART -->
+<div class="pg" id="exp">
+
+  <div class="part"><span class="pn p1">Part 1</span>Field presence — the right way to check</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">missing = [f <span class="kw">for</span> f <span class="kw">in</span> required_fields <span class="kw">if</span> f <span class="kw">not in</span> user]
+status  = <span class="st">"PASS"</span> <span class="kw">if not</span> missing <span class="kw">else</span> <span class="fn">f</span><span class="st">"FAIL — missing: {missing}"</span></div>
+      <div class="eb-why"><b>List comprehension with <code>not in</code>.</b> For each field name in <code>required_fields</code>, check if it is absent from the user dict. This builds a list of missing field names — empty if everything is present. <code>if not missing</code> is True when the list is empty (empty list = falsy). The status string then includes the actual missing field names — useful diagnostic output, not just "FAIL".</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p2">Part 2</span>Collecting failures correctly</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">all_failures = []          <span class="cm"># outer list — persists across all users</span>
+
+<span class="kw">for</span> user <span class="kw">in</span> api_users:
+    failures = []          <span class="cm"># inner list — resets each user</span>
+
+    <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">not in</span> user[<span class="st">"email"</span>]:
+        failures.<span class="fn">append</span>(...)
+    <span class="kw">if not</span> user[<span class="st">"first_name"</span>].<span class="fn">strip</span>():
+        failures.<span class="fn">append</span>(...)
+
+    all_failures.<span class="fn">extend</span>(failures)  <span class="cm"># add this user's failures to total</span></div>
+      <div class="eb-why"><b>Two-list pattern: inner + outer.</b> <code>failures</code> resets each iteration — it only holds that one user's issues. <code>all_failures</code> accumulates across all users and is used in Part 5 to determine overall status. <code>.extend()</code> adds all items from one list into another — unlike <code>.append()</code> which would add the whole list as a single nested item. This is the correct pattern for collecting issues across multiple records.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">if not</span> user[<span class="st">"first_name"</span>].<span class="fn">strip</span>():</div>
+      <div class="eb-why"><b>Why <code>.strip()</code> before the empty check?</b> A name containing only spaces — <code>"   "</code> — would pass <code>if not user["first_name"]</code> as False (the string is not empty). But it is effectively empty for a name field. <code>.strip()</code> removes all whitespace first, so a spaces-only value becomes <code>""</code> which is falsy. Always strip before checking emptiness on user-facing text fields.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p3">Part 3</span>Three comprehensions — each extracts something different</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">all_emails   = [u[<span class="st">"email"</span>]  <span class="kw">for</span> u <span class="kw">in</span> api_users]
+all_ids      = [u[<span class="st">"id"</span>]     <span class="kw">for</span> u <span class="kw">in</span> api_users]
+active_users = [u            <span class="kw">for</span> u <span class="kw">in</span> api_users <span class="kw">if</span> u[<span class="st">"active"</span>]]</div>
+      <div class="eb-why"><b>Notice the difference between the three.</b> The first two extract <b>a field</b> from each dict — result is a flat list of values. The third keeps <b>the whole dict</b> when a condition is met — result is a filtered list of dicts. Then <code>[u["first_name"] for u in active_users]</code> extracts names from the filtered list. Composing comprehensions this way is standard Python — read it inside-out: filter first, then extract.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p4">Part 4</span>Safe access — why .get() not [ ]</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">phone = user.<span class="fn">get</span>(<span class="st">"phone"</span>, <span class="st">"N/A"</span>)</div>
+      <div class="eb-why"><b>This is the entire point of <code>.get()</code>.</b> None of these users have a "phone" key. Using <code>user["phone"]</code> would crash with KeyError on the first user. <code>.get("phone", "N/A")</code> returns "N/A" silently when the key is absent. In real API tests, response schemas vary — some endpoints return optional fields, others omit them. <code>.get()</code> is your safety net for every optional field.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p5">Part 5</span>Summary — all counts computed, never hardcoded</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">active_count = <span class="fn">len</span>([u <span class="kw">for</span> u <span class="kw">in</span> api_users <span class="kw">if</span> u[<span class="st">"active"</span>]])
+bad_emails   = <span class="fn">len</span>([u <span class="kw">for</span> u <span class="kw">in</span> api_users <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">not in</span> u[<span class="st">"email"</span>]])
+empty_names  = <span class="fn">len</span>([u <span class="kw">for</span> u <span class="kw">in</span> api_users <span class="kw">if not</span> u[<span class="st">"first_name"</span>].<span class="fn">strip</span>()])
+overall      = <span class="st">"PASS"</span> <span class="kw">if not</span> all_failures <span class="kw">else</span> <span class="fn">f</span><span class="st">"FAIL ({len(all_failures)} issues)"</span></div>
+      <div class="eb-why"><b>Pattern: <code>len([comprehension])</code> counts filtered items.</b> This is the cleanest way to count items matching a condition — filter with comprehension, wrap with <code>len()</code>. The overall status uses <code>all_failures</code> from Part 2 — not a new check — so it stays consistent with the detailed output above. If Part 2 found 3 issues, Part 5 reports 3 issues. They can never disagree.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — using append instead of extend for collecting failures</div>
+    <div class="diff-body"><span class="cm"># Wrong — appends a list INTO a list (nested)</span>
+all_failures.<span class="fn">append</span>(failures)
+<span class="cm"># all_failures = [["email invalid"], ["first_name empty"]]  ← nested lists!</span>
+
+<span class="cm"># Correct — adds each item from failures into all_failures</span>
+all_failures.<span class="fn">extend</span>(failures)
+<span class="cm"># all_failures = ["email invalid", "first_name empty"]  ← flat list</span></div>
+    <div class="diff-note"><b>Why it matters:</b> <code>append(list)</code> adds the whole list as a single item, creating a nested structure. <code>extend(list)</code> unpacks the list and adds each item individually, keeping it flat. <code>len(all_failures)</code> then correctly counts total issues rather than counting batches of issues.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — placing failures = [] outside the loop</div>
+    <div class="diff-body"><span class="cm"># Wrong — never resets, last user's failures bleed into next</span>
+failures = []
+<span class="kw">for</span> user <span class="kw">in</span> api_users:
+    <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">not in</span> user[<span class="st">"email"</span>]:
+        failures.<span class="fn">append</span>(<span class="st">"email invalid"</span>)
+    <span class="cm"># User 1 passes — but failures still contains User 3's issues!</span>
+
+<span class="cm"># Correct — reset inside loop, before each user's checks</span>
+<span class="kw">for</span> user <span class="kw">in</span> api_users:
+    failures = []   <span class="cm"># ← fresh start for each user</span>
+    <span class="kw">if</span> <span class="st">"@"</span> <span class="kw">not in</span> user[<span class="st">"email"</span>]:
+        failures.<span class="fn">append</span>(<span class="st">"email invalid"</span>)</div>
+    <div class="diff-note"><b>Opposite of the Day 3 mistake.</b> In Day 3, <code>results = []</code> needed to be OUTSIDE the loop. Here, <code>failures = []</code> needs to be INSIDE the loop — one fresh list per user. The rule: if a variable accumulates across all iterations, create it before the loop. If it resets each iteration, create it inside.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — checking empty string with == instead of not + strip</div>
+    <div class="diff-body"><span class="cm"># Fragile — misses strings that are only spaces</span>
+<span class="kw">if</span> user[<span class="st">"first_name"</span>] == <span class="st">""</span>:
+    failures.<span class="fn">append</span>(<span class="st">"first_name is empty"</span>)
+
+<span class="cm"># Also fragile — "  " is not == "" but is effectively empty</span>
+<span class="kw">if</span> <span class="fn">len</span>(user[<span class="st">"first_name"</span>]) == <span class="nm">0</span>:
+    failures.<span class="fn">append</span>(<span class="st">"first_name is empty"</span>)
+
+<span class="cm"># Correct — strip first, then truthiness check</span>
+<span class="kw">if not</span> user[<span class="st">"first_name"</span>].<span class="fn">strip</span>():
+    failures.<span class="fn">append</span>(<span class="st">"first_name is empty"</span>)</div>
+    <div class="diff-note"><b><code>not string.strip()</code> is the correct empty check for text fields.</b> It handles empty string, whitespace-only strings, and newlines. <code>== ""</code> only catches true empty strings. In real API responses, names sometimes come back as <code>"  "</code> (spaces) due to data entry errors — your test should catch those too.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — re-running validation logic in Part 5 instead of reusing all_failures</div>
+    <div class="diff-body"><span class="cm"># Redundant — runs the same checks twice</span>
+<span class="cm"># In Part 2 you already found 3 issues</span>
+<span class="cm"># In Part 5 you check again independently</span>
+overall = <span class="st">"PASS"</span> <span class="kw">if</span> bad_emails == <span class="nm">0</span> <span class="kw">and</span> empty_names == <span class="nm">0</span> <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+<span class="cm"># Correct — drive overall from the failures already collected</span>
+overall = <span class="st">"PASS"</span> <span class="kw">if not</span> all_failures <span class="kw">else</span> <span class="fn">f</span><span class="st">"FAIL ({len(all_failures)} issues)"</span></div>
+    <div class="diff-note"><b>Single source of truth.</b> If you add a new validation check in Part 2, the overall status in Part 5 automatically reflects it — because both use <code>all_failures</code>. If you duplicate the logic, you must update two places every time. In test automation, diverging checks create false confidence — one layer says PASS, another says FAIL.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — using direct access [ ] for the phone field</div>
+    <div class="diff-body"><span class="cm"># Crashes immediately — "phone" key does not exist</span>
+phone = user[<span class="st">"phone"</span>]   <span class="cm"># KeyError: 'phone'</span>
+
+<span class="cm"># Correct</span>
+phone = user.<span class="fn">get</span>(<span class="st">"phone"</span>, <span class="st">"N/A"</span>)</div>
+    <div class="diff-note"><b>The entire purpose of Part 4 is to practise this habit.</b> Real API responses drop fields for users with incomplete profiles, optional features, or different account types. Any field that might be absent needs <code>.get()</code>. The crash happens silently on test run — you would only discover it when a user without a phone field enters your test data.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 1 — Used list comprehension with <code>not in</code> to find missing fields — not a manual if chain</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 1 — Status message includes the actual missing field names, not just "FAIL"</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — <code>failures = []</code> created INSIDE the loop (resets per user), <code>all_failures = []</code> OUTSIDE (persists)</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — Used <code>.extend()</code> not <code>.append()</code> to add failures to the outer list</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — Used <code>not user["first_name"].strip()</code> to catch empty AND whitespace-only names</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 3 — Three separate comprehensions: extract email field, extract id field, filter whole dicts by active</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 3 — Active users list contains full dicts, not just names (names extracted separately)</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 4 — Used <code>.get("phone", "N/A")</code> — not direct <code>["phone"]</code> which would crash</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — All counts computed with <code>len([comprehension])</code> — no hardcoded numbers</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — Overall status driven by <code>all_failures</code> from Part 2 — not a separate re-check</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 5 Python — conditions in depth for QA automation with hands-on exercises')">Go to Day 5 — conditions ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me a harder Python dictionaries challenge — beyond Day 4 level, using real QA automation scenarios')">Give me a harder dict challenge ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#3C3489':'';
+  box.style.borderColor=on?'#3C3489':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. The extend vs append distinction and the two-list pattern are genuinely hard — you nailed them. Day 5 will feel easy after this.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Review the Common Mistakes tab for the items you missed, fix those specific lines, then move to Day 5.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Part by Part carefully for every unchecked item — then rewrite those sections before Day 5.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution carefully, then rewrite the whole challenge from scratch before moving on.</div>';
+}
+</script>
+</body>
+</html>

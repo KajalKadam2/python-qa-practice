@@ -1,0 +1,694 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#FCEBEB;color:#791F1F;border-color:#F09595}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b,.ch-b b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#FCEBEB;color:#791F1F;border-color:#F09595;font-weight:500}
+.btn-n:hover{background:#F5C6C6}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.br{background:#FCEBEB;color:#791F1F}
+.op-table{width:100%;border-collapse:collapse;margin:9px 0;font-size:13px}
+.op-table th{background:var(--color-background-secondary);padding:7px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;border-bottom:0.5px solid var(--color-border-tertiary)}
+.op-table td{padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle;line-height:1.5;font-size:13px}
+.op-table tr:last-child td{border-bottom:none}
+.op-table tr:hover td{background:var(--color-background-secondary)}
+.mono{font-family:var(--font-mono);font-size:12px;color:var(--color-text-info);font-weight:500}
+.truth-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+.tcard{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;border:0.5px solid var(--color-border-tertiary)}
+.tc-t{font-size:12px;font-weight:500;margin-bottom:6px}
+.tc-b{font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);line-height:1.65}
+.tc-b .t{color:#27500A}
+.tc-b .f{color:#791F1F}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT ARE CONDITIONS -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Conditions — making your tests smart, not just fast</div>
+    <div class="card-b">A condition is a question Python answers with <b>True or False</b>. Every test assertion you write is a condition — "is the status code 200?", "does the error message contain 'invalid'?", "is the user active?".<br><br>You have already used conditions throughout Days 1–4. Today you go deeper — compound conditions, truthiness, guard clauses, and the ternary expression. These are the patterns that appear in every real automation codebase.</div>
+  </div>
+
+  <div class="sec">All comparison operators</div>
+  <table class="op-table">
+    <tr><th>Operator</th><th>Meaning</th><th>QA example</th><th>Result</th></tr>
+    <tr><td><span class="mono">==</span></td><td>equal to</td><td><span class="mono">status == 200</span></td><td>True if status is 200</td></tr>
+    <tr><td><span class="mono">!=</span></td><td>not equal to</td><td><span class="mono">env != "prod"</span></td><td>True if not production</td></tr>
+    <tr><td><span class="mono">&gt;</span></td><td>greater than</td><td><span class="mono">response_time &gt; 2000</span></td><td>True if slow</td></tr>
+    <tr><td><span class="mono">&lt;</span></td><td>less than</td><td><span class="mono">fail_count &lt; 5</span></td><td>True if few failures</td></tr>
+    <tr><td><span class="mono">&gt;=</span></td><td>greater or equal</td><td><span class="mono">len(password) &gt;= 8</span></td><td>True if long enough</td></tr>
+    <tr><td><span class="mono">&lt;=</span></td><td>less or equal</td><td><span class="mono">retry_count &lt;= 3</span></td><td>True if within limit</td></tr>
+    <tr><td><span class="mono">in</span></td><td>contains / member of</td><td><span class="mono">"@" in email</span></td><td>True if @ found</td></tr>
+    <tr><td><span class="mono">not in</span></td><td>not contains</td><td><span class="mono">"error" not in msg</span></td><td>True if no error text</td></tr>
+    <tr><td><span class="mono">is</span></td><td>identical object</td><td><span class="mono">result is None</span></td><td>True if None</td></tr>
+    <tr><td><span class="mono">is not</span></td><td>not identical</td><td><span class="mono">element is not None</span></td><td>True if found</td></tr>
+  </table>
+
+  <div class="warn">Use <code>==</code> to compare values. Use <code>is</code> only to check for <code>None</code>. Writing <code>result is 200</code> is wrong — integers are not compared with <code>is</code>. The rule: <b>values use ==, None uses is</b>.</div>
+
+  <div class="try-lbl">Type this — every operator in a QA context</div>
+  <div class="code">status        = <span class="nm">200</span>
+response_time = <span class="nm">843</span>
+email         = <span class="st">"test@example.com"</span>
+element       = <span class="kw">None</span>
+retry_count   = <span class="nm">2</span>
+
+<span class="fn">print</span>(status <span class="op">==</span> <span class="nm">200</span>)              <span class="cm"># True</span>
+<span class="fn">print</span>(status <span class="op">!=</span> <span class="nm">404</span>)              <span class="cm"># True</span>
+<span class="fn">print</span>(response_time <span class="op">&gt;</span> <span class="nm">2000</span>)      <span class="cm"># False — fast response</span>
+<span class="fn">print</span>(response_time <span class="op">&lt;</span> <span class="nm">2000</span>)      <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="st">"@"</span> <span class="kw">in</span> email)              <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="st">"error"</span> <span class="kw">not in</span> email)      <span class="cm"># True</span>
+<span class="fn">print</span>(element <span class="kw">is</span> <span class="kw">None</span>)           <span class="cm"># True</span>
+<span class="fn">print</span>(element <span class="kw">is not</span> <span class="kw">None</span>)       <span class="cm"># False</span>
+<span class="fn">print</span>(retry_count <span class="op">&lt;=</span> <span class="nm">3</span>)          <span class="cm"># True</span></div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">and / or / not →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: AND OR NOT -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">and / or / not — combining conditions</div>
+    <div class="card-b">Real assertions check multiple things at once. <b>and</b> means both must be true. <b>or</b> means at least one must be true. <b>not</b> flips the result. These three words are how you write compound assertions — the kind that appear in every professional test suite.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="cm"># AND — both conditions must be True</span>
+url      = <span class="st">"https://staging.myapp.com"</span>
+status   = <span class="nm">200</span>
+
+is_valid = url.<span class="fn">startswith</span>(<span class="st">"https"</span>) <span class="kw">and</span> status <span class="op">==</span> <span class="nm">200</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"URL is secure AND status OK: {is_valid}"</span>)  <span class="cm"># True</span>
+
+<span class="cm"># OR — at least one must be True</span>
+browser = <span class="st">"firefox"</span>
+is_supported = browser <span class="op">==</span> <span class="st">"chromium"</span> <span class="kw">or</span> browser <span class="op">==</span> <span class="st">"firefox"</span> <span class="kw">or</span> browser <span class="op">==</span> <span class="st">"webkit"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browser supported: {is_supported}"</span>)  <span class="cm"># True</span>
+
+<span class="cm"># Cleaner OR — use 'in' with a list instead</span>
+is_supported = browser <span class="kw">in</span> [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>, <span class="st">"webkit"</span>]
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Browser supported (cleaner): {is_supported}"</span>)  <span class="cm"># True</span>
+
+<span class="cm"># NOT — flips the result</span>
+is_logged_in = <span class="kw">False</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Needs login: {not is_logged_in}"</span>)  <span class="cm"># True</span>
+
+<span class="cm"># Combining all three — real validation logic</span>
+email        = <span class="st">"user@test.com"</span>
+password_len = <span class="nm">10</span>
+role         = <span class="st">"admin"</span>
+
+can_access_admin = (
+    <span class="st">"@"</span> <span class="kw">in</span> email <span class="kw">and</span>
+    password_len <span class="op">&gt;=</span> <span class="nm">8</span> <span class="kw">and</span>
+    role <span class="op">==</span> <span class="st">"admin"</span> <span class="kw">and</span>
+    <span class="kw">not</span> is_logged_in
+)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Can access admin: {can_access_admin}"</span>)  <span class="cm"># True</span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">URL is secure AND status OK: True</div>
+    <div class="ol">Browser supported: True</div>
+    <div class="ol">Browser supported (cleaner): True</div>
+    <div class="ol">Needs login: True</div>
+    <div class="ol">Can access admin: True</div>
+  </div>
+
+  <div class="tip">When you have multiple <code>or</code> checks against the same variable — <code>x == "a" or x == "b" or x == "c"</code> — always replace with <code>x in ["a","b","c"]</code>. Shorter, more readable, and easier to extend.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">Truthiness →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: TRUTHINESS -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">Truthiness — what Python treats as True or False <span class="badge br" style="margin-left:6px">trips up everyone once</span></div>
+    <div class="card-b">In Python, you don't need to write <code>if len(list) > 0</code> or <code>if string != ""</code>. Python evaluates most values directly as True or False without an explicit comparison. Understanding this is what separates beginner Python from professional Python.</div>
+  </div>
+
+  <div class="truth-grid">
+    <div class="tcard">
+      <div class="tc-t" style="color:#27500A">Truthy — if treats as True</div>
+      <div class="tc-b">
+        <span class="t">True</span>            — the boolean<br>
+        <span class="t">"hello"</span>        — any non-empty string<br>
+        <span class="t">42</span>             — any non-zero number<br>
+        <span class="t">["a","b"]</span>      — any non-empty list<br>
+        <span class="t">{"key":"val"}</span>  — any non-empty dict<br>
+        <span class="t">object</span>         — any object that exists
+      </div>
+    </div>
+    <div class="tcard">
+      <div class="tc-t" style="color:#791F1F">Falsy — if treats as False</div>
+      <div class="tc-b">
+        <span class="f">False</span>     — the boolean<br>
+        <span class="f">None</span>      — nothing / not found<br>
+        <span class="f">0</span>         — zero<br>
+        <span class="f">""</span>        — empty string<br>
+        <span class="f">[]</span>        — empty list<br>
+        <span class="f">{}</span>        — empty dict
+      </div>
+    </div>
+  </div>
+
+  <div class="try-lbl">Type this — feel the difference</div>
+  <div class="code"><span class="cm"># Verbose way — beginners write this</span>
+errors = []
+<span class="kw">if</span> <span class="fn">len</span>(errors) <span class="op">></span> <span class="nm">0</span>:
+    <span class="fn">print</span>(<span class="st">"Has errors"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"No errors"</span>)   <span class="cm"># prints this</span>
+
+<span class="cm"># Pythonic way — professionals write this</span>
+<span class="kw">if</span> errors:
+    <span class="fn">print</span>(<span class="st">"Has errors"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"No errors"</span>)   <span class="cm"># same result</span>
+
+<span class="cm"># All the patterns you'll use in QA</span>
+test_name = <span class="st">"test_login"</span>
+result    = <span class="kw">None</span>
+failures  = []
+passed    = [<span class="st">"test_a"</span>, <span class="st">"test_b"</span>]
+
+<span class="kw">if</span> test_name:         <span class="cm"># True — non-empty string</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Running: {test_name}"</span>)
+
+<span class="kw">if</span> result <span class="kw">is None</span>:    <span class="cm"># True — use 'is None' for None checks</span>
+    <span class="fn">print</span>(<span class="st">"No result yet"</span>)
+
+<span class="kw">if not</span> failures:      <span class="cm"># True — empty list is falsy</span>
+    <span class="fn">print</span>(<span class="st">"All tests passed!"</span>)
+
+<span class="kw">if</span> passed:            <span class="cm"># True — non-empty list is truthy</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"{len(passed)} tests passed"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">No errors</div>
+    <div class="ol">No errors</div>
+    <div class="ol">Running: test_login</div>
+    <div class="ol">No result yet</div>
+    <div class="ol">All tests passed!</div>
+    <div class="ol">2 tests passed</div>
+  </div>
+
+  <div class="warn">Use <code>is None</code> / <code>is not None</code> explicitly for None checks — never <code>if result</code> when you specifically want to check for None. Why? Because <code>0</code> and <code>""</code> are also falsy — <code>if result</code> would treat a status code of 0 as "no result". Be explicit about None.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">if / elif / else →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: IF ELIF ELSE -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">if / elif / else — branching logic</div>
+    <div class="card-b">You know the basics — today focus on <b>the right number of branches</b>, <b>guard clauses</b>, and <b>nested conditions</b>. These are the patterns that keep test code readable as complexity grows.</div>
+  </div>
+
+  <div class="try-lbl">Pattern 1 — status code classifier</div>
+  <div class="code"><span class="cm"># Classify any HTTP status code</span>
+<span class="kw">def</span> <span class="fn">classify_status</span>(code):
+    <span class="kw">if</span> <span class="nm">200</span> <span class="op">&lt;=</span> code <span class="op">&lt;</span> <span class="nm">300</span>:
+        <span class="kw">return</span> <span class="st">"SUCCESS"</span>
+    <span class="kw">elif</span> <span class="nm">300</span> <span class="op">&lt;=</span> code <span class="op">&lt;</span> <span class="nm">400</span>:
+        <span class="kw">return</span> <span class="st">"REDIRECT"</span>
+    <span class="kw">elif</span> <span class="nm">400</span> <span class="op">&lt;=</span> code <span class="op">&lt;</span> <span class="nm">500</span>:
+        <span class="kw">return</span> <span class="st">"CLIENT ERROR"</span>
+    <span class="kw">elif</span> <span class="nm">500</span> <span class="op">&lt;=</span> code <span class="op">&lt;</span> <span class="nm">600</span>:
+        <span class="kw">return</span> <span class="st">"SERVER ERROR"</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="st">"UNKNOWN"</span>
+
+<span class="cm"># Test it</span>
+<span class="kw">for</span> code <span class="kw">in</span> [<span class="nm">200</span>, <span class="nm">201</span>, <span class="nm">301</span>, <span class="nm">400</span>, <span class="nm">404</span>, <span class="nm">500</span>, <span class="nm">503</span>]:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {code} → {classify_status(code)}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">  200 → SUCCESS</div>
+    <div class="ol">  201 → SUCCESS</div>
+    <div class="ol">  301 → REDIRECT</div>
+    <div class="ol">  400 → CLIENT ERROR</div>
+    <div class="ol">  404 → CLIENT ERROR</div>
+    <div class="ol">  500 → SERVER ERROR</div>
+    <div class="ol">  503 → SERVER ERROR</div>
+  </div>
+
+  <div class="tip"><code>200 &lt;= code &lt; 300</code> is a Python range check — it reads exactly like maths. "code is between 200 (inclusive) and 300 (exclusive)". Much cleaner than <code>code >= 200 and code < 300</code>.</div>
+
+  <div class="try-lbl">Pattern 2 — guard clauses (exit early)</div>
+  <div class="code"><span class="cm"># WITHOUT guard clauses — deeply nested, hard to read</span>
+<span class="kw">def</span> <span class="fn">validate_user_bad</span>(user):
+    <span class="kw">if</span> user <span class="kw">is not None</span>:
+        <span class="kw">if</span> user.<span class="fn">get</span>(<span class="st">"username"</span>):
+            <span class="kw">if</span> user.<span class="fn">get</span>(<span class="st">"email"</span>) <span class="kw">and</span> <span class="st">"@"</span> <span class="kw">in</span> user[<span class="st">"email"</span>]:
+                <span class="kw">return</span> <span class="st">"VALID"</span>   <span class="cm"># buried deep!</span>
+
+<span class="cm"># WITH guard clauses — exit early, flat and readable</span>
+<span class="kw">def</span> <span class="fn">validate_user</span>(user):
+    <span class="kw">if</span> user <span class="kw">is None</span>:
+        <span class="kw">return</span> <span class="st">"FAIL: user is None"</span>
+    <span class="kw">if not</span> user.<span class="fn">get</span>(<span class="st">"username"</span>):
+        <span class="kw">return</span> <span class="st">"FAIL: missing username"</span>
+    <span class="kw">if not</span> user.<span class="fn">get</span>(<span class="st">"email"</span>) <span class="kw">or</span> <span class="st">"@"</span> <span class="kw">not in</span> user[<span class="st">"email"</span>]:
+        <span class="kw">return</span> <span class="st">"FAIL: invalid email"</span>
+    <span class="kw">return</span> <span class="st">"VALID"</span>   <span class="cm"># reached only if all checks pass</span>
+
+<span class="fn">print</span>(<span class="fn">validate_user</span>(<span class="kw">None</span>))
+<span class="fn">print</span>(<span class="fn">validate_user</span>({<span class="st">"email"</span>: <span class="st">"test@x.com"</span>}))
+<span class="fn">print</span>(<span class="fn">validate_user</span>({<span class="st">"username"</span>: <span class="st">"tom"</span>, <span class="st">"email"</span>: <span class="st">"notvalid"</span>}))
+<span class="fn">print</span>(<span class="fn">validate_user</span>({<span class="st">"username"</span>: <span class="st">"tom"</span>, <span class="st">"email"</span>: <span class="st">"tom@test.com"</span>}))</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">FAIL: user is None</div>
+    <div class="ol">FAIL: missing username</div>
+    <div class="ol">FAIL: invalid email</div>
+    <div class="ol">VALID</div>
+  </div>
+
+  <div class="tip"><b>Guard clauses</b> — check the failure cases first, return early, keep the happy path last. This avoids deep nesting and makes each failure reason explicit. In test helper functions you will write dozens of these.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">Ternary expression →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: TERNARY -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">Ternary expression — one-line if/else <span class="badge bg" style="margin-left:6px">use in every report</span></div>
+    <div class="card-b">A ternary expression returns one of two values based on a condition — all in one line. You have already seen it in the challenge solutions. Today you master it properly because you will use it in every test result label, every status string, and every formatted output line.</div>
+  </div>
+
+  <div class="sec">The pattern</div>
+  <div class="code"><span class="cm"># Full if/else — 4 lines</span>
+<span class="kw">if</span> condition:
+    result = <span class="st">"value_if_true"</span>
+<span class="kw">else</span>:
+    result = <span class="st">"value_if_false"</span>
+
+<span class="cm"># Ternary — 1 line, same result</span>
+result = <span class="st">"value_if_true"</span> <span class="kw">if</span> condition <span class="kw">else</span> <span class="st">"value_if_false"</span>
+<span class="cm"># Read: "give me X if condition, otherwise Y"</span></div>
+
+  <div class="try-lbl">Type these QA examples</div>
+  <div class="code"><span class="cm"># Test result labelling</span>
+status = <span class="nm">200</span>
+label  = <span class="st">"PASS"</span> <span class="kw">if</span> status <span class="op">==</span> <span class="nm">200</span> <span class="kw">else</span> <span class="st">"FAIL"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Status {status}: {label}"</span>)
+
+<span class="cm"># Environment display</span>
+env    = <span class="st">"staging"</span>
+is_prod = env <span class="op">==</span> <span class="st">"prod"</span>
+safety = <span class="st">"⚠ PRODUCTION"</span> <span class="kw">if</span> is_prod <span class="kw">else</span> <span class="st">"safe"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Environment: {env} ({safety})"</span>)
+
+<span class="cm"># Response time severity</span>
+response_ms = <span class="nm">1850</span>
+speed = <span class="st">"SLOW"</span> <span class="kw">if</span> response_ms <span class="op">></span> <span class="nm">2000</span> <span class="kw">else</span> <span class="st">"ACCEPTABLE"</span> <span class="kw">if</span> response_ms <span class="op">></span> <span class="nm">1000</span> <span class="kw">else</span> <span class="st">"FAST"</span>
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Response {response_ms}ms: {speed}"</span>)
+
+<span class="cm"># Active/inactive display</span>
+users = [
+    {<span class="st">"name"</span>: <span class="st">"George"</span>, <span class="st">"active"</span>: <span class="kw">True</span>},
+    {<span class="st">"name"</span>: <span class="st">"Emma"</span>,   <span class="st">"active"</span>: <span class="kw">False</span>},
+    {<span class="st">"name"</span>: <span class="st">"Janet"</span>,  <span class="st">"active"</span>: <span class="kw">True</span>},
+]
+<span class="kw">for</span> u <span class="kw">in</span> users:
+    icon = <span class="st">"✓"</span> <span class="kw">if</span> u[<span class="st">"active"</span>] <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {icon} {u['name']}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Status 200: PASS</div>
+    <div class="ol">Environment: staging (safe)</div>
+    <div class="ol">Response 1850ms: ACCEPTABLE</div>
+    <div class="ol">  ✓ George</div>
+    <div class="ol">  ✗ Emma</div>
+    <div class="ol">  ✓ Janet</div>
+  </div>
+
+  <div class="warn">Chained ternary — <code>"SLOW" if x > 2000 else "ACCEPTABLE" if x > 1000 else "FAST"</code> — is fine for 3 options. More than 3 options: use <code>if/elif/else</code> instead. Chaining 4+ ternaries becomes unreadable fast.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">QA Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: QA EXAMPLE 1 -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">QA Example 1 — Login test decision engine <span class="badge bg" style="margin-left:6px">all patterns combined</span></div>
+    <div class="card-b">This combines every condition concept — comparisons, and/or/not, truthiness, guard clauses, and ternary. It models the decision logic a Playwright test makes after a login attempt.</div>
+  </div>
+  <div class="try-lbl">Create day5_ex1.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">evaluate_login_result</span>(url, title, flash, response_ms):
+    <span class="st">"""Evaluate a login attempt result — returns PASS or FAIL with reason."""</span>
+
+    <span class="cm"># Guard clauses — check failures first</span>
+    <span class="kw">if not</span> url:
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, <span class="st">"URL is empty"</span>
+    <span class="kw">if not</span> url.<span class="fn">startswith</span>(<span class="st">"https"</span>):
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, <span class="fn">f</span><span class="st">"URL not secure: {url}"</span>
+    <span class="kw">if not</span> title.<span class="fn">strip</span>():
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, <span class="st">"Page title is empty"</span>
+    <span class="kw">if not</span> flash <span class="kw">or</span> <span class="st">"secure area"</span> <span class="kw">not in</span> flash.<span class="fn">strip</span>().<span class="fn">lower</span>():
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, <span class="fn">f</span><span class="st">"Flash message wrong: {repr(flash)}"</span>
+    <span class="kw">if</span> response_ms <span class="op">></span> <span class="nm">3000</span>:
+        <span class="kw">return</span> <span class="st">"FAIL"</span>, <span class="fn">f</span><span class="st">"Too slow: {response_ms}ms"</span>
+
+    <span class="cm"># All checks passed</span>
+    speed = <span class="st">"fast"</span> <span class="kw">if</span> response_ms <span class="op">&lt;</span> <span class="nm">1000</span> <span class="kw">else</span> <span class="st">"acceptable"</span>
+    <span class="kw">return</span> <span class="st">"PASS"</span>, <span class="fn">f</span><span class="st">"Login OK in {response_ms}ms ({speed})"</span>
+
+<span class="cm"># Run it against multiple scenarios</span>
+scenarios = [
+    (<span class="st">"https://app.com/secure"</span>, <span class="st">"Secure Area"</span>, <span class="st">"You logged into a secure area!"</span>, <span class="nm">840</span>),
+    (<span class="st">"https://app.com/secure"</span>, <span class="st">"Secure Area"</span>, <span class="st">"You logged into a secure area!"</span>, <span class="nm">3500</span>),
+    (<span class="st">"http://app.com/secure"</span>,  <span class="st">"Secure Area"</span>, <span class="st">"You logged into a secure area!"</span>, <span class="nm">500</span>),
+    (<span class="st">"https://app.com/secure"</span>, <span class="st">"Secure Area"</span>, <span class="st">"Your username is invalid!"</span>,      <span class="nm">300</span>),
+    (<span class="st">"https://app.com/secure"</span>, <span class="st">"Secure Area"</span>, <span class="st">"You logged into a secure area!"</span>, <span class="nm">1200</span>),
+]
+
+<span class="fn">print</span>(<span class="st">"Login test results:"</span>)
+<span class="kw">for</span> i, (url, title, flash, ms) <span class="kw">in</span> <span class="fn">enumerate</span>(scenarios, <span class="nm">1</span>):
+    verdict, reason = <span class="fn">evaluate_login_result</span>(url, title, flash, ms)
+    icon = <span class="st">"✓"</span> <span class="kw">if</span> verdict <span class="op">==</span> <span class="st">"PASS"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {icon} Scenario {i}: {verdict} — {reason}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Login test results:</div>
+    <div class="ol">  ✓ Scenario 1: PASS — Login OK in 840ms (fast)</div>
+    <div class="ol">  ✗ Scenario 2: FAIL — Too slow: 3500ms</div>
+    <div class="ol">  ✗ Scenario 3: FAIL — URL not secure: http://app.com/secure</div>
+    <div class="ol">  ✗ Scenario 4: FAIL — Flash message wrong: 'Your username is invalid!'</div>
+    <div class="ol">  ✓ Scenario 5: PASS — Login OK in 1200ms (acceptable)</div>
+  </div>
+
+  <div class="tip">Notice the function returns two values — <code>verdict, reason</code>. Python lets functions return multiple values as a tuple. The caller unpacks them: <code>verdict, reason = evaluate_login_result(...)</code>. This pattern is very clean for test helper functions that need to return both a result and an explanation.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">QA Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA EXAMPLE 2 -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">QA Example 2 — API response classifier <span class="badge bb" style="margin-left:6px">week 4 preview</span></div>
+    <div class="card-b">When testing APIs you need to classify responses — not just "200 or not" but what kind of success, what kind of error, and what to do about it. This is the logic that drives smart test reporting.</div>
+  </div>
+  <div class="try-lbl">Create day5_ex2.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">assess_api_response</span>(status, body, response_ms):
+    <span class="st">"""Assess an API response — classify and return assessment dict."""</span>
+
+    <span class="cm"># Classify the status code</span>
+    <span class="kw">if</span> <span class="nm">200</span> <span class="op">&lt;=</span> status <span class="op">&lt;</span> <span class="nm">300</span>:
+        category = <span class="st">"success"</span>
+    <span class="kw">elif</span> status <span class="op">==</span> <span class="nm">401</span>:
+        category = <span class="st">"auth_error"</span>
+    <span class="kw">elif</span> status <span class="op">==</span> <span class="nm">404</span>:
+        category = <span class="st">"not_found"</span>
+    <span class="kw">elif</span> <span class="nm">400</span> <span class="op">&lt;=</span> status <span class="op">&lt;</span> <span class="nm">500</span>:
+        category = <span class="st">"client_error"</span>
+    <span class="kw">elif</span> <span class="nm">500</span> <span class="op">&lt;=</span> status <span class="op">&lt;</span> <span class="nm">600</span>:
+        category = <span class="st">"server_error"</span>
+    <span class="kw">else</span>:
+        category = <span class="st">"unknown"</span>
+
+    <span class="cm"># Assess body</span>
+    has_data    = <span class="fn">bool</span>(body) <span class="kw">and</span> body <span class="kw">is not None</span>
+    has_error   = <span class="fn">isinstance</span>(body, <span class="fn">dict</span>) <span class="kw">and</span> <span class="st">"error"</span> <span class="kw">in</span> body
+    body_ok     = has_data <span class="kw">and not</span> has_error
+
+    <span class="cm"># Performance classification</span>
+    perf = (<span class="st">"fast"</span>   <span class="kw">if</span> response_ms <span class="op">&lt;</span> <span class="nm">500</span>  <span class="kw">else</span>
+            <span class="st">"ok"</span>     <span class="kw">if</span> response_ms <span class="op">&lt;</span> <span class="nm">1500</span> <span class="kw">else</span>
+            <span class="st">"slow"</span>   <span class="kw">if</span> response_ms <span class="op">&lt;</span> <span class="nm">3000</span> <span class="kw">else</span>
+            <span class="st">"timeout"</span>)
+
+    overall = <span class="st">"PASS"</span> <span class="kw">if</span> category == <span class="st">"success"</span> <span class="kw">and</span> body_ok <span class="kw">else</span> <span class="st">"FAIL"</span>
+
+    <span class="kw">return</span> {
+        <span class="st">"status"</span>:   status,
+        <span class="st">"category"</span>: category,
+        <span class="st">"body_ok"</span>:  body_ok,
+        <span class="st">"perf"</span>:     perf,
+        <span class="st">"overall"</span>:  overall
+    }
+
+<span class="cm"># Test it</span>
+responses = [
+    (<span class="nm">200</span>, {<span class="st">"id"</span>: <span class="nm">1</span>, <span class="st">"email"</span>: <span class="st">"a@b.com"</span>}, <span class="nm">320</span>),
+    (<span class="nm">404</span>, {<span class="st">"error"</span>: <span class="st">"not found"</span>},          <span class="nm">110</span>),
+    (<span class="nm">200</span>, {},                                <span class="nm">280</span>),
+    (<span class="nm">500</span>, {<span class="st">"error"</span>: <span class="st">"server crashed"</span>},     <span class="nm">4500</span>),
+]
+
+<span class="kw">for</span> status, body, ms <span class="kw">in</span> responses:
+    r = <span class="fn">assess_api_response</span>(status, body, ms)
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  {r['overall']:<span class="nm">4</span>} | {r['status']} {r['category']:<span class="nm">14</span>} | body:{r['body_ok']} | {r['perf']}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">  PASS | 200 success        | body:True  | fast</div>
+    <div class="ol">  FAIL | 404 not_found      | body:False | fast</div>
+    <div class="ol">  FAIL | 200 success        | body:False | fast</div>
+    <div class="ol">  FAIL | 500 server_error   | body:False | timeout</div>
+  </div>
+
+  <div class="tip">Row 3 is the most important: status 200 but <code>body:False</code> — the API said "OK" but returned an empty body. A test that only checks status codes would miss this bug. Conditions checking the response body are what catch silent failures that status-only checks miss.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example 3 →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE 3 -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example 3 — Form field validator <span class="badge bp" style="margin-left:6px">UI testing logic</span></div>
+    <div class="card-b">Before a form submit in Playwright, you validate that test data is sensible. This is the exact logic that sits in a test helper function in Week 3 — validate inputs before filling the form, fail fast with a clear message if something is wrong.</div>
+  </div>
+  <div class="try-lbl">Create day5_ex3.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">validate_form_data</span>(username, password, email, role):
+    <span class="st">"""Validate test form data before filling into browser."""</span>
+    errors = []
+
+    <span class="cm"># Username checks</span>
+    <span class="kw">if not</span> username <span class="kw">or not</span> username.<span class="fn">strip</span>():
+        errors.<span class="fn">append</span>(<span class="st">"username is empty"</span>)
+    <span class="kw">elif</span> <span class="fn">len</span>(username) <span class="op">&lt;</span> <span class="nm">3</span>:
+        errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"username too short: {len(username)} chars (min 3)"</span>)
+    <span class="kw">elif</span> <span class="st">" "</span> <span class="kw">in</span> username:
+        errors.<span class="fn">append</span>(<span class="st">"username must not contain spaces"</span>)
+
+    <span class="cm"># Password checks</span>
+    <span class="kw">if not</span> password:
+        errors.<span class="fn">append</span>(<span class="st">"password is empty"</span>)
+    <span class="kw">elif</span> <span class="fn">len</span>(password) <span class="op">&lt;</span> <span class="nm">8</span>:
+        errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"password too short: {len(password)} chars (min 8)"</span>)
+
+    <span class="cm"># Email checks</span>
+    <span class="kw">if not</span> email:
+        errors.<span class="fn">append</span>(<span class="st">"email is empty"</span>)
+    <span class="kw">elif</span> <span class="st">"@"</span> <span class="kw">not in</span> email <span class="kw">or</span> <span class="st">"."</span> <span class="kw">not in</span> email.<span class="fn">split</span>(<span class="st">"@"</span>)[-<span class="nm">1</span>]:
+        errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"email format invalid: {email}"</span>)
+
+    <span class="cm"># Role check</span>
+    <span class="kw">if</span> role <span class="kw">not in</span> [<span class="st">"admin"</span>, <span class="st">"editor"</span>, <span class="st">"viewer"</span>]:
+        errors.<span class="fn">append</span>(<span class="fn">f</span><span class="st">"invalid role: {role!r}"</span>)
+
+    <span class="kw">return</span> errors   <span class="cm"># empty = valid</span>
+
+<span class="cm"># Test cases</span>
+test_inputs = [
+    (<span class="st">"tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>, <span class="st">"tom@test.com"</span>, <span class="st">"admin"</span>),
+    (<span class="st">"ab"</span>,       <span class="st">"short"</span>,                 <span class="st">"notanemail"</span>,   <span class="st">"superuser"</span>),
+    (<span class="st">"tom smith"</span>,<span class="st">"ValidPass1!"</span>,           <span class="st">"tom@test.com"</span>, <span class="st">"viewer"</span>),
+    (<span class="st">""</span>,         <span class="st">""</span>,                      <span class="st">""</span>,             <span class="st">"admin"</span>),
+]
+
+<span class="kw">for</span> i, (u, p, e, r) <span class="kw">in</span> <span class="fn">enumerate</span>(test_inputs, <span class="nm">1</span>):
+    errs = <span class="fn">validate_form_data</span>(u, p, e, r)
+    status = <span class="st">"VALID"</span> <span class="kw">if not</span> errs <span class="kw">else</span> <span class="fn">f</span><span class="st">"INVALID ({len(errs)} errors)"</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"Input {i}: {status}"</span>)
+    <span class="kw">for</span> err <span class="kw">in</span> errs:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  ✗ {err}"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">Input 1: VALID</div>
+    <div class="ol">Input 2: INVALID (3 errors)</div>
+    <div class="ol">  ✗ username too short: 2 chars (min 3)</div>
+    <div class="ol">  ✗ password too short: 5 chars (min 8)</div>
+    <div class="ol">  ✗ invalid role: 'superuser'</div>
+    <div class="ol">Input 3: INVALID (1 errors)</div>
+    <div class="ol">  ✗ username must not contain spaces</div>
+    <div class="ol">Input 4: INVALID (3 errors)</div>
+    <div class="ol">  ✗ username is empty</div>
+    <div class="ol">  ✗ password is empty</div>
+    <div class="ol">  ✗ email is empty</div>
+  </div>
+
+  <div class="ok">Notice the <code>if / elif</code> pattern in username checks — once one condition fails, the others are skipped. You don't report "username too short" AND "username has spaces" for the same field — the most specific failing check wins. <code>elif</code> is the correct tool here, not multiple <code>if</code> statements.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 5 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 5 challenge — write it all from scratch</div>
+    <div class="card-b">New file: <b>day5_challenge.py</b>. This challenge combines everything from Days 1–5 — dicts, lists, loops, strings, and conditions — into a complete test session auditor.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build a test session auditor</div>
+    <div class="ch-b">
+      Copy only this starting data:<br><br>
+      <code>session = {</code><br>
+      &nbsp;&nbsp;<code>"env": "staging",</code><br>
+      &nbsp;&nbsp;<code>"browser": "chromium",</code><br>
+      &nbsp;&nbsp;<code>"base_url": "https://staging.myapp.com",</code><br>
+      &nbsp;&nbsp;<code>"total_tests": 12,</code><br>
+      &nbsp;&nbsp;<code>"response_times_ms": [320, 840, 1200, 450, 3500, 290, 780, 4100, 520, 670, 390, 1850],</code><br>
+      &nbsp;&nbsp;<code>"results": ["PASS","PASS","FAIL","PASS","FAIL","PASS","PASS","FAIL","PASS","PASS","PASS","PASS"],</code><br>
+      &nbsp;&nbsp;<code>"errors": ["Timeout on checkout", "Button not found", "API 500 on payment"]</code><br>
+      <code>}</code><br><br>
+
+      <b>Part 1 — Basic counts</b><br>
+      Count passed, failed, pass rate %. Use <code>.count()</code> and ternary for overall status.<br><br>
+
+      <b>Part 2 — Response time analysis</b><br>
+      From <code>response_times_ms</code>: find fastest, slowest, average (use <code>sum()</code> and <code>len()</code>). Count how many are over 2000ms (slow). Use conditions to classify the overall performance: "FAST" if average under 800, "ACCEPTABLE" if under 1500, else "SLOW".<br><br>
+
+      <b>Part 3 — Error audit</b><br>
+      Loop over <code>errors</code>. For each error: check if it contains "Timeout" — label as "TIMEOUT". Check if it contains "500" — label as "SERVER ERROR". Otherwise label as "TEST FAILURE". Print each with its label.<br><br>
+
+      <b>Part 4 — Environment safety check</b><br>
+      Check: URL starts with "https", env is not "prod", browser is in supported list <code>["chromium","firefox","webkit"]</code>. Use guard clauses — return a warning message for each failure. Print all warnings or "Environment OK" if none.<br><br>
+
+      <b>Part 5 — Full audit report</b><br>
+      Print a formatted report using everything computed above. Overall status: PASS only if pass_rate >= 80 AND no slow responses AND env is safe.
+    </div>
+  </div>
+
+  <div class="ok">This is the most complete challenge so far. Parts 3 and 4 require you to choose between <code>if/elif</code> chains and guard clauses — pick the right one for each situation. When you finish, compare your choice with the ideal solution.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 5 Python conditions challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 5 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 5 Python challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 6 Python — loops in depth for QA automation with hands-on exercises')">Go to Day 6 — loops in depth ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['Operators','and/or/not','Truthiness','if/elif/else','Ternary','Ex 1 Login','Ex 2 API','Ex 3 Form','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

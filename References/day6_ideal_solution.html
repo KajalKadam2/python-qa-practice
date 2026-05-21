@@ -1,0 +1,459 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#FFF3C4;color:#7A5000;border-color:#E8B84B}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.op{color:#993C1D}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part{font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px}
+.pn{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.p5{background:#FFF3C4;color:#7A5000}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#7A5000;border-color:#7A5000}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#E8B84B;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Part by part</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every line that differs from yours, understand the reason before moving on.</div>
+
+<div class="code"><span class="cm"># ────────────────────────────────────────────────────
+# Day 6 Challenge — Ideal Solution
+# day6_challenge.py
+# ────────────────────────────────────────────────────</span>
+<span class="kw">import</span> random
+random.<span class="fn">seed</span>(<span class="nm">99</span>)
+
+test_cases = [
+    {<span class="st">"id"</span>:<span class="st">"TC01"</span>, <span class="st">"name"</span>:<span class="st">"valid_login"</span>,    <span class="st">"priority"</span>:<span class="st">"P1"</span>, <span class="st">"retries"</span>:<span class="nm">3</span>},
+    {<span class="st">"id"</span>:<span class="st">"TC02"</span>, <span class="st">"name"</span>:<span class="st">"invalid_login"</span>,  <span class="st">"priority"</span>:<span class="st">"P1"</span>, <span class="st">"retries"</span>:<span class="nm">2</span>},
+    {<span class="st">"id"</span>:<span class="st">"TC03"</span>, <span class="st">"name"</span>:<span class="st">"empty_fields"</span>,   <span class="st">"priority"</span>:<span class="st">"P2"</span>, <span class="st">"retries"</span>:<span class="nm">1</span>},
+    {<span class="st">"id"</span>:<span class="st">"TC04"</span>, <span class="st">"name"</span>:<span class="st">"checkout_flow"</span>,  <span class="st">"priority"</span>:<span class="st">"P1"</span>, <span class="st">"retries"</span>:<span class="nm">3</span>},
+    {<span class="st">"id"</span>:<span class="st">"TC05"</span>, <span class="st">"name"</span>:<span class="st">"profile_update"</span>, <span class="st">"priority"</span>:<span class="st">"P2"</span>, <span class="st">"retries"</span>:<span class="nm">2</span>},
+    {<span class="st">"id"</span>:<span class="st">"TC06"</span>, <span class="st">"name"</span>:<span class="st">"logout"</span>,         <span class="st">"priority"</span>:<span class="st">"P3"</span>, <span class="st">"retries"</span>:<span class="nm">1</span>},
+]
+browsers = [<span class="st">"chromium"</span>, <span class="st">"firefox"</span>]
+
+<span class="cm"># ── Part 1: run the suite ──────────────────────────</span>
+<span class="fn">print</span>(<span class="st">"Part 1 — Running test suite\n"</span>)
+run_results = []
+
+<span class="kw">for</span> browser <span class="kw">in</span> browsers:
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Browser: {browser.upper()}"</span>)
+    <span class="kw">for</span> tc <span class="kw">in</span> test_cases:
+        status = <span class="st">"PASS"</span> <span class="kw">if</span> random.<span class="fn">random</span>() <span class="op">&gt;</span> <span class="nm">0.3</span> <span class="kw">else</span> <span class="st">"FAIL"</span>
+        run_results.<span class="fn">append</span>({
+            <span class="st">"browser"</span>:   browser,
+            <span class="st">"test_id"</span>:   tc[<span class="st">"id"</span>],
+            <span class="st">"test_name"</span>: tc[<span class="st">"name"</span>],
+            <span class="st">"priority"</span>:  tc[<span class="st">"priority"</span>],
+            <span class="st">"retries"</span>:   tc[<span class="st">"retries"</span>],
+            <span class="st">"status"</span>:    status
+        })
+        icon = <span class="st">"✓"</span> <span class="kw">if</span> status == <span class="st">"PASS"</span> <span class="kw">else</span> <span class="st">"✗"</span>
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"    {icon} [{tc['id']}] {tc['name']:<span class="nm">18</span>} — {status}"</span>)
+
+<span class="cm"># ── Part 2: retry failures ─────────────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 2 — Retrying failures\n"</span>)
+<span class="kw">for</span> result <span class="kw">in</span> run_results:
+    <span class="kw">if</span> result[<span class="st">"status"</span>] != <span class="st">"FAIL"</span>:
+        <span class="kw">continue</span>   <span class="cm"># skip passing tests</span>
+
+    attempt = <span class="nm">0</span>
+    max_r   = result[<span class="st">"retries"</span>]
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Retrying [{result['test_id']}] {result['test_name']} on {result['browser']}"</span>)
+
+    <span class="kw">while</span> attempt <span class="op">&lt;</span> max_r <span class="kw">and</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+        attempt <span class="op">+=</span> <span class="nm">1</span>
+        retry_pass = random.<span class="fn">random</span>() <span class="op">&gt;</span> <span class="nm">0.5</span>
+        <span class="kw">if</span> retry_pass:
+            result[<span class="st">"status"</span>] = <span class="st">"PASS"</span>
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"    ✓ Retry {attempt}/{max_r} — RECOVERED"</span>)
+        <span class="kw">else</span>:
+            <span class="fn">print</span>(<span class="fn">f</span><span class="st">"    ✗ Retry {attempt}/{max_r} — still failing"</span>)
+
+    <span class="kw">if</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"    → Gave up after {max_r} retries"</span>)
+
+<span class="cm"># ── Part 3: skip P3 tests ──────────────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 3 — Priority filter\n"</span>)
+<span class="kw">for</span> tc <span class="kw">in</span> test_cases:
+    <span class="kw">if</span> tc[<span class="st">"priority"</span>] == <span class="st">"P3"</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Skipped  : {tc['name']} ({tc['priority']})"</span>)
+        <span class="kw">continue</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Would run: {tc['name']} ({tc['priority']})"</span>)
+
+<span class="cm"># ── Part 4: find first P1 failure ─────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 4 — First P1 failure\n"</span>)
+p1_results = [r <span class="kw">for</span> r <span class="kw">in</span> run_results <span class="kw">if</span> r[<span class="st">"priority"</span>] == <span class="st">"P1"</span>]
+
+<span class="kw">for</span> result <span class="kw">in</span> p1_results:
+    <span class="kw">if</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  First P1 failure: [{result['test_id']}] {result['test_name']} on {result['browser']}"</span>)
+        <span class="kw">break</span>
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"  All P1 tests passed!"</span>)
+
+<span class="cm"># ── Part 5: summary ────────────────────────────────</span>
+<span class="fn">print</span>(<span class="st">"\nPart 5 — Final summary\n"</span>)
+total_runs   = <span class="fn">len</span>(run_results)
+total_passed = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> run_results <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"PASS"</span>)
+total_failed = total_runs - total_passed
+
+all_p1_passed = <span class="fn">all</span>(
+    r[<span class="st">"status"</span>] == <span class="st">"PASS"</span>
+    <span class="kw">for</span> r <span class="kw">in</span> run_results
+    <span class="kw">if</span> r[<span class="st">"priority"</span>] == <span class="st">"P1"</span>
+)
+any_failed = <span class="fn">any</span>(r[<span class="st">"status"</span>] == <span class="st">"FAIL"</span> <span class="kw">for</span> r <span class="kw">in</span> run_results)
+
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  SUITE RESULTS (after retries)"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*40}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Total runs    : {total_runs}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Passed        : {total_passed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Failed        : {total_failed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  All P1 passed : {all_p1_passed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Any failures  : {any_failed}"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"{'='*40}"</span>)</div>
+
+  <div class="sec">Expected output (abbreviated)</div>
+  <div class="out">
+    <div class="out-lbl">Terminal</div>
+    <div class="ol">Part 1 — Running test suite</div>
+    <div class="ol">  Browser: CHROMIUM</div>
+    <div class="ol">    ✓ [TC01] valid_login       — PASS</div>
+    <div class="ol">    ✓ [TC02] invalid_login     — PASS</div>
+    <div class="ol">    ✗ [TC03] empty_fields      — FAIL</div>
+    <div class="ol">    ✓ [TC04] checkout_flow     — PASS</div>
+    <div class="ol">    ... (12 runs total)</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 2 — Retrying failures</div>
+    <div class="ol">  Retrying [TC03] empty_fields on chromium</div>
+    <div class="ol">    ✓ Retry 1/1 — RECOVERED</div>
+    <div class="ol">    ... (other failures retried)</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 3 — Priority filter</div>
+    <div class="ol">  Would run: valid_login (P1)</div>
+    <div class="ol">  Would run: invalid_login (P1)</div>
+    <div class="ol">  Would run: empty_fields (P2)</div>
+    <div class="ol">  Would run: checkout_flow (P1)</div>
+    <div class="ol">  Would run: profile_update (P2)</div>
+    <div class="ol">  Skipped  : logout (P3)</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">Part 4 — First P1 failure</div>
+    <div class="ol">  All P1 tests passed!</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">========================================</div>
+    <div class="ol">  SUITE RESULTS (after retries)</div>
+    <div class="ol">========================================</div>
+    <div class="ol">  Total runs    : 12</div>
+    <div class="ol">  Passed        : 10</div>
+    <div class="ol">  Failed        : 2</div>
+    <div class="ol">  All P1 passed : True</div>
+    <div class="ol">  Any failures  : True</div>
+    <div class="ol">========================================</div>
+  </div>
+</div>
+
+<!-- PART BY PART -->
+<div class="pg" id="exp">
+
+  <div class="part"><span class="pn p1">Part 1</span> Storing full context in each result dict</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">run_results.<span class="fn">append</span>({
+    <span class="st">"browser"</span>:   browser,
+    <span class="st">"test_id"</span>:   tc[<span class="st">"id"</span>],
+    <span class="st">"test_name"</span>: tc[<span class="st">"name"</span>],
+    <span class="st">"priority"</span>:  tc[<span class="st">"priority"</span>],
+    <span class="st">"retries"</span>:   tc[<span class="st">"retries"</span>],
+    <span class="st">"status"</span>:    status
+})</div>
+      <div class="eb-why"><b>Store everything you will need later — not just the answer.</b> Including <code>priority</code> and <code>retries</code> means Parts 2, 4, and 5 can filter and analyse without needing to look back at <code>test_cases</code>. In real automation projects, result objects carry the full context of a run — browser, test metadata, duration, environment — so reports and retry logic have everything they need in one place.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p2">Part 2</span> continue to skip, while to retry, mutate in place</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">for</span> result <span class="kw">in</span> run_results:
+    <span class="kw">if</span> result[<span class="st">"status"</span>] != <span class="st">"FAIL"</span>:
+        <span class="kw">continue</span>   <span class="cm"># guard — skip passing tests</span>
+
+    <span class="kw">while</span> attempt <span class="op">&lt;</span> max_r <span class="kw">and</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+        ...
+        <span class="kw">if</span> retry_pass:
+            result[<span class="st">"status"</span>] = <span class="st">"PASS"</span>   <span class="cm"># mutate in place</span></div>
+      <div class="eb-why"><b>Three things working together.</b> <code>continue</code> skips passing results cleanly — no nesting. <code>while</code> retries the specific failing result up to its allowed count. <code>result["status"] = "PASS"</code> mutates the dict in place — because <code>run_results</code> holds references to the same dicts, the change is visible everywhere. This means Part 5's summary reflects post-retry statuses automatically.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">while</span> attempt <span class="op">&lt;</span> max_r <span class="kw">and</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:</div>
+      <div class="eb-why"><b>Two exit conditions in the while.</b> The loop stops when attempts are exhausted OR when the test passes — whichever comes first. Writing only <code>while attempt &lt; max_r</code> would keep retrying even after a successful retry. Both guards are needed.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p3">Part 3</span> continue as a guard — clean priority filter</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">for</span> tc <span class="kw">in</span> test_cases:
+    <span class="kw">if</span> tc[<span class="st">"priority"</span>] == <span class="st">"P3"</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Skipped  : {tc['name']}"</span>)
+        <span class="kw">continue</span>
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  Would run: {tc['name']}"</span>)</div>
+      <div class="eb-why"><b>Guard clause with continue — the cleanest filter pattern.</b> Check the skip condition first, print and continue, leave the action at the bottom unindented. The alternative — <code>if tc["priority"] != "P3": print("Would run...")</code> — works but adds a level of indentation for every line inside. For a single action this is fine; for ten actions inside the loop, guards keep it flat and readable.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p4">Part 4</span> for/else — the right tool for "find or report not found"</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">p1_results = [r <span class="kw">for</span> r <span class="kw">in</span> run_results <span class="kw">if</span> r[<span class="st">"priority"</span>] == <span class="st">"P1"</span>]
+
+<span class="kw">for</span> result <span class="kw">in</span> p1_results:
+    <span class="kw">if</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"  First P1 failure: ..."</span>)
+        <span class="kw">break</span>
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"  All P1 tests passed!"</span>)</div>
+      <div class="eb-why"><b>Pre-filtering before for/else makes the intent clear.</b> Filtering to <code>p1_results</code> first means the loop only considers P1 tests — the for/else then purely answers "did any of these fail?". Mixing the priority filter inside the for/else loop would work but obscures the structure. Separate concerns: filter first, then search.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p5">Part 5</span> all() and any() with conditions on filtered data</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">all_p1_passed = <span class="fn">all</span>(
+    r[<span class="st">"status"</span>] == <span class="st">"PASS"</span>
+    <span class="kw">for</span> r <span class="kw">in</span> run_results
+    <span class="kw">if</span> r[<span class="st">"priority"</span>] == <span class="st">"P1"</span>
+)
+any_failed = <span class="fn">any</span>(r[<span class="st">"status"</span>] == <span class="st">"FAIL"</span> <span class="kw">for</span> r <span class="kw">in</span> run_results)</div>
+      <div class="eb-why"><b>Generator expressions inside all() and any() can include a filter.</b> <code>all(condition for r in list if filter)</code> — the <code>if</code> at the end limits which items are checked. This avoids a separate pre-filter step when you only need the boolean result. <code>sum(1 for r in run_results if r["status"] == "PASS")</code> in the count section uses the same pattern — sum counts True items by treating each match as 1.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — while loop missing the status condition</div>
+    <div class="diff-body"><span class="cm"># Wrong — keeps retrying even after success</span>
+<span class="kw">while</span> attempt <span class="op">&lt;</span> max_r:
+    attempt <span class="op">+=</span> <span class="nm">1</span>
+    retry_pass = random.<span class="fn">random</span>() <span class="op">&gt;</span> <span class="nm">0.5</span>
+    <span class="kw">if</span> retry_pass:
+        result[<span class="st">"status"</span>] = <span class="st">"PASS"</span>
+    <span class="cm"># Loop continues even though test already passed!</span>
+
+<span class="cm"># Correct — exit as soon as status is no longer FAIL</span>
+<span class="kw">while</span> attempt <span class="op">&lt;</span> max_r <span class="kw">and</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+    attempt <span class="op">+=</span> <span class="nm">1</span>
+    ...</div>
+    <div class="diff-note"><b>Every while loop needs both exit conditions.</b> Without the status check, a recovered test would be retried again unnecessarily — potentially flipping back to FAIL. The <code>and result["status"] == "FAIL"</code> condition is the early exit that makes retry logic correct. Always ask: "what are all the reasons this loop should stop?"</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — not mutating result in place, creating a new variable instead</div>
+    <div class="diff-body"><span class="cm"># Wrong — creates a local variable, doesn't update run_results</span>
+<span class="kw">if</span> retry_pass:
+    status = <span class="st">"PASS"</span>   <span class="cm"># new local variable — run_results unchanged!</span>
+
+<span class="cm"># Correct — mutate the dict that's inside run_results</span>
+<span class="kw">if</span> retry_pass:
+    result[<span class="st">"status"</span>] = <span class="st">"PASS"</span>   <span class="cm"># updates the dict in run_results</span></div>
+    <div class="diff-note"><b>When you loop over a list of dicts, each iteration variable IS the dict — not a copy.</b> Modifying <code>result["status"]</code> modifies the original dict inside <code>run_results</code>. Creating a new variable <code>status = "PASS"</code> only creates a local name — the dict in the list is untouched. Part 5's summary then reads stale statuses.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — using if/else instead of for/else in Part 4</div>
+    <div class="diff-body"><span class="cm"># Needs a flag — extra variable, extra logic</span>
+found_failure = <span class="kw">False</span>
+<span class="kw">for</span> result <span class="kw">in</span> p1_results:
+    <span class="kw">if</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"First P1 failure: ..."</span>)
+        found_failure = <span class="kw">True</span>
+        <span class="kw">break</span>
+<span class="kw">if not</span> found_failure:
+    <span class="fn">print</span>(<span class="st">"All P1 tests passed!"</span>)
+
+<span class="cm"># for/else — no flag needed</span>
+<span class="kw">for</span> result <span class="kw">in</span> p1_results:
+    <span class="kw">if</span> result[<span class="st">"status"</span>] == <span class="st">"FAIL"</span>:
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"First P1 failure: ..."</span>)
+        <span class="kw">break</span>
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="st">"All P1 tests passed!"</span>)</div>
+    <div class="diff-note"><b>for/else exists precisely to eliminate the flag variable pattern.</b> Both versions produce identical output — but the flag version requires an extra variable, an extra assignment inside the loop, and an extra if-check after the loop. for/else expresses the same intent in fewer lines with no state to track.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — not including retries field in result dict (Part 1)</div>
+    <div class="diff-body"><span class="cm"># Missing — Part 2 can't access retries without going back to test_cases</span>
+run_results.<span class="fn">append</span>({
+    <span class="st">"browser"</span>:   browser,
+    <span class="st">"test_id"</span>:   tc[<span class="st">"id"</span>],
+    <span class="st">"status"</span>:    status
+    <span class="cm"># no priority, no retries — Part 2 and 4 will be harder</span>
+})
+
+<span class="cm"># Complete — carry all needed context forward</span>
+run_results.<span class="fn">append</span>({
+    <span class="st">"browser"</span>:   browser,
+    <span class="st">"test_id"</span>:   tc[<span class="st">"id"</span>],
+    <span class="st">"test_name"</span>: tc[<span class="st">"name"</span>],
+    <span class="st">"priority"</span>:  tc[<span class="st">"priority"</span>],
+    <span class="st">"retries"</span>:   tc[<span class="st">"retries"</span>],
+    <span class="st">"status"</span>:    status
+})</div>
+    <div class="diff-note"><b>Design your data structures for what comes next, not just what you need right now.</b> Part 1 creates the data. Parts 2–5 consume it. If you omit <code>retries</code> in Part 1, Part 2 must zip or look up back into <code>test_cases</code> — messy and fragile. Store everything downstream parts need when the data is created.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — using a loop with a counter instead of sum() or all()/any()</div>
+    <div class="diff-body"><span class="cm"># Verbose — manual counter loop</span>
+total_passed = <span class="nm">0</span>
+<span class="kw">for</span> r <span class="kw">in</span> run_results:
+    <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"PASS"</span>:
+        total_passed <span class="op">+=</span> <span class="nm">1</span>
+
+all_p1_passed = <span class="kw">True</span>
+<span class="kw">for</span> r <span class="kw">in</span> run_results:
+    <span class="kw">if</span> r[<span class="st">"priority"</span>] == <span class="st">"P1"</span> <span class="kw">and</span> r[<span class="st">"status"</span>] != <span class="st">"PASS"</span>:
+        all_p1_passed = <span class="kw">False</span>
+        <span class="kw">break</span>
+
+<span class="cm"># Pythonic — one expression each</span>
+total_passed  = <span class="fn">sum</span>(<span class="nm">1</span> <span class="kw">for</span> r <span class="kw">in</span> run_results <span class="kw">if</span> r[<span class="st">"status"</span>] == <span class="st">"PASS"</span>)
+all_p1_passed = <span class="fn">all</span>(r[<span class="st">"status"</span>] == <span class="st">"PASS"</span> <span class="kw">for</span> r <span class="kw">in</span> run_results <span class="kw">if</span> r[<span class="st">"priority"</span>] == <span class="st">"P1"</span>)</div>
+    <div class="diff-note"><b>Replace loop-with-counter with sum(), and loop-with-flag with all()/any().</b> Both versions work — but the Pythonic versions are shorter, have no mutable state to track, and read like prose. You will see these patterns in every professional Python codebase. Recognising them and writing them fluently is what separates Python beginners from intermediate developers.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 1 — Result dicts include <code>priority</code> and <code>retries</code> — not just status</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — Used <code>continue</code> to skip passing tests before the while loop</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — while condition has BOTH <code>attempt &lt; max_r</code> AND <code>result["status"] == "FAIL"</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 2 — Mutated <code>result["status"] = "PASS"</code> in place — updates the dict inside run_results</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 3 — Used <code>continue</code> to skip P3 tests cleanly — not a nested if block</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 4 — Filtered to p1_results first, then used <code>for/else</code> — no flag variable</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 4 — <code>else</code> clause prints "All P1 tests passed!" — not a separate if-check after the loop</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — Used <code>sum(1 for r in ... if ...)</code> to count passes — not a manual counter loop</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — <code>all()</code> uses inline filter <code>if r["priority"] == "P1"</code> inside the generator</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Part 5 — Summary reflects post-retry statuses (because Part 2 mutated in place)</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 7 Python — the consolidation mini project combining everything from Days 1 to 6')">Go to Day 7 — final mini project ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me a harder Python loops challenge — beyond Day 6 level, using real QA automation scenarios')">Give me a harder loops challenge ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#7A5000':'';
+  box.style.borderColor=on?'#7A5000':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect score on the last Python challenge. You have the full foundation — variables, strings, lists, dicts, conditions, and every loop pattern. Day 7 is consolidation, then Day 15 is Playwright. You are on track.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Review the Common Mistakes tab for what you missed, fix those parts, then move to Day 7.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Part by Part for each unchecked item, rewrite those sections, then move on.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution carefully, then rewrite the whole challenge from scratch before Day 7.</div>';
+}
+</script>
+</body>
+</html>
