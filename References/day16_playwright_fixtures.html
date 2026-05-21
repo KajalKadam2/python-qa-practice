@@ -1,0 +1,618 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#534AB7;color:#fff;border-color:#534AB7}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.dec{color:#993C1D;font-weight:500}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.ol-r{color:#791F1F}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#534AB7;color:#fff;border-color:#534AB7;font-weight:500}
+.btn-n:hover{background:#3D3591}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0;font-size:12px}
+.flow-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 12px;font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary)}
+.flow-arrow{color:var(--color-text-tertiary);font-size:14px}
+.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 12px;border:0.5px solid var(--color-border-tertiary)}
+.sc-t{font-size:12px;font-weight:500;font-family:var(--font-mono);color:#534AB7;margin-bottom:3px}
+.sc-d{font-size:11px;color:var(--color-text-secondary);line-height:1.4}
+.sc-ex{font-size:11px;color:var(--color-text-tertiary);margin-top:3px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT ARE FIXTURES -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 16 — pytest fixtures and conftest.py</div>
+    <div class="card-b">You wrote 3 tests on Day 15 and each one had <code>page.goto()</code> at the top. Now imagine 50 tests — all repeating the same setup. <b>Fixtures solve this</b> — they run setup code automatically before your test, and cleanup code automatically after.<br><br>Today you learn the full fixture system — the backbone of every professional Playwright test suite.</div>
+  </div>
+
+  <div class="sec">The problem fixtures solve</div>
+  <div class="code"><span class="cm"># WITHOUT fixtures — copy-paste setup in every test</span>
+<span class="kw">def</span> <span class="fn">test_login</span>(page):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)   <span class="cm"># repeated</span>
+    <span class="cm"># ... test code</span>
+
+<span class="kw">def</span> <span class="fn">test_wrong_password</span>(page):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)   <span class="cm"># repeated</span>
+    <span class="cm"># ... test code</span>
+
+<span class="kw">def</span> <span class="fn">test_empty_fields</span>(page):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)   <span class="cm"># repeated</span>
+    <span class="cm"># ... test code</span>
+
+<span class="cm"># WITH fixtures — setup runs automatically</span>
+<span class="kw">def</span> <span class="fn">test_login</span>(login_page):          <span class="cm"># fixture handles goto()</span>
+    <span class="cm"># ... test code only</span>
+
+<span class="kw">def</span> <span class="fn">test_wrong_password</span>(login_page): <span class="cm"># fixture handles goto()</span>
+    <span class="cm"># ... test code only</span></div>
+
+  <div class="sec">How fixtures work — the execution flow</div>
+  <div class="flow">
+    <div class="flow-box">pytest finds test</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">runs fixture setup</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">runs test function</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">runs fixture teardown</div>
+  </div>
+
+  <div class="tip">A fixture is just a function decorated with <code>@pytest.fixture</code>. When a test function has a parameter with the same name as a fixture, pytest automatically calls the fixture and passes its return value to the test. No special import needed — pytest discovers them automatically.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">Your first fixture →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: FIRST FIXTURE -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">Your first fixture — step by step</div>
+    <div class="card-b">Write this in your test file first. Later you will move fixtures to <code>conftest.py</code> so all test files can share them.</div>
+  </div>
+
+  <div class="try-lbl">Create test_fixtures.py and type this</div>
+  <div class="code"><span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="cm"># ── Define a fixture ─────────────────────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    <span class="st">"""Navigate to the login page before each test."""</span>
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+    <span class="kw">return</span> page   <span class="cm"># hand the page back to the test</span>
+
+<span class="cm"># ── Use the fixture ──────────────────────────────</span>
+<span class="cm"># Note: parameter name 'login_page' matches fixture name above</span>
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(login_page: Page):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">get_by_text</span>(<span class="st">"You logged into a secure area!"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_invalid_login</span>(login_page: Page):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"wronguser"</span>)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"wrongpass"</span>)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"Your username is invalid!"</span>)
+
+<span class="kw">def</span> <span class="fn">test_page_title</span>(login_page: Page):
+    <span class="fn">expect</span>(login_page).<span class="fn">to_have_title</span>(<span class="st">"The Internet"</span>)</div>
+
+  <div class="sec">Run it</div>
+  <div class="code">pytest test_fixtures.py -v --headed</div>
+
+  <div class="out">
+    <div class="out-lbl">Expected output</div>
+    <div class="ol ol-g">PASSED test_fixtures.py::test_valid_login</div>
+    <div class="ol ol-g">PASSED test_fixtures.py::test_invalid_login</div>
+    <div class="ol ol-r">FAILED test_fixtures.py::test_page_title</div>
+  </div>
+
+  <div class="tip">test_page_title FAILS — and that is correct. The login page title is "The Internet" but after our fixture navigates to /login the title might differ. This shows you fixtures run before EACH test independently. Notice: no <code>page.goto()</code> in any test function — the fixture handles it.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">yield — teardown →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: YIELD TEARDOWN -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">yield — running code after the test <span class="badge bp" style="margin-left:6px">teardown pattern</span></div>
+    <div class="card-b">When you use <code>yield</code> instead of <code>return</code> in a fixture, everything <b>before</b> yield is setup and everything <b>after</b> yield is teardown. The teardown runs after the test finishes — whether the test passed or failed. This is how you guarantee cleanup.</div>
+  </div>
+
+  <div class="sec">The yield pattern</div>
+  <div class="code"><span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    <span class="cm"># ── SETUP — runs before the test ────────────</span>
+    <span class="fn">print</span>(<span class="st">"\n  → Setting up: navigating to login"</span>)
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+
+    <span class="kw">yield</span> page    <span class="cm"># ← test runs HERE, receives 'page'</span>
+
+    <span class="cm"># ── TEARDOWN — runs after the test ──────────</span>
+    <span class="fn">print</span>(<span class="st">"\n  → Teardown: test finished, browser closing"</span>)</div>
+
+  <div class="try-lbl">Type this complete example — notice the yield</div>
+  <div class="code"><span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">authenticated_page</span>(page: Page):
+    <span class="st">"""Log in before the test, log out after."""</span>
+    <span class="cm"># SETUP — log in</span>
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">print</span>(<span class="st">"\n  → Setup: logged in successfully"</span>)
+
+    <span class="kw">yield</span> page    <span class="cm"># test runs here</span>
+
+    <span class="cm"># TEARDOWN — click logout</span>
+    page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Logout"</span>).<span class="fn">click</span>()
+    <span class="fn">print</span>(<span class="st">"\n  → Teardown: logged out"</span>)
+
+<span class="kw">def</span> <span class="fn">test_secure_area_visible</span>(authenticated_page: Page):
+    <span class="fn">expect</span>(authenticated_page.<span class="fn">get_by_text</span>(<span class="st">"Secure Area"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_logout_link_visible</span>(authenticated_page: Page):
+    <span class="fn">expect</span>(authenticated_page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Logout"</span>)).<span class="fn">to_be_visible</span>()</div>
+
+  <div class="code">pytest test_fixtures.py -v -s --headed   <span class="cm"># -s shows print output</span></div>
+
+  <div class="tip">The <code>-s</code> flag shows print statements — useful during development to see setup/teardown messages. Remove it in CI/CD for clean output.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">conftest.py →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: CONFTEST -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">conftest.py — sharing fixtures across all test files <span class="badge bg" style="margin-left:6px">most important file</span></div>
+    <div class="card-b"><code>conftest.py</code> is a special file that pytest finds automatically. Fixtures defined in it are available to <b>every test file in the same folder and all subfolders</b> — no import needed. This is where shared fixtures live in every professional project.</div>
+  </div>
+
+  <div class="sec">Project structure — create these files</div>
+  <div class="code">qa-automation/
+├── conftest.py          ← shared fixtures here
+├── test_login.py        ← uses fixtures from conftest
+├── test_checkboxes.py   ← uses fixtures from conftest
+└── test_dropdowns.py    ← uses fixtures from conftest</div>
+
+  <div class="try-lbl">Create conftest.py in your qa-automation folder</div>
+  <div class="code"><span class="cm"># conftest.py</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page
+
+<span class="cm"># ── Base URL config ──────────────────────────────</span>
+BASE_URL = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="cm"># ── Fixture: navigate to login page ─────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    <span class="st">"""Navigate to login page before each test."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    <span class="kw">yield</span> page
+
+<span class="cm"># ── Fixture: already logged in ───────────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">logged_in_page</span>(page: Page):
+    <span class="st">"""Login and navigate to secure area."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="kw">yield</span> page
+    <span class="cm"># teardown: navigate away to reset state</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}"</span>)
+
+<span class="cm"># ── Fixture: test user data ──────────────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">valid_user</span>():
+    <span class="st">"""Return valid test user credentials."""</span>
+    <span class="kw">return</span> {
+        <span class="st">"username"</span>: <span class="st">"tomsmith"</span>,
+        <span class="st">"password"</span>: <span class="st">"SuperSecretPassword!"</span>,
+        <span class="st">"expected_msg"</span>: <span class="st">"You logged into a secure area!"</span>
+    }
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">invalid_user</span>():
+    <span class="st">"""Return invalid test user credentials."""</span>
+    <span class="kw">return</span> {
+        <span class="st">"username"</span>: <span class="st">"wronguser"</span>,
+        <span class="st">"password"</span>: <span class="st">"wrongpass"</span>,
+        <span class="st">"expected_msg"</span>: <span class="st">"Your username is invalid!"</span>
+    }</div>
+
+  <div class="tip">No import needed in test files — pytest finds <code>conftest.py</code> automatically in the same folder. The <code>page</code> fixture that Playwright provides is also available in <code>conftest.py</code> — you just use it as a parameter.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">Using conftest →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: USING CONFTEST -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">Using conftest fixtures in test files</div>
+    <div class="card-b">Once fixtures are in <code>conftest.py</code>, any test file in the same folder can use them just by adding the fixture name as a parameter. No import, no setup — just ask for it by name.</div>
+  </div>
+
+  <div class="try-lbl">Create test_login.py — uses fixtures from conftest.py</div>
+  <div class="code"><span class="cm"># test_login.py — NO imports from conftest needed</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="cm"># login_page comes from conftest.py automatically</span>
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(login_page: Page, valid_user):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(valid_user[<span class="st">"username"</span>])
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(valid_user[<span class="st">"password"</span>])
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">get_by_text</span>(valid_user[<span class="st">"expected_msg"</span>])).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_invalid_login</span>(login_page: Page, invalid_user):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(invalid_user[<span class="st">"username"</span>])
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(invalid_user[<span class="st">"password"</span>])
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_contain_text</span>(
+        invalid_user[<span class="st">"expected_msg"</span>]
+    )
+
+<span class="kw">def</span> <span class="fn">test_secure_area</span>(logged_in_page: Page):
+    <span class="cm"># logged_in_page fixture already did the login</span>
+    <span class="fn">expect</span>(logged_in_page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"https://the-internet.herokuapp.com/secure"</span>)
+    <span class="fn">expect</span>(logged_in_page.<span class="fn">get_by_text</span>(<span class="st">"Secure Area"</span>)).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>(logged_in_page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Logout"</span>)).<span class="fn">to_be_visible</span>()</div>
+
+  <div class="sec">Run all tests</div>
+  <div class="code">pytest test_login.py -v --headed</div>
+
+  <div class="out">
+    <div class="out-lbl">Expected output</div>
+    <div class="ol ol-g">PASSED test_login.py::test_valid_login</div>
+    <div class="ol ol-g">PASSED test_login.py::test_invalid_login</div>
+    <div class="ol ol-g">PASSED test_login.py::test_secure_area</div>
+  </div>
+
+  <div class="warn">A test can use multiple fixtures at once — just add both as parameters: <code>def test_something(login_page, valid_user)</code>. pytest injects both automatically. The order of parameters does not matter.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">Fixture scopes →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: SCOPES -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">Fixture scopes — how often a fixture runs <span class="badge ba" style="margin-left:6px">controls speed</span></div>
+    <div class="card-b">By default, fixtures run before <b>every single test</b>. Scopes let you control this — run expensive setup once per file or once per session. This is how you make large test suites fast.</div>
+  </div>
+
+  <div class="scope-grid">
+    <div class="sc"><div class="sc-t">scope="function"</div><div class="sc-d">Default. Runs before every test function.</div><div class="sc-ex">Use for: page navigation, test data</div></div>
+    <div class="sc"><div class="sc-t">scope="class"</div><div class="sc-d">Runs once per test class.</div><div class="sc-ex">Use for: shared class-level state</div></div>
+    <div class="sc"><div class="sc-t">scope="module"</div><div class="sc-d">Runs once per test file.</div><div class="sc-ex">Use for: expensive per-file setup</div></div>
+    <div class="sc"><div class="sc-t">scope="session"</div><div class="sc-d">Runs once for the entire test run.</div><div class="sc-ex">Use for: auth tokens, DB connections</div></div>
+  </div>
+
+  <div class="try-lbl">Type this — see the difference</div>
+  <div class="code"><span class="kw">import</span> pytest
+
+<span class="cm"># Runs before EVERY test — default</span>
+<span class="dec">@pytest.fixture</span>(scope=<span class="st">"function"</span>)
+<span class="kw">def</span> <span class="fn">function_fixture</span>():
+    <span class="fn">print</span>(<span class="st">"\n  function_fixture: setting up"</span>)
+    <span class="kw">yield</span>
+    <span class="fn">print</span>(<span class="st">"\n  function_fixture: tearing down"</span>)
+
+<span class="cm"># Runs once per FILE — faster</span>
+<span class="dec">@pytest.fixture</span>(scope=<span class="st">"module"</span>)
+<span class="kw">def</span> <span class="fn">module_fixture</span>():
+    <span class="fn">print</span>(<span class="st">"\n  module_fixture: setting up ONCE"</span>)
+    <span class="kw">yield</span> {<span class="st">"token"</span>: <span class="st">"abc123"</span>}
+    <span class="fn">print</span>(<span class="st">"\n  module_fixture: tearing down ONCE"</span>)
+
+<span class="cm"># Runs once for ALL tests in the whole session</span>
+<span class="dec">@pytest.fixture</span>(scope=<span class="st">"session"</span>)
+<span class="kw">def</span> <span class="fn">session_fixture</span>():
+    <span class="fn">print</span>(<span class="st">"\n  session_fixture: setting up ONE TIME"</span>)
+    <span class="kw">yield</span> {<span class="st">"base_url"</span>: <span class="st">"https://the-internet.herokuapp.com"</span>}
+    <span class="fn">print</span>(<span class="st">"\n  session_fixture: done"</span>)
+
+<span class="kw">def</span> <span class="fn">test_a</span>(function_fixture, module_fixture, session_fixture):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n  test_a: token={module_fixture['token']}"</span>)
+
+<span class="kw">def</span> <span class="fn">test_b</span>(function_fixture, module_fixture, session_fixture):
+    <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n  test_b: url={session_fixture['base_url']}"</span>)</div>
+
+  <div class="code">pytest test_scopes.py -v -s</div>
+
+  <div class="out">
+    <div class="out-lbl">What you will see — notice what runs once vs twice</div>
+    <div class="ol">  session_fixture: setting up ONE TIME    ← once</div>
+    <div class="ol">  module_fixture: setting up ONCE         ← once</div>
+    <div class="ol">  function_fixture: setting up            ← per test</div>
+    <div class="ol">  test_a: token=abc123</div>
+    <div class="ol">  function_fixture: tearing down          ← per test</div>
+    <div class="ol">  function_fixture: setting up            ← per test</div>
+    <div class="ol">  test_b: url=https://the-internet...</div>
+    <div class="ol">  function_fixture: tearing down          ← per test</div>
+    <div class="ol">  module_fixture: tearing down ONCE       ← once</div>
+    <div class="ol">  session_fixture: done                   ← once</div>
+  </div>
+
+  <div class="tip">For Playwright tests: use <code>scope="function"</code> (default) for page fixtures — each test gets a fresh browser state. Use <code>scope="session"</code> for config data like base_url and credentials that never change.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">autouse →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: AUTOUSE -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">autouse — fixtures that run without being requested <span class="badge bp" style="margin-left:6px">screenshots on failure</span></div>
+    <div class="card-b"><code>autouse=True</code> makes a fixture run for every test automatically — no parameter needed in the test function. The most common use in QA: <b>automatically take a screenshot when a test fails</b>. Every test gets this for free without listing the fixture name.</div>
+  </div>
+
+  <div class="try-lbl">Add this to conftest.py — auto screenshot on failure</div>
+  <div class="code"><span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+<span class="cm"># ── Auto screenshot on test failure ─────────────</span>
+<span class="dec">@pytest.fixture</span>(autouse=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">screenshot_on_failure</span>(page: Page, request):
+    <span class="st">"""Automatically screenshot any failing test."""</span>
+    <span class="kw">yield</span>   <span class="cm"># test runs here</span>
+
+    <span class="cm"># After test — check if it failed</span>
+    <span class="kw">if</span> request.node.rep_call.failed:
+        <span class="cm"># Create screenshots folder if needed</span>
+        Path(<span class="st">"screenshots"</span>).<span class="fn">mkdir</span>(exist_ok=<span class="kw">True</span>)
+
+        <span class="cm"># Safe filename from test name</span>
+        test_name = request.node.name.<span class="fn">replace</span>(<span class="st">"["</span>,<span class="st">"_"</span>).<span class="fn">replace</span>(<span class="st">"]"</span>,<span class="st">""</span>)
+        path = <span class="fn">f</span><span class="st">"screenshots/{test_name}.png"</span>
+        page.<span class="fn">screenshot</span>(path=path, full_page=<span class="kw">True</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n  📸 Screenshot saved: {path}"</span>)
+
+<span class="cm"># This hook makes request.node.rep_call available</span>
+<span class="dec">@pytest.hookimpl</span>(tryfirst=<span class="kw">True</span>, hookwrapper=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">pytest_runtest_makereport</span>(item, call):
+    outcome = <span class="kw">yield</span>
+    rep     = outcome.<span class="fn">get_result</span>()
+    <span class="fn">setattr</span>(item, <span class="fn">f</span><span class="st">"rep_{rep.when}"</span>, rep)</div>
+
+  <div class="out">
+    <div class="out-lbl">When a test fails you now see</div>
+    <div class="ol ol-r">FAILED test_login.py::test_something</div>
+    <div class="ol">  📸 Screenshot saved: screenshots/test_something.png</div>
+  </div>
+
+  <div class="ok">This is a real professional pattern. Every QA automation team uses automatic screenshots on failure. Without this, debugging a failing CI/CD test is nearly impossible. With it, you open the screenshot and see exactly what was on screen when it failed.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: FULL EXAMPLE -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">Complete example — production-grade conftest.py <span class="badge bg" style="margin-left:6px">portfolio quality</span></div>
+    <div class="card-b">This is the <code>conftest.py</code> you push to GitHub as part of Portfolio Project #1. It has everything a real project needs — base URL, credentials, page fixtures, and auto screenshot.</div>
+  </div>
+  <div class="try-lbl">Replace your conftest.py with this complete version</div>
+  <div class="code"><span class="cm"># conftest.py — complete production version</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+<span class="cm"># ── Central config ───────────────────────────────</span>
+BASE_URL = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+VALID_USER = {
+    <span class="st">"username"</span>: <span class="st">"tomsmith"</span>,
+    <span class="st">"password"</span>: <span class="st">"SuperSecretPassword!"</span>,
+    <span class="st">"success_msg"</span>: <span class="st">"You logged into a secure area!"</span>
+}
+
+INVALID_USERS = [
+    (<span class="st">"wronguser"</span>, <span class="st">"SuperSecretPassword!"</span>, <span class="st">"Your username is invalid!"</span>),
+    (<span class="st">"tomsmith"</span>,  <span class="st">"wrongpassword"</span>,         <span class="st">"Your password is invalid!"</span>),
+    (<span class="st">""</span>,          <span class="st">""</span>,                       <span class="st">"Your username is invalid!"</span>),
+]
+
+<span class="cm"># ── Page fixtures ────────────────────────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    <span class="kw">yield</span> page
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">logged_in_page</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(VALID_USER[<span class="st">"username"</span>])
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(VALID_USER[<span class="st">"password"</span>])
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="kw">yield</span> page
+
+<span class="cm"># ── Data fixtures ────────────────────────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">valid_user</span>():
+    <span class="kw">return</span> VALID_USER
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">invalid_users</span>():
+    <span class="kw">return</span> INVALID_USERS
+
+<span class="cm"># ── Auto screenshot on failure ───────────────────</span>
+<span class="dec">@pytest.hookimpl</span>(tryfirst=<span class="kw">True</span>, hookwrapper=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">pytest_runtest_makereport</span>(item, call):
+    outcome = <span class="kw">yield</span>
+    rep = outcome.<span class="fn">get_result</span>()
+    <span class="fn">setattr</span>(item, <span class="fn">f</span><span class="st">"rep_{rep.when}"</span>, rep)
+
+<span class="dec">@pytest.fixture</span>(autouse=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">screenshot_on_failure</span>(page: Page, request):
+    <span class="kw">yield</span>
+    <span class="kw">if</span> <span class="fn">hasattr</span>(request.node, <span class="st">"rep_call"</span>) <span class="kw">and</span> request.node.rep_call.failed:
+        Path(<span class="st">"screenshots"</span>).<span class="fn">mkdir</span>(exist_ok=<span class="kw">True</span>)
+        name = request.node.name.<span class="fn">replace</span>(<span class="st">"["</span>,<span class="st">"_"</span>).<span class="fn">replace</span>(<span class="st">"]"</span>,<span class="st">""</span>)
+        page.<span class="fn">screenshot</span>(path=<span class="fn">f</span><span class="st">"screenshots/{name}.png"</span>, full_page=<span class="kw">True</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n  📸 Screenshot: screenshots/{name}.png"</span>)</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 16 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 16 challenge — build your fixture system</div>
+    <div class="card-b">Build the complete fixture system from scratch and write tests that use every fixture.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build this from scratch</div>
+    <div class="ch-b">
+      <b>Part 1 — conftest.py</b><br>
+      Write a conftest.py with these fixtures:<br>
+      • <code>base_url</code> — session scope, returns the base URL string<br>
+      • <code>login_page</code> — navigates to /login, yields page<br>
+      • <code>checkboxes_page</code> — navigates to /checkboxes, yields page<br>
+      • <code>valid_user</code> — returns the valid credentials dict<br>
+      • <code>screenshot_on_failure</code> — autouse, screenshots failing tests<br><br>
+
+      <b>Part 2 — test_login.py</b><br>
+      Write 4 tests using only fixtures — no page.goto() in any test:<br>
+      • valid login → assert success message visible<br>
+      • invalid login → assert error message visible<br>
+      • empty username → assert error visible<br>
+      • after login → assert URL contains /secure<br><br>
+
+      <b>Part 3 — test_checkboxes.py</b><br>
+      Write 3 tests using the checkboxes_page fixture:<br>
+      • assert first checkbox is unchecked initially<br>
+      • check first checkbox → assert it is now checked<br>
+      • assert second checkbox is checked initially<br><br>
+
+      <b>Run all tests</b><br>
+      <code>pytest tests/ -v --headed</code><br>
+      All 7 tests should pass. No page.goto() in any test file.
+    </div>
+  </div>
+
+  <div class="ok">When you finish this challenge you have a real test suite with a proper fixture system. This is what Portfolio Project #1 looks like. Commit and push when done.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 16 Playwright fixtures challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 16 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 16 Playwright fixtures challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 17 Playwright — parametrize and data-driven tests with hands-on exercises')">Go to Day 17 — parametrize ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['What are fixtures','First fixture','yield teardown','conftest.py','Using conftest','Scopes','autouse','Full example','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

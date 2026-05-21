@@ -4,6 +4,20 @@ from pathlib import Path
 
 BASE_URL = "https://the-internet.herokuapp.com"
 
+
+# --- Storing parametrize data in conftest.py ----
+
+INVALID_LOGIN_CASES = [
+    pytest.param("wronguser", "wrongpass",            "Your username is invalid", id="wrong_user"),
+    pytest.param("tomsmith",  "wrongpass",            "Your password is invalid", id="wrong_pass"),
+    pytest.param("",          "",                     "Your username is invalid", id="empty"),
+]
+
+DROPDOWN_OPTIONS = [
+    pytest.param("1", "1", id="option1"),
+    pytest.param("2", "2", id="option2"),
+]
+
 # ── Page fixtures ────────────────────────────────
 @pytest.fixture
 def login_page(page: Page):

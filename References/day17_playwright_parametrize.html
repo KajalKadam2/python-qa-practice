@@ -1,0 +1,567 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#0C447C;color:#fff;border-color:#0C447C}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.dec{color:#993C1D;font-weight:500}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.ol-r{color:#791F1F}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#0C447C;color:#fff;border-color:#0C447C;font-weight:500}
+.btn-n:hover{background:#083A6B}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+.cmp{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.cmp-head{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.04em}
+.bad-head{background:#FAEEDA;color:#633806}
+.good-head{background:#EAF3DE;color:#27500A}
+.cmp-body{background:var(--color-background-secondary);padding:9px 12px;font-family:var(--font-mono);font-size:12px;line-height:1.7;white-space:pre}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT IS PARAMETRIZE -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 17 — parametrize and data-driven tests</div>
+    <div class="card-b">You wrote <code>test_valid_login</code> and <code>test_invalid_login</code> as two separate functions on Day 16. They do the same thing — fill a form, click Login, check a message — just with different data.<br><br><b>parametrize</b> lets you write one test function and run it automatically with multiple data sets. One function, five scenarios, zero duplication. This is data-driven testing — the most powerful testing pattern you will use every day.</div>
+  </div>
+
+  <div class="sec">The problem it solves</div>
+  <div class="compare">
+    <div class="cmp">
+      <div class="cmp-head bad-head">Without parametrize — copy paste</div>
+      <div class="cmp-body"><span class="kw">def</span> <span class="fn">test_login_wrong_user</span>(page):
+    page.<span class="fn">fill</span>(<span class="st">"wronguser"</span>)
+    <span class="cm"># 5 lines</span>
+
+<span class="kw">def</span> <span class="fn">test_login_wrong_pass</span>(page):
+    page.<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    <span class="cm"># same 5 lines</span>
+
+<span class="kw">def</span> <span class="fn">test_login_empty</span>(page):
+    page.<span class="fn">fill</span>(<span class="st">""</span>)
+    <span class="cm"># same 5 lines again</span></div>
+    </div>
+    <div class="cmp">
+      <div class="cmp-head good-head">With parametrize — one function</div>
+      <div class="cmp-body"><span class="dec">@pytest.mark.parametrize</span>(<span class="st">"user,pw,msg"</span>,[
+  (<span class="st">"wronguser"</span>, <span class="st">"pass"</span>, <span class="st">"invalid"</span>),
+  (<span class="st">"tomsmith"</span>,  <span class="st">"wrong"</span>, <span class="st">"invalid"</span>),
+  (<span class="st">""</span>,           <span class="st">""</span>,      <span class="st">"invalid"</span>),
+])
+<span class="kw">def</span> <span class="fn">test_login</span>(page, user, pw, msg):
+    <span class="cm"># 5 lines — runs 3 times</span></div>
+    </div>
+  </div>
+
+  <div class="tip">pytest runs the parametrized function <b>once per row of data</b>. 3 rows = 3 tests. 10 rows = 10 tests. Adding a new test case means adding one line of data — not copying an entire function.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">Basic syntax →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: BASIC SYNTAX -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">Basic parametrize syntax — learn the pattern</div>
+    <div class="card-b">The decorator goes directly above the function. The first argument is a string of parameter names separated by commas. The second argument is a list of tuples — one tuple per test run.</div>
+  </div>
+
+  <div class="try-lbl">Create test_parametrize.py and type this</div>
+  <div class="code"><span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="cm"># ── Single parameter ─────────────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"path"</span>, [
+    <span class="st">"/login"</span>,
+    <span class="st">"/checkboxes"</span>,
+    <span class="st">"/dropdown"</span>,
+    <span class="st">"/add_remove_elements"</span>,
+])
+<span class="kw">def</span> <span class="fn">test_pages_load</span>(page: Page, path):
+    <span class="st">"""Each path should load without error."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"https://the-internet.herokuapp.com{path}"</span>)
+    <span class="cm"># page should not show an error — just verify title</span>
+    <span class="fn">expect</span>(page).<span class="fn">to_have_title</span>(<span class="st">"The Internet"</span>)
+
+<span class="cm"># ── Multiple parameters ──────────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password, expected"</span>, [
+    (<span class="st">"tomsmith"</span>,  <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>),
+    (<span class="st">"wronguser"</span>, <span class="st">"wrongpass"</span>,            <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith"</span>,  <span class="st">"wrongpass"</span>,            <span class="st">"Your password is invalid"</span>),
+    (<span class="st">""</span>,          <span class="st">""</span>,                     <span class="st">"Your username is invalid"</span>),
+])
+<span class="kw">def</span> <span class="fn">test_login_scenarios</span>(page: Page, username, password, expected):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_contain_text</span>(expected)</div>
+
+  <div class="code">pytest test_parametrize.py -v --headed</div>
+
+  <div class="out">
+    <div class="out-lbl">Output — notice test IDs generated automatically</div>
+    <div class="ol ol-g">PASSED test_parametrize.py::test_pages_load[/login]</div>
+    <div class="ol ol-g">PASSED test_parametrize.py::test_pages_load[/checkboxes]</div>
+    <div class="ol ol-g">PASSED test_parametrize.py::test_pages_load[/dropdown]</div>
+    <div class="ol ol-g">PASSED test_parametrize.py::test_pages_load[/add_remove_elements]</div>
+    <div class="ol ol-g">PASSED test_parametrize.py::test_login_scenarios[tomsmith-...]</div>
+    <div class="ol ol-g">PASSED test_parametrize.py::test_login_scenarios[wronguser-...]</div>
+    <div class="ol ol-g">PASSED test_parametrize.py::test_login_scenarios[tomsmith-wrongpass-...]</div>
+    <div class="ol ol-g">PASSED test_parametrize.py::test_login_scenarios[-...]</div>
+  </div>
+
+  <div class="tip">The test ID in brackets is built from your parameter values — <code>[tomsmith-SuperSecretPassword!-secure area]</code>. When a test fails you immediately know which data set caused it without reading the code.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">ids= readable names →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: IDS -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">ids= — giving test cases readable names <span class="badge bg" style="margin-left:6px">professional habit</span></div>
+    <div class="card-b">Auto-generated test IDs like <code>[tomsmith-SuperSecretPassword!-secure area]</code> are long and hard to read in CI output. The <code>ids=</code> parameter lets you give each test case a short, descriptive name. This is the difference between output you can scan in 2 seconds and output you have to decode.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password, expected"</span>, [
+    (<span class="st">"tomsmith"</span>,  <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>),
+    (<span class="st">"wronguser"</span>, <span class="st">"wrongpass"</span>,            <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith"</span>,  <span class="st">"wrongpass"</span>,            <span class="st">"Your password is invalid"</span>),
+    (<span class="st">""</span>,          <span class="st">""</span>,                     <span class="st">"Your username is invalid"</span>),
+], ids=[
+    <span class="st">"valid_credentials"</span>,
+    <span class="st">"wrong_username"</span>,
+    <span class="st">"wrong_password"</span>,
+    <span class="st">"empty_fields"</span>,
+])
+<span class="kw">def</span> <span class="fn">test_login_scenarios</span>(page: Page, username, password, expected):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_contain_text</span>(expected)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output — now readable at a glance</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[valid_credentials]</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[wrong_username]</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[wrong_password]</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[empty_fields]</div>
+  </div>
+
+  <div class="tip">Always use <code>ids=</code> in production test suites. When a CI/CD pipeline runs 200 tests and 3 fail, you need to find the failures in 2 seconds. <code>[empty_fields]</code> tells you immediately. <code>[-SuperSecretPassword!-secure area0]</code> tells you nothing.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">With fixtures →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: WITH FIXTURES -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">parametrize + fixtures together <span class="badge bp" style="margin-left:6px">the professional combo</span></div>
+    <div class="card-b">Fixtures handle setup. Parametrize handles data. Together they give you clean, readable, data-driven tests where setup is automatic and data is explicit. This is the pattern every professional test suite uses.</div>
+  </div>
+
+  <div class="try-lbl">Add this to test_parametrize.py</div>
+  <div class="code"><span class="cm"># test_parametrize.py — using login_page fixture from conftest.py</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="cm"># login_page fixture from conftest.py handles navigation</span>
+<span class="cm"># parametrize handles the test data</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password, expected_text"</span>, [
+    (<span class="st">"tomsmith"</span>,  <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>),
+    (<span class="st">"wronguser"</span>, <span class="st">"wrongpass"</span>,            <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith"</span>,  <span class="st">"wrongpass"</span>,            <span class="st">"Your password is invalid"</span>),
+    (<span class="st">""</span>,          <span class="st">""</span>,                     <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"TOMSMITH"</span>,  <span class="st">"SuperSecretPassword!"</span>, <span class="st">"Your username is invalid"</span>),
+], ids=[
+    <span class="st">"valid"</span>, <span class="st">"wrong_user"</span>, <span class="st">"wrong_pass"</span>, <span class="st">"empty"</span>, <span class="st">"uppercase_user"</span>
+])
+<span class="kw">def</span> <span class="fn">test_login</span>(login_page: Page, username, password, expected_text):
+    <span class="cm"># login_page fixture already navigated to /login</span>
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_contain_text</span>(expected_text)</div>
+
+  <div class="code">pytest test_parametrize.py::test_login -v --headed</div>
+
+  <div class="out">
+    <div class="out-lbl">5 tests from 1 function</div>
+    <div class="ol ol-g">PASSED test_login[valid]</div>
+    <div class="ol ol-g">PASSED test_login[wrong_user]</div>
+    <div class="ol ol-g">PASSED test_login[wrong_pass]</div>
+    <div class="ol ol-g">PASSED test_login[empty]</div>
+    <div class="ol ol-g">PASSED test_login[uppercase_user]</div>
+  </div>
+
+  <div class="warn">The <code>login_page</code> fixture runs before <b>each</b> parametrized test — every scenario starts with a fresh navigation to /login. pytest creates a new browser context per test automatically.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">Indirect fixtures →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: INDIRECT -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">pytest.param — marks and expected failures <span class="badge ba" style="margin-left:6px">powerful pattern</span></div>
+    <div class="card-b"><code>pytest.param</code> wraps a parameter set and lets you add metadata — a custom ID, or a mark like <code>xfail</code> (expected to fail) or <code>skip</code>. Use <code>xfail</code> for known bugs — the test is documented but does not block the suite.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password, expected"</span>, [
+    <span class="cm"># Normal test cases</span>
+    (<span class="st">"tomsmith"</span>,  <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>),
+    (<span class="st">"wronguser"</span>, <span class="st">"wrongpass"</span>,            <span class="st">"Your username is invalid"</span>),
+
+    <span class="cm"># pytest.param with custom id</span>
+    pytest.<span class="fn">param</span>(
+        <span class="st">"tomsmith"</span>, <span class="st">"wrongpass"</span>, <span class="st">"Your password is invalid"</span>,
+        id=<span class="st">"wrong_password_only"</span>
+    ),
+
+    <span class="cm"># pytest.param with xfail — known bug, documented</span>
+    pytest.<span class="fn">param</span>(
+        <span class="st">" tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>,
+        id=<span class="st">"leading_space_in_username"</span>,
+        marks=pytest.mark.<span class="fn">xfail</span>(reason=<span class="st">"Bug #42: spaces not trimmed"</span>)
+    ),
+
+    <span class="cm"># pytest.param with skip</span>
+    pytest.<span class="fn">param</span>(
+        <span class="st">"admin"</span>, <span class="st">"admin"</span>, <span class="st">"secure area"</span>,
+        id=<span class="st">"admin_user"</span>,
+        marks=pytest.mark.<span class="fn">skip</span>(reason=<span class="st">"admin user not set up in this env"</span>)
+    ),
+])
+<span class="kw">def</span> <span class="fn">test_login_with_marks</span>(page: Page, username, password, expected):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_contain_text</span>(expected)</div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol ol-g">PASSED  test_login_with_marks[tomsmith-...]</div>
+    <div class="ol ol-g">PASSED  test_login_with_marks[wronguser-...]</div>
+    <div class="ol ol-g">PASSED  test_login_with_marks[wrong_password_only]</div>
+    <div class="ol" style="color:#534AB7">XFAIL   test_login_with_marks[leading_space_in_username]</div>
+    <div class="ol" style="color:#854F0B">SKIPPED test_login_with_marks[admin_user]</div>
+  </div>
+
+  <div class="tip"><code>xfail</code> means "this test is expected to fail — it documents a known bug". If it unexpectedly passes, pytest marks it XPASS (unexpected pass) — alerting you that the bug was fixed. This is far better than commenting out a failing test.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">Data from conftest →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: DATA FROM CONFTEST -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">Storing parametrize data in conftest.py <span class="badge bg" style="margin-left:6px">clean project structure</span></div>
+    <div class="card-b">For large test suites, test data lives in <code>conftest.py</code> alongside fixtures — keeping test files clean. The data is defined once and reused across multiple test files.</div>
+  </div>
+
+  <div class="try-lbl">Add to conftest.py</div>
+  <div class="code"><span class="cm"># conftest.py — add these constants at the top</span>
+
+INVALID_LOGIN_CASES = [
+    pytest.<span class="fn">param</span>(<span class="st">"wronguser"</span>, <span class="st">"wrongpass"</span>,            <span class="st">"Your username is invalid"</span>, id=<span class="st">"wrong_user"</span>),
+    pytest.<span class="fn">param</span>(<span class="st">"tomsmith"</span>,  <span class="st">"wrongpass"</span>,            <span class="st">"Your password is invalid"</span>, id=<span class="st">"wrong_pass"</span>),
+    pytest.<span class="fn">param</span>(<span class="st">""</span>,          <span class="st">""</span>,                     <span class="st">"Your username is invalid"</span>, id=<span class="st">"empty"</span>),
+]
+
+DROPDOWN_OPTIONS = [
+    pytest.<span class="fn">param</span>(<span class="st">"1"</span>, <span class="st">"Option 1"</span>, id=<span class="st">"option1"</span>),
+    pytest.<span class="fn">param</span>(<span class="st">"2"</span>, <span class="st">"Option 2"</span>, id=<span class="st">"option2"</span>),
+]</div>
+
+  <div class="try-lbl">Then use in test files</div>
+  <div class="code"><span class="cm"># test_login.py</span>
+<span class="kw">from</span> conftest <span class="kw">import</span> INVALID_LOGIN_CASES
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+<span class="kw">import</span> pytest
+
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password, expected"</span>, INVALID_LOGIN_CASES)
+<span class="kw">def</span> <span class="fn">test_invalid_logins</span>(login_page: Page, username, password, expected):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_contain_text</span>(expected)
+
+<span class="cm"># test_dropdowns.py</span>
+<span class="kw">from</span> conftest <span class="kw">import</span> DROPDOWN_OPTIONS
+
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"value, label"</span>, DROPDOWN_OPTIONS)
+<span class="kw">def</span> <span class="fn">test_dropdown_selection</span>(dropdown_page: Page, value, label):
+    dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>).<span class="fn">select_option</span>(value)
+    <span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(value)</div>
+
+  <div class="tip">Unlike fixtures, data constants DO need an explicit import: <code>from conftest import INVALID_LOGIN_CASES</code>. Only fixture functions are injected automatically — plain Python variables must be imported normally.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">QA Example 1 →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA EXAMPLE 1 -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">QA Example 1 — Complete login test suite <span class="badge bg" style="margin-left:6px">9 tests from 2 functions</span></div>
+    <div class="card-b">A complete login test suite using parametrize with fixtures. This is exactly what Portfolio Project #1 looks like — the kind of file recruiters see and immediately understand.</div>
+  </div>
+  <div class="try-lbl">Create test_login_parametrized.py</div>
+  <div class="code"><span class="cm"># test_login_parametrized.py</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="cm"># ── Valid login scenarios ────────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password"</span>, [
+    (<span class="st">"tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>),
+], ids=[<span class="st">"valid_user"</span>])
+<span class="kw">def</span> <span class="fn">test_valid_logins</span>(login_page: Page, username, password):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>(login_page).<span class="fn">to_have_url</span>(<span class="st">"https://the-internet.herokuapp.com/secure"</span>)
+
+<span class="cm"># ── Invalid login scenarios ──────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password, error_contains"</span>, [
+    (<span class="st">"wronguser"</span>,  <span class="st">"SuperSecretPassword!"</span>, <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith"</span>,   <span class="st">"wrongpass"</span>,            <span class="st">"Your password is invalid"</span>),
+    (<span class="st">""</span>,           <span class="st">"SuperSecretPassword!"</span>, <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith"</span>,   <span class="st">""</span>,                     <span class="st">"Your password is invalid"</span>),
+    (<span class="st">""</span>,           <span class="st">""</span>,                     <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"TomSmith"</span>,   <span class="st">"SuperSecretPassword!"</span>, <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith  "</span>, <span class="st">"SuperSecretPassword!"</span>, <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"' OR '1'='1"</span>,<span class="st">"anything"</span>,             <span class="st">"Your username is invalid"</span>),
+], ids=[
+    <span class="st">"wrong_username"</span>,
+    <span class="st">"wrong_password"</span>,
+    <span class="st">"empty_username"</span>,
+    <span class="st">"empty_password"</span>,
+    <span class="st">"both_empty"</span>,
+    <span class="st">"case_sensitive"</span>,
+    <span class="st">"trailing_space"</span>,
+    <span class="st">"sql_injection"</span>,
+])
+<span class="kw">def</span> <span class="fn">test_invalid_logins</span>(login_page: Page, username, password, error_contains):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_contain_text</span>(error_contains)
+    <span class="fn">expect</span>(login_page).<span class="fn">to_have_url</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)</div>
+
+  <div class="out">
+    <div class="out-lbl">9 tests from 2 functions</div>
+    <div class="ol ol-g">PASSED test_valid_logins[valid_user]</div>
+    <div class="ol ol-g">PASSED test_invalid_logins[wrong_username]</div>
+    <div class="ol ol-g">PASSED test_invalid_logins[wrong_password]</div>
+    <div class="ol ol-g">PASSED test_invalid_logins[empty_username]</div>
+    <div class="ol ol-g">PASSED test_invalid_logins[empty_password]</div>
+    <div class="ol ol-g">PASSED test_invalid_logins[both_empty]</div>
+    <div class="ol ol-g">PASSED test_invalid_logins[case_sensitive]</div>
+    <div class="ol ol-g">PASSED test_invalid_logins[trailing_space]</div>
+    <div class="ol ol-g">PASSED test_invalid_logins[sql_injection]</div>
+  </div>
+
+  <div class="ok">Notice the SQL injection test case — your 7.4 years of QA instincts at work. You know to test this. Most junior automation engineers only test the happy path and obvious negatives. You test edge cases because you think like a QA.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA Example 2 →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE 2 -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example 2 — Dropdown + checkbox parametrized <span class="badge bb" style="margin-left:6px">reusable patterns</span></div>
+    <div class="card-b">The same parametrize pattern works for any repeating test action — dropdown selection, checkbox states, form field validation. Once you see the pattern, you apply it everywhere.</div>
+  </div>
+  <div class="try-lbl">Create test_elements_parametrized.py</div>
+  <div class="code"><span class="cm"># test_elements_parametrized.py</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="cm"># ── Dropdown ─────────────────────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"option_value, expected_value"</span>, [
+    (<span class="st">"1"</span>, <span class="st">"1"</span>),
+    (<span class="st">"2"</span>, <span class="st">"2"</span>),
+], ids=[<span class="st">"select_option_1"</span>, <span class="st">"select_option_2"</span>])
+<span class="kw">def</span> <span class="fn">test_dropdown_options</span>(dropdown_page: Page, option_value, expected_value):
+    dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>).<span class="fn">select_option</span>(option_value)
+    <span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(expected_value)
+
+<span class="cm"># ── Checkboxes ───────────────────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"index, initial_state, action"</span>, [
+    (<span class="nm">0</span>, <span class="kw">False</span>, <span class="st">"check"</span>),    <span class="cm"># first box starts unchecked, check it</span>
+    (<span class="nm">1</span>, <span class="kw">True</span>,  <span class="st">"uncheck"</span>),  <span class="cm"># second box starts checked, uncheck it</span>
+], ids=[<span class="st">"check_first"</span>, <span class="st">"uncheck_second"</span>])
+<span class="kw">def</span> <span class="fn">test_checkbox_interaction</span>(checkboxes_page: Page, index, initial_state, action):
+    checkbox = checkboxes_page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(index)
+
+    <span class="cm"># Assert initial state</span>
+    <span class="kw">if</span> initial_state:
+        <span class="fn">expect</span>(checkbox).<span class="fn">to_be_checked</span>()
+    <span class="kw">else</span>:
+        <span class="fn">expect</span>(checkbox).<span class="fn">not_to_be_checked</span>()
+
+    <span class="cm"># Perform action</span>
+    <span class="kw">if</span> action == <span class="st">"check"</span>:
+        checkbox.<span class="fn">check</span>()
+        <span class="fn">expect</span>(checkbox).<span class="fn">to_be_checked</span>()
+    <span class="kw">else</span>:
+        checkbox.<span class="fn">uncheck</span>()
+        <span class="fn">expect</span>(checkbox).<span class="fn">not_to_be_checked</span>()</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 17 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 17 challenge — write it all from scratch</div>
+    <div class="card-b">New file: <b>test_day17_challenge.py</b>. Use your existing conftest.py fixtures.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build a complete parametrized test file</div>
+    <div class="ch-b">
+      Write these 4 parametrized test functions:<br><br>
+
+      <b>Test 1 — <code>test_pages_load</code></b><br>
+      Parametrize 5 paths: <code>/login</code>, <code>/checkboxes</code>, <code>/dropdown</code>, <code>/add_remove_elements</code>, <code>/hovers</code>. Each should load and show title "The Internet". Use <code>ids=</code> with short names.<br><br>
+
+      <b>Test 2 — <code>test_login_scenarios</code></b><br>
+      Combine valid + invalid in one parametrized function using <code>login_page</code> fixture. At least 5 scenarios. Use <code>ids=</code>. Add one <code>xfail</code> case for a known edge case.<br><br>
+
+      <b>Test 3 — <code>test_add_remove_elements</code></b><br>
+      Go to <code>/add_remove_elements</code>. Parametrize: click Add Element 1 time, 2 times, 3 times. After each: assert the correct number of Delete buttons are visible using <code>to_have_count(n)</code>.<br><br>
+
+      <b>Test 4 — <code>test_dropdown_then_verify</code></b><br>
+      Parametrize selecting Option 1 and Option 2. After selecting, assert both <code>to_have_value()</code> AND that the selected option text is visible on the page.
+    </div>
+  </div>
+
+  <div class="ok">Test 3 is the most interesting — it uses parametrize to control how many times an action repeats and then asserts based on that count. This is data-driven testing at its most powerful — the data drives not just the input but the expected outcome.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 17 Playwright parametrize challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 17 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 17 Playwright challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 20 Playwright — Page Object Model in depth with a complete LoginPage and BasePage class example')">Jump to Day 20 — Page Object Model ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['What is parametrize','Basic syntax','ids= names','With fixtures','pytest.param','Data in conftest','Ex 1 Login','Ex 2 Elements','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

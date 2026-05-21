@@ -1,0 +1,416 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.dec{color:#993C1D;font-weight:500}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.ol-r{color:#791F1F}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.file-head{font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px;background:var(--color-background-secondary)}
+.fn-tag{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.f1{background:#EEEDFE;color:#3C3489}
+.f2{background:#EAF3DE;color:#27500A}
+.f3{background:#E6F1FB;color:#0C447C}
+.f4{background:#FAEEDA;color:#633806}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#3C3489;border-color:#3C3489}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#534AB7;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Key decisions</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every file that differs from yours, understand why before moving on.</div>
+
+  <div class="file-head"><span class="fn-tag f1">conftest.py</span> shared fixtures — every test file gets these automatically</div>
+<div class="code"><span class="cm"># conftest.py</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+BASE_URL = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="cm"># ── Page fixtures ────────────────────────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    <span class="st">"""Navigate to login page before each test."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    <span class="kw">yield</span> page
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">logged_in_page</span>(page: Page):
+    <span class="st">"""Login and land on secure area."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="kw">yield</span> page
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">checkboxes_page</span>(page: Page):
+    <span class="st">"""Navigate to checkboxes page."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/checkboxes"</span>)
+    <span class="kw">yield</span> page
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">dropdown_page</span>(page: Page):
+    <span class="st">"""Navigate to dropdown page."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/dropdown"</span>)
+    <span class="kw">yield</span> page
+
+<span class="cm"># ── Data fixtures ────────────────────────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">valid_user</span>():
+    <span class="st">"""Valid login credentials."""</span>
+    <span class="kw">return</span> {
+        <span class="st">"username"</span>: <span class="st">"tomsmith"</span>,
+        <span class="st">"password"</span>: <span class="st">"SuperSecretPassword!"</span>,
+        <span class="st">"success_msg"</span>: <span class="st">"You logged into a secure area!"</span>
+    }
+
+<span class="cm"># ── Screenshot on failure ────────────────────────</span>
+<span class="dec">@pytest.hookimpl</span>(tryfirst=<span class="kw">True</span>, hookwrapper=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">pytest_runtest_makereport</span>(item, call):
+    outcome = <span class="kw">yield</span>
+    rep = outcome.<span class="fn">get_result</span>()
+    <span class="fn">setattr</span>(item, <span class="fn">f</span><span class="st">"rep_{rep.when}"</span>, rep)
+
+<span class="dec">@pytest.fixture</span>(autouse=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">screenshot_on_failure</span>(page: Page, request):
+    <span class="kw">yield</span>
+    <span class="kw">if</span> <span class="fn">hasattr</span>(request.node, <span class="st">"rep_call"</span>) <span class="kw">and</span> request.node.rep_call.failed:
+        Path(<span class="st">"screenshots"</span>).<span class="fn">mkdir</span>(exist_ok=<span class="kw">True</span>)
+        name = request.node.name.<span class="fn">replace</span>(<span class="st">"["</span>, <span class="st">"_"</span>).<span class="fn">replace</span>(<span class="st">"]"</span>, <span class="st">""</span>)
+        page.<span class="fn">screenshot</span>(path=<span class="fn">f</span><span class="st">"screenshots/{name}.png"</span>, full_page=<span class="kw">True</span>)
+        <span class="fn">print</span>(<span class="fn">f</span><span class="st">"\n  📸 Screenshot: screenshots/{name}.png"</span>)</div>
+
+  <div class="file-head"><span class="fn-tag f2">test_login.py</span> 4 tests — no page.goto() anywhere</div>
+<div class="code"><span class="cm"># test_login.py</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(login_page: Page, valid_user):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(valid_user[<span class="st">"username"</span>])
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(valid_user[<span class="st">"password"</span>])
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">get_by_text</span>(valid_user[<span class="st">"success_msg"</span>])).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_invalid_login</span>(login_page: Page):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"wronguser"</span>)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"wrongpass"</span>)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"Your username is invalid!"</span>)
+
+<span class="kw">def</span> <span class="fn">test_empty_username</span>(login_page: Page):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">""</span>)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"somepassword"</span>)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_after_login_url</span>(logged_in_page: Page):
+    <span class="fn">expect</span>(logged_in_page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"https://the-internet.herokuapp.com/secure"</span>)</div>
+
+  <div class="file-head"><span class="fn-tag f3">test_checkboxes.py</span> 3 tests</div>
+<div class="code"><span class="cm"># test_checkboxes.py</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="kw">def</span> <span class="fn">test_first_checkbox_unchecked</span>(checkboxes_page: Page):
+    first = checkboxes_page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">0</span>)
+    <span class="fn">expect</span>(first).<span class="fn">not_to_be_checked</span>()
+
+<span class="kw">def</span> <span class="fn">test_check_first_checkbox</span>(checkboxes_page: Page):
+    first = checkboxes_page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">0</span>)
+    first.<span class="fn">check</span>()
+    <span class="fn">expect</span>(first).<span class="fn">to_be_checked</span>()
+
+<span class="kw">def</span> <span class="fn">test_second_checkbox_checked</span>(checkboxes_page: Page):
+    second = checkboxes_page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">1</span>)
+    <span class="fn">expect</span>(second).<span class="fn">to_be_checked</span>()</div>
+
+  <div class="file-head"><span class="fn-tag f4">test_dropdowns.py</span> 3 tests</div>
+<div class="code"><span class="cm"># test_dropdowns.py</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="kw">def</span> <span class="fn">test_default_option</span>(dropdown_page: Page):
+    <span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_select_option1</span>(dropdown_page: Page):
+    dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>).<span class="fn">select_option</span>(<span class="st">"1"</span>)
+    <span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(<span class="st">"1"</span>)
+
+<span class="kw">def</span> <span class="fn">test_select_option2</span>(dropdown_page: Page):
+    dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>).<span class="fn">select_option</span>(<span class="st">"2"</span>)
+    <span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(<span class="st">"2"</span>)</div>
+
+  <div class="sec">Run command and expected output</div>
+  <div class="code">pytest test_login.py test_checkboxes.py test_dropdowns.py -v --headed</div>
+  <div class="out">
+    <div class="out-lbl">All 10 tests passing</div>
+    <div class="ol ol-g">PASSED test_login.py::test_valid_login</div>
+    <div class="ol ol-g">PASSED test_login.py::test_invalid_login</div>
+    <div class="ol ol-g">PASSED test_login.py::test_empty_username</div>
+    <div class="ol ol-g">PASSED test_login.py::test_after_login_url</div>
+    <div class="ol ol-g">PASSED test_checkboxes.py::test_first_checkbox_unchecked</div>
+    <div class="ol ol-g">PASSED test_checkboxes.py::test_check_first_checkbox</div>
+    <div class="ol ol-g">PASSED test_checkboxes.py::test_second_checkbox_checked</div>
+    <div class="ol ol-g">PASSED test_dropdowns.py::test_default_option</div>
+    <div class="ol ol-g">PASSED test_dropdowns.py::test_select_option1</div>
+    <div class="ol ol-g">PASSED test_dropdowns.py::test_select_option2</div>
+    <div class="ol">10 passed in X.XXs</div>
+  </div>
+</div>
+
+<!-- KEY DECISIONS -->
+<div class="pg" id="exp">
+  <div class="sec">The decisions that matter most</div>
+  <div class="eb-grid">
+
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># yield page — not return page</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    <span class="kw">yield</span> page   <span class="cm"># ← yield, not return</span></div>
+      <div class="eb-why"><b>yield instead of return enables teardown.</b> With <code>return</code>, the fixture has no teardown — once it returns, it is done. With <code>yield</code>, everything after yield runs when the test finishes — whether passed or failed. Even simple fixtures should use yield as a habit so teardown can be added later without restructuring.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># BASE_URL defined once at the top</span>
+BASE_URL = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/checkboxes"</span>)</div>
+      <div class="eb-why"><b>Single source of truth for the base URL.</b> When you switch from staging to production, you change one line. If you hardcoded the full URL in every fixture, switching environments means updating 4+ places and risking inconsistency. This is the same principle as Day 4 dicts applied to test configuration.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># No page.goto() in any test file</span>
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(login_page: Page, valid_user):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(valid_user[<span class="st">"username"</span>])
+    <span class="cm"># ↑ test starts here — no navigation code</span></div>
+      <div class="eb-why"><b>Tests contain only assertions — no setup.</b> This is the entire point of fixtures. A test should read as: "given I am on the login page, when I fill the form, then I see the success message." Navigation is setup, not the test itself. When tests contain goto(), they are mixing concerns.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># valid_user fixture returns a dict</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">valid_user</span>():
+    <span class="kw">return</span> {
+        <span class="st">"username"</span>: <span class="st">"tomsmith"</span>,
+        <span class="st">"password"</span>: <span class="st">"SuperSecretPassword!"</span>,
+        <span class="st">"success_msg"</span>: <span class="st">"You logged into a secure area!"</span>
+    }</div>
+      <div class="eb-why"><b>Data fixtures use return, not yield.</b> Only fixtures that need teardown use yield. Data fixtures — ones that just provide test data — use return. No cleanup needed for a dict. Using yield for data fixtures is not wrong but adds unnecessary noise.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code"><span class="dec">@pytest.fixture</span>(autouse=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">screenshot_on_failure</span>(page: Page, request):
+    <span class="kw">yield</span>
+    <span class="kw">if</span> <span class="fn">hasattr</span>(request.node, <span class="st">"rep_call"</span>) <span class="kw">and</span> request.node.rep_call.failed:</div>
+      <div class="eb-why"><b>hasattr check before accessing rep_call.</b> If a test is skipped or errors during setup (not during the test call itself), <code>rep_call</code> may not exist on <code>request.node</code>. The <code>hasattr</code> guard prevents an AttributeError in the teardown — without it, a setup failure would cause the screenshot fixture itself to crash, producing a confusing secondary error.</div>
+    </div>
+
+    <div class="eb">
+      <div class="eb-code">first = checkboxes_page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">0</span>)</div>
+      <div class="eb-why"><b>.nth(0) to pick a specific element from multiple matches.</b> The page has two checkboxes — <code>locator("input[type='checkbox']")</code> matches both. <code>.nth(0)</code> picks the first, <code>.nth(1)</code> picks the second. This is the correct way to handle multiple matching elements when you know the position you want.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — using return instead of yield in page fixtures</div>
+    <div class="diff-body"><span class="cm"># Wrong — no teardown possible</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    <span class="kw">return</span> page   <span class="cm"># teardown never possible</span>
+
+<span class="cm"># Correct — teardown can be added any time</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)
+    <span class="kw">yield</span> page   <span class="cm"># teardown can go below this line</span></div>
+    <div class="diff-note"><b>Always use yield in page fixtures.</b> Even if you have no teardown today, using yield means you can add cleanup later without changing the fixture structure. return and yield produce the same test result right now — but yield is the professional habit.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — page.goto() inside test functions</div>
+    <div class="diff-body"><span class="cm"># Wrong — test contains navigation (setup)</span>
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(login_page: Page, valid_user):
+    login_page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)  <span class="cm"># redundant!</span>
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(valid_user[<span class="st">"username"</span>])
+
+<span class="cm"># Correct — fixture already navigated</span>
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(login_page: Page, valid_user):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(valid_user[<span class="st">"username"</span>])</div>
+    <div class="diff-note"><b>The fixture already called goto().</b> Adding it again in the test is redundant — it just navigates to the same page twice. When you use a fixture, trust it to have done its setup. Your test starts from whatever state the fixture left the page in.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — missing hasattr check in screenshot fixture</div>
+    <div class="diff-body"><span class="cm"># Risky — crashes if test errors during setup</span>
+<span class="kw">if</span> request.node.rep_call.failed:   <span class="cm"># AttributeError if rep_call missing</span>
+
+<span class="cm"># Safe — checks first</span>
+<span class="kw">if</span> <span class="fn">hasattr</span>(request.node, <span class="st">"rep_call"</span>) <span class="kw">and</span> request.node.rep_call.failed:</div>
+    <div class="diff-note"><b>rep_call only exists after the test call phase.</b> If a fixture fails during setup, the test never runs, so rep_call is never set. Without hasattr, the screenshot fixture crashes with AttributeError — adding a confusing secondary failure on top of the real one.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — importing conftest fixtures manually</div>
+    <div class="diff-body"><span class="cm"># Wrong — conftest fixtures never need importing</span>
+<span class="kw">from</span> conftest <span class="kw">import</span> login_page, valid_user   <span class="cm"># ERROR</span>
+
+<span class="cm"># Correct — just use them as parameters</span>
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(login_page: Page, valid_user):
+    <span class="cm"># pytest injects them automatically</span></div>
+    <div class="diff-note"><b>conftest.py is not a regular module.</b> pytest handles fixture injection automatically — importing from conftest actually breaks things. Just add the fixture name as a function parameter and pytest finds and injects it. No import, ever.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — hardcoding full URLs in fixtures instead of using BASE_URL</div>
+    <div class="diff-body"><span class="cm"># Fragile — 4 fixtures to update when URL changes</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">checkboxes_page</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/checkboxes"</span>)
+
+<span class="cm"># Correct — one change propagates everywhere</span>
+BASE_URL = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>)</div>
+    <div class="diff-note"><b>BASE_URL is the single source of truth.</b> When you switch to a staging or production URL, one change in conftest.py updates every fixture. With hardcoded URLs, you have 4+ places to update — and always miss one.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">conftest.py — <code>BASE_URL</code> defined once at top, all fixtures use it with f-string</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">conftest.py — all page fixtures use <code>yield page</code> not <code>return page</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">conftest.py — <code>valid_user</code> fixture uses <code>return</code> (data, no teardown needed)</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">conftest.py — <code>screenshot_on_failure</code> has <code>hasattr</code> guard before accessing rep_call</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">test_login.py — zero <code>page.goto()</code> calls — fixtures handle all navigation</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">test_login.py — <code>test_valid_login</code> uses <code>valid_user</code> fixture for credentials, not hardcoded strings</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">test_login.py — <code>test_after_login_url</code> uses <code>logged_in_page</code> fixture (already logged in)</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">test_checkboxes.py — uses <code>.nth(0)</code> and <code>.nth(1)</code> to target specific checkboxes</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">test_dropdowns.py — uses <code>select_option()</code> and asserts with <code>to_have_value()</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">All 10 tests pass with no imports from conftest in any test file</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 17 Playwright — parametrize and data-driven tests with hands-on exercises on the-internet.herokuapp.com')">Go to Day 17 — parametrize ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 20 Playwright — Page Object Model in depth with a complete LoginPage class example')">Jump to Day 20 — Page Object Model ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#3C3489':'';
+  box.style.borderColor=on?'#3C3489':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. You have a production-grade fixture system. Commit, push, and move to Day 17 — parametrize turns your fixtures into data-driven test suites.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Review Common Mistakes for what you missed, fix those parts, then move to Day 17.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Key Decisions for each unchecked item, fix those files, then move on.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution carefully and rewrite your fixture files from scratch before Day 17.</div>';
+}
+</script>
+</body>
+</html>
