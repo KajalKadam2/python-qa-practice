@@ -1,6 +1,8 @@
 import pytest
 from playwright.sync_api import Page
 from pathlib import Path
+from pages.login_page import LoginPage
+from pages.checkboxes_page import CheckboxesPage
 
 BASE_URL = "https://the-internet.herokuapp.com"
 
@@ -18,7 +20,7 @@ DROPDOWN_OPTIONS = [
     pytest.param("2", "2", id="option2"),
 ]
 
-# ── Page fixtures ────────────────────────────────
+# ── Page fixtures ────────────────────────────────────────────────────────────────────────────────────────────────
 @pytest.fixture
 def login_page(page: Page):
     """Navigate to login page before each test."""
@@ -46,7 +48,7 @@ def dropdown_page(page: Page):
     page.goto(f"{BASE_URL}/dropdown")
     yield page
 
-# ── Data fixtures ────────────────────────────────
+# ── Data fixtures ────────────────────────────────────────────────────────────────────────────────────────────────
 @pytest.fixture
 def valid_user():
     """Valid login credentials."""
@@ -56,7 +58,7 @@ def valid_user():
         "success_msg": "You logged into a secure area!"
     }
 
-# ── Screenshot on failure ────────────────────────
+# ── Screenshot on failure ────────────────────────────────────────────────────────────────────────────────────────
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
@@ -71,3 +73,26 @@ def screenshot_on_failure(page: Page, request):
         name = request.node.name.replace("[", "_").replace("]", "")
         page.screenshot(path=f"screenshots/{name}.png", full_page=True)
         print(f"\n  📸 Screenshot: screenshots/{name}.png")
+
+
+# ── POM fixtures ─────────────────────────────────────────────────────────────────────────────────────────────────
+@pytest.fixture
+def login_page_pom(page: Page) -> LoginPage:
+    """Returns a LoginPage object navigated to the login URL."""
+    lp = LoginPage(page)
+    lp.open()
+    yield lp
+
+@pytest.fixture
+def logged_in_pom(page: Page) -> LoginPage:
+    """Returns LoginPage already logged in."""
+    lp = LoginPage(page)
+    lp.open().login("tomsmith", "SuperSecretPassword!")
+    yield lp
+
+@pytest.fixture
+def checkboxes_pom(page: Page) -> CheckboxesPage:
+    """Returns a CheckboxesPage object navigated to checkboxes."""
+    cp = CheckboxesPage(page)
+    cp.open()
+    yield cp
