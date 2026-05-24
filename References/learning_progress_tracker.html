@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.hero{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:14px;border:0.5px solid var(--color-border-tertiary)}
+.hero-t{font-size:16px;font-weight:500;margin-bottom:4px}
+.hero-s{font-size:13px;color:var(--color-text-secondary);line-height:1.5}
+.alert{background:#FCEBEB;border-left:3px solid #F09595;padding:10px 14px;border-radius:var(--border-radius-md);margin-bottom:14px;font-size:13px;color:#791F1F;line-height:1.55}
+.alert b{font-weight:500}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#1a1a2e;color:#fff;border-color:#333}
+.pg{display:none}.pg.on{display:block}
+
+/* Progress bar */
+.prog-wrap{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.prog-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.prog-label{font-size:13px;font-weight:500;flex:1}
+.prog-pct{font-size:13px;font-weight:500;min-width:35px;text-align:right}
+.prog-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:4px}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s}
+.green-fill{background:#27500A}
+.blue-fill{background:#0C447C}
+.purple-fill{background:#534AB7}
+.orange-fill{background:#E8B84B}
+.red-fill{background:#791F1F}
+.prog-sub{font-size:11px;color:var(--color-text-tertiary)}
+
+/* Day cards */
+.section-title{font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;display:flex;align-items:center;gap:8px}
+.st-badge{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.done-badge{background:#EAF3DE;color:#27500A}
+.left-badge{background:#FCEBEB;color:#791F1F}
+.urgent-badge{background:#FFF3C4;color:#7A5000}
+.day-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.day-card{border-radius:var(--border-radius-md);padding:9px 12px;border:0.5px solid var(--color-border-tertiary);display:flex;align-items:flex-start;gap:10px}
+.day-done{background:#EAF3DE;border-color:#97C459}
+.day-urgent{background:#FFF3C4;border-color:#E8B84B}
+.day-left{background:var(--color-background-secondary)}
+.day-skip{background:var(--color-background-primary);border-style:dashed;opacity:.7}
+.day-num{font-size:11px;font-weight:500;min-width:38px;margin-top:1px}
+.day-done .day-num{color:#27500A}
+.day-urgent .day-num{color:#7A5000}
+.day-left .day-num{color:var(--color-text-tertiary)}
+.day-right{flex:1}
+.day-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.day-detail{font-size:11px;color:var(--color-text-secondary);line-height:1.45}
+.day-check{font-size:14px;flex-shrink:0;margin-top:1px}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.priority-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.pc{border-radius:var(--border-radius-md);padding:10px 12px;border:0.5px solid var(--color-border-tertiary)}
+.pc-must{background:#FCEBEB;border-color:#F09595}
+.pc-should{background:#FFF3C4;border-color:#E8B84B}
+.pc-t{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.pc-must .pc-t{color:#791F1F}
+.pc-should .pc-t{color:#7A5000}
+.pc-item{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tl-item:last-child{border-bottom:none}
+.tl-date{font-size:12px;font-weight:500;min-width:70px;color:var(--color-text-tertiary);margin-top:1px}
+.tl-right{flex:1}
+.tl-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.tl-detail{font-size:11px;color:var(--color-text-secondary);line-height:1.45}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.dot-done{background:#27500A}
+.dot-now{background:#E8B84B}
+.dot-next{background:var(--color-border-secondary)}
+.dot-goal{background:#791F1F}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="hero">
+  <div class="hero-t">Kajal's SDET Learning Tracker</div>
+  <div class="hero-s">Resume posting: <b>1st June 2025</b> · Today: 21 May · <b>11 days left</b> · 7.4 yrs manual QA experience</div>
+</div>
+
+<div class="alert"><b>⚠ 11 days to resume posting.</b> You have completed Python (Days 1–9) and Playwright basics (Days 15–20). The critical gap is API testing and GitHub Actions CI/CD — these appear in almost every job description. Prioritise these above all else this week.</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="sw('progress',this)">Progress</button>
+  <button class="tab" onclick="sw('remaining',this)">What's left</button>
+  <button class="tab" onclick="sw('plan',this)">11-day plan</button>
+  <button class="tab" onclick="sw('resume',this)">Resume ready?</button>
+</div>
+
+<!-- PROGRESS TAB -->
+<div class="pg on" id="progress">
+
+  <div class="prog-wrap">
+    <div class="prog-row"><span class="prog-label">Python Foundation</span><span class="prog-pct" style="color:#27500A">100%</span></div>
+    <div class="prog-bar"><div class="prog-fill green-fill" style="width:100%"></div></div>
+    <div class="prog-sub">Days 1–9 complete ✓ Variables, strings, lists, dicts, conditions, loops, functions, error handling</div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-row"><span class="prog-label">Git + GitHub</span><span class="prog-pct" style="color:#27500A">80%</span></div>
+    <div class="prog-bar"><div class="prog-fill green-fill" style="width:80%"></div></div>
+    <div class="prog-sub">init, add, commit, push ✓ — branching and PRs still to do</div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-row"><span class="prog-label">Playwright UI Testing</span><span class="prog-pct" style="color:#E8B84B">60%</span></div>
+    <div class="prog-bar"><div class="prog-fill orange-fill" style="width:60%"></div></div>
+    <div class="prog-sub">Days 15–20 done ✓ — Page Object Model, fixtures, parametrize · Still need: GitHub Actions, portfolio push</div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-row"><span class="prog-label">API Testing</span><span class="prog-pct" style="color:#791F1F">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill red-fill" style="width:0%"></div></div>
+    <div class="prog-sub">Days 22–28 — NOT STARTED · requests library, pytest API tests, JSON validation · Critical gap</div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-row"><span class="prog-label">CI/CD (GitHub Actions)</span><span class="prog-pct" style="color:#791F1F">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill red-fill" style="width:0%"></div></div>
+    <div class="prog-sub">Days 29–32 — NOT STARTED · workflow yml, automated test runs · Appears in 90% of job descriptions</div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-row"><span class="prog-label">Portfolio + Resume</span><span class="prog-pct" style="color:#791F1F">10%</span></div>
+    <div class="prog-bar"><div class="prog-fill red-fill" style="width:10%"></div></div>
+    <div class="prog-sub">Code on GitHub ✓ — Professional README, CI badge, resume rewrite still to do</div>
+  </div>
+
+  <div class="section-title"><span>✓</span> Completed <span class="st-badge done-badge">20 of 45 days</span></div>
+  <div class="day-grid">
+    <div class="day-card day-done"><span class="day-check">✓</span><div class="day-right"><div class="day-title">Days 1–9 — Python Foundation</div><div class="day-detail">Variables · Strings · Lists · Dicts · Conditions · Loops · Functions · try/except · qa_toolkit.py built and pushed</div></div></div>
+    <div class="day-card day-done"><span class="day-check">✓</span><div class="day-right"><div class="day-title">Days 10–12 — Git + GitHub</div><div class="day-detail">git init, add, commit, push · New personal account KajalKadam2 · 26 files on GitHub · Fixed multiple git errors</div></div></div>
+    <div class="day-card day-done"><span class="day-check">✓</span><div class="day-right"><div class="day-title">Day 15 — Playwright first tests</div><div class="day-detail">Installation · test_page_title, test_valid_login, test_invalid_login · Fixed multiple locator errors</div></div></div>
+    <div class="day-card day-done"><span class="day-check">✓</span><div class="day-right"><div class="day-title">Day 16 — Fixtures + conftest.py</div><div class="day-detail">@pytest.fixture · yield teardown · autouse screenshot on failure · 10 tests passing across 3 files</div></div></div>
+    <div class="day-card day-done"><span class="day-check">✓</span><div class="day-right"><div class="day-title">Day 17 — Parametrize</div><div class="day-detail">@pytest.mark.parametrize · ids= · pytest.param with xfail · to_have_count() · Data from conftest</div></div></div>
+    <div class="day-card day-done"><span class="day-check">✓</span><div class="day-right"><div class="day-title">Day 20 — Page Object Model</div><div class="day-detail">BasePage · LoginPage · CheckboxesPage · Method chaining · POM fixtures in conftest</div></div></div>
+  </div>
+</div>
+
+<!-- REMAINING TAB -->
+<div class="pg" id="remaining">
+  <div class="section-title">🔴 Critical — must do before June 1 <span class="st-badge left-badge">do these first</span></div>
+  <div class="day-grid">
+    <div class="day-card day-urgent"><span class="day-num">Day 21</span><div class="day-right"><div class="day-title">Portfolio Project #1 — push Playwright suite</div><div class="day-detail">Professional README · project structure · badges · this is what recruiters see first</div></div></div>
+    <div class="day-card day-urgent"><span class="day-num">Day 22</span><div class="day-right"><div class="day-title">API Testing — requests library basics</div><div class="day-detail">GET/POST/PUT/DELETE · status codes · JSON parsing · in 80% of SDET job descriptions</div></div></div>
+    <div class="day-card day-urgent"><span class="day-num">Day 23</span><div class="day-right"><div class="day-title">API Testing — pytest API tests on reqres.in</div><div class="day-detail">Write 10+ API tests · assert response body · validate schema · use fixtures</div></div></div>
+    <div class="day-card day-urgent"><span class="day-num">Day 29</span><div class="day-right"><div class="day-title">GitHub Actions CI/CD</div><div class="day-detail">workflow .yml file · run tests on push · CI badge in README · almost every job requires this</div></div></div>
+    <div class="day-card day-urgent"><span class="day-num">Resume</span><div class="day-right"><div class="day-title">Rewrite resume with automation skills</div><div class="day-detail">Add: Python · Playwright · pytest · API testing · GitHub Actions · POM · data-driven tests</div></div></div>
+  </div>
+
+  <div class="section-title">🟡 Important — do if time allows <span class="st-badge urgent-badge">squeeze in</span></div>
+  <div class="day-grid">
+    <div class="day-card day-left"><span class="day-num">Day 24</span><div class="day-right"><div class="day-title">API Testing — authentication + headers</div><div class="day-detail">Bearer tokens · API keys · session handling</div></div></div>
+    <div class="day-card day-left"><span class="day-num">Day 25</span><div class="day-right"><div class="day-title">API Testing — Portfolio Project #2</div><div class="day-detail">Full API test suite pushed to GitHub</div></div></div>
+    <div class="day-card day-left"><span class="day-num">Day 13</span><div class="day-right"><div class="day-title">Git branching + pull requests</div><div class="day-detail">feature branches · PRs · merge · expected in interviews</div></div></div>
+    <div class="day-card day-left"><span class="day-num">Day 30</span><div class="day-right"><div class="day-title">Resume + LinkedIn update</div><div class="day-detail">SDET-focused resume · LinkedIn headline change</div></div></div>
+  </div>
+
+  <div class="section-title">⬜ Can skip for now — learn after landing role</div>
+  <div class="day-grid">
+    <div class="day-card day-skip"><span class="day-num">Days 31–35</span><div class="day-right"><div class="day-title">SQL basics, test reporting, advanced CI/CD</div><div class="day-detail">Nice to have · not blocking for applications</div></div></div>
+    <div class="day-card day-skip"><span class="day-num">Days 36–45</span><div class="day-right"><div class="day-title">Interview prep, mock interviews, applying</div><div class="day-detail">Start applying from June 1 — prep continues alongside</div></div></div>
+  </div>
+</div>
+
+<!-- 11-DAY PLAN TAB -->
+<div class="pg" id="plan">
+  <div class="warn">You have <b>11 days</b> before June 1. This plan is aggressive but achievable — 3-4 hours per day. Weekends are full days.</div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot dot-now"></div>
+      <div class="tl-date">Today<br>May 21</div>
+      <div class="tl-right">
+        <div class="tl-title">Day 20 challenge — finish DropdownPage POM</div>
+        <div class="tl-detail">Complete pages/dropdown_page.py · test_dropdown_pom.py · commit and push</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 22</div>
+      <div class="tl-right">
+        <div class="tl-title">Day 21 — Portfolio Project #1 complete</div>
+        <div class="tl-detail">Professional README for playwright-ui-tests repo · add CI badge placeholder · structure docs</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 23</div>
+      <div class="tl-right">
+        <div class="tl-title">Day 22 — API Testing fundamentals</div>
+        <div class="tl-detail">pip install requests · GET/POST/PUT/DELETE · status codes · JSON · 10 tests on reqres.in</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 24</div>
+      <div class="tl-right">
+        <div class="tl-title">Day 23 — pytest API test suite</div>
+        <div class="tl-detail">API tests with fixtures · response validation · schema checks · push to GitHub repo #2</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 25</div>
+      <div class="tl-right">
+        <div class="tl-title">Day 24 — API auth + headers + Portfolio #2 README</div>
+        <div class="tl-detail">Bearer tokens · API keys · write the README for api-tests repo</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 26</div>
+      <div class="tl-right">
+        <div class="tl-title">Day 29 — GitHub Actions CI/CD</div>
+        <div class="tl-detail">.github/workflows/tests.yml · run pytest on push · CI badge in both READMEs</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 27</div>
+      <div class="tl-right">
+        <div class="tl-title">Day 30 — Resume rewrite</div>
+        <div class="tl-detail">Add automation skills · SDET job title · Python · Playwright · pytest · API · CI/CD · GitHub links</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 28</div>
+      <div class="tl-right">
+        <div class="tl-title">Interview prep — POM + fixtures + API questions</div>
+        <div class="tl-detail">Top 20 SDET interview questions · practice answering out loud</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 29</div>
+      <div class="tl-right">
+        <div class="tl-title">Git branching + LinkedIn update</div>
+        <div class="tl-detail">feature branch workflow · update LinkedIn headline to "SDET | Python | Playwright"</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 30</div>
+      <div class="tl-right">
+        <div class="tl-title">Buffer day — fix gaps, polish portfolio</div>
+        <div class="tl-detail">Fix anything incomplete · ensure all tests pass · screenshots in READMEs</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-next"></div>
+      <div class="tl-date">May 31</div>
+      <div class="tl-right">
+        <div class="tl-title">Final review — everything ready</div>
+        <div class="tl-detail">Run full test suite · check GitHub repos look professional · resume final version</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dot-goal"></div>
+      <div class="tl-date">June 1 🎯</div>
+      <div class="tl-right">
+        <div class="tl-title">START APPLYING</div>
+        <div class="tl-detail">5+ applications per day · SDET / Automation Engineer / QA Engineer roles</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESUME READY TAB -->
+<div class="pg" id="resume">
+  <div class="section-title">What you CAN already put on your resume</div>
+  <div class="ok">These skills are real — you have working code on GitHub proving each one.</div>
+
+  <div class="priority-grid">
+    <div class="pc pc-must">
+      <div class="pc-t">✓ Can add now</div>
+      <div class="pc-item">
+        Python (3+ months)<br>
+        pytest framework<br>
+        Playwright (UI automation)<br>
+        Page Object Model<br>
+        Data-driven testing<br>
+        Fixtures + conftest.py<br>
+        Git + GitHub<br>
+        7.4 yrs manual QA<br>
+        Test case design<br>
+        Bug reporting
+      </div>
+    </div>
+    <div class="pc pc-should">
+      <div class="pc-t">⏳ Add after this week</div>
+      <div class="pc-item">
+        REST API testing<br>
+        requests library<br>
+        GitHub Actions CI/CD<br>
+        JSON schema validation<br>
+        Cross-browser testing<br>
+        Git branching + PRs<br>
+        Test reporting<br>
+        Agile/Scrum (you likely have this)
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Your strongest selling point</div>
+  <div class="ok"><b>7.4 years of manual QA + automation skills = rare combination.</b> Most automation candidates are either junior devs with no QA instinct, or senior manual testers with no code. You have both. Lead with this in every application and interview.</div>
+
+  <div class="section-title">Your GitHub portfolio by June 1</div>
+  <div class="day-grid">
+    <div class="day-card day-done"><span class="day-check">✓</span><div class="day-right"><div class="day-title">python-qa-practice</div><div class="day-detail">26 files · Days 1–9 Python · qa_toolkit.py · already live</div></div></div>
+    <div class="day-card day-urgent"><span class="day-check">→</span><div class="day-right"><div class="day-title">playwright-ui-tests</div><div class="day-detail">POM · fixtures · parametrize · conftest · CI badge · professional README · push this week</div></div></div>
+    <div class="day-card day-urgent"><span class="day-check">→</span><div class="day-right"><div class="day-title">api-automation-tests</div><div class="day-detail">REST API tests · reqres.in · pytest · JSON validation · CI badge · build this week</div></div></div>
+  </div>
+
+  <div class="tip"><b>Three GitHub repos with CI/CD badges</b> is what separates your application from every other manual QA engineer applying for automation roles. Most have zero public code. You will have three working projects.</div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('I finished Day 20 POM challenge. Teach me Day 21 — how to create a professional README and push my complete Playwright test suite as Portfolio Project 1 to GitHub')">Start Day 21 — Portfolio Project #1 ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 22 API testing — requests library, GET POST PUT DELETE, status codes, JSON parsing with hands-on exercises on reqres.in')">Start Day 22 — API Testing ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me GitHub Actions CI/CD — create a workflow yml file that runs my Playwright tests automatically on every push')">Start GitHub Actions CI/CD ↗</button>
+    <button class="ask" onclick="sendPrompt('Help me rewrite my QA resume to include automation skills — Python Playwright pytest API testing GitHub Actions Page Object Model')">Rewrite my resume ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>

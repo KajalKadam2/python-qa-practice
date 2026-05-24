@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.dec{color:#993C1D;font-weight:500}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.ol-r{color:#791F1F}
+.ol-x{color:#534AB7}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part{font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px;background:var(--color-background-secondary)}
+.pn{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#0C447C;border-color:#0C447C}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#0C447C;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Test by test</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every test that differs from yours, understand the reason before moving on.</div>
+
+<div class="code"><span class="cm"># ─────────────────────────────────────────────────────
+# Day 17 Challenge — Ideal Solution
+# test_day17_challenge.py
+# ─────────────────────────────────────────────────────</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="cm"># ── Test 1: pages load ────────────────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"path"</span>, [
+    <span class="st">"/login"</span>,
+    <span class="st">"/checkboxes"</span>,
+    <span class="st">"/dropdown"</span>,
+    <span class="st">"/add_remove_elements"</span>,
+    <span class="st">"/hovers"</span>,
+], ids=[<span class="st">"login"</span>, <span class="st">"checkboxes"</span>, <span class="st">"dropdown"</span>, <span class="st">"add_remove"</span>, <span class="st">"hovers"</span>])
+<span class="kw">def</span> <span class="fn">test_pages_load</span>(page: Page, path):
+    <span class="st">"""Each path should load — assert URL matches."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"https://the-internet.herokuapp.com{path}"</span>)
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"https://the-internet.herokuapp.com{path}"</span>)
+
+<span class="cm"># ── Test 2: login scenarios ───────────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password, expected"</span>, [
+    (<span class="st">"tomsmith"</span>,  <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>),
+    (<span class="st">"wronguser"</span>, <span class="st">"wrongpass"</span>,            <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith"</span>,  <span class="st">"wrongpass"</span>,            <span class="st">"Your password is invalid"</span>),
+    (<span class="st">""</span>,          <span class="st">""</span>,                     <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith"</span>,  <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>),
+    pytest.<span class="fn">param</span>(
+        <span class="st">" tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>,
+        id=<span class="st">"leading_space"</span>,
+        marks=pytest.mark.<span class="fn">xfail</span>(reason=<span class="st">"Bug: leading spaces not trimmed"</span>)
+    ),
+], ids=[
+    <span class="st">"valid"</span>, <span class="st">"wrong_user"</span>, <span class="st">"wrong_pass"</span>, <span class="st">"empty"</span>, <span class="st">"valid_again"</span>, <span class="st">"leading_space"</span>
+])
+<span class="kw">def</span> <span class="fn">test_login_scenarios</span>(login_page: Page, username, password, expected):
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(username)
+    login_page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(password)
+    login_page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(login_page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_contain_text</span>(expected)
+
+<span class="cm"># ── Test 3: add/remove elements count ────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"click_count"</span>, [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>],
+    ids=[<span class="st">"one_click"</span>, <span class="st">"two_clicks"</span>, <span class="st">"three_clicks"</span>])
+<span class="kw">def</span> <span class="fn">test_add_remove_elements</span>(page: Page, click_count):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/add_remove_elements/"</span>)
+    add_btn = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>)
+
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(click_count):
+        add_btn.<span class="fn">click</span>()
+
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>)).<span class="fn">to_have_count</span>(click_count)
+
+<span class="cm"># ── Test 4: dropdown selection + verify text ──────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"value, label"</span>, [
+    (<span class="st">"1"</span>, <span class="st">"Option 1"</span>),
+    (<span class="st">"2"</span>, <span class="st">"Option 2"</span>),
+], ids=[<span class="st">"option_1"</span>, <span class="st">"option_2"</span>])
+<span class="kw">def</span> <span class="fn">test_dropdown_then_verify</span>(dropdown_page: Page, value, label):
+    dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>).<span class="fn">select_option</span>(value)
+    <span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(value)
+    <span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_contain_text</span>(label)</div>
+
+  <div class="sec">Run command and expected output</div>
+  <div class="code">pytest test_day17_challenge.py -v --headed</div>
+  <div class="out">
+    <div class="out-lbl">14 tests from 4 functions</div>
+    <div class="ol ol-g">PASSED test_pages_load[login]</div>
+    <div class="ol ol-g">PASSED test_pages_load[checkboxes]</div>
+    <div class="ol ol-g">PASSED test_pages_load[dropdown]</div>
+    <div class="ol ol-g">PASSED test_pages_load[add_remove]</div>
+    <div class="ol ol-g">PASSED test_pages_load[hovers]</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[valid]</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[wrong_user]</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[wrong_pass]</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[empty]</div>
+    <div class="ol ol-g">PASSED test_login_scenarios[valid_again]</div>
+    <div class="ol ol-x">XFAIL test_login_scenarios[leading_space]</div>
+    <div class="ol ol-g">PASSED test_add_remove_elements[one_click]</div>
+    <div class="ol ol-g">PASSED test_add_remove_elements[two_clicks]</div>
+    <div class="ol ol-g">PASSED test_add_remove_elements[three_clicks]</div>
+    <div class="ol ol-g">PASSED test_dropdown_then_verify[option_1]</div>
+    <div class="ol ol-g">PASSED test_dropdown_then_verify[option_2]</div>
+  </div>
+</div>
+
+<!-- TEST BY TEST -->
+<div class="pg" id="exp">
+
+  <div class="part"><span class="pn p1">Test 1</span> pages_load — URL assertion over title assertion</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"https://the-internet.herokuapp.com{path}"</span>)</div>
+      <div class="eb-why"><b>URL is more reliable than title for "did the page load" checks.</b> Page titles vary across this site — some pages have "The Internet", others have empty titles, others have something different. The URL is always predictable — if the page loaded without redirect or error, the URL matches exactly what you navigated to. You discovered this yourself during debugging. Always assert the URL for page load verification.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p2">Test 2</span> login_scenarios — xfail for known edge case</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">pytest.<span class="fn">param</span>(
+    <span class="st">" tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>,
+    id=<span class="st">"leading_space"</span>,
+    marks=pytest.mark.<span class="fn">xfail</span>(reason=<span class="st">"Bug: leading spaces not trimmed"</span>)
+)</div>
+      <div class="eb-why"><b>xfail documents a known bug without blocking the suite.</b> You expect this test to fail because the site does not trim leading spaces from usernames. Marking it xfail means: "we know about this, it is documented, do not fail the build over it." If the site ever fixes the bug, the test flips to XPASS — alerting you to update the mark. This is far better than a comment or a skipped test.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># ids= list must match parameter list length exactly</span>
+], ids=[
+    <span class="st">"valid"</span>, <span class="st">"wrong_user"</span>, <span class="st">"wrong_pass"</span>, <span class="st">"empty"</span>, <span class="st">"valid_again"</span>, <span class="st">"leading_space"</span>
+])</div>
+      <div class="eb-why"><b>When mixing regular tuples and pytest.param, ids= must cover all items including pytest.param entries.</b> pytest.param already has <code>id=</code> set, but if you use an ids= list on the decorator, it overrides all individual ids. Be consistent — either use ids= list for all, or use id= inside each pytest.param. Mixing them causes confusion.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p3">Test 3</span> add_remove_elements — to_have_count</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(click_count):
+    add_btn.<span class="fn">click</span>()
+
+<span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>)).<span class="fn">to_have_count</span>(click_count)</div>
+      <div class="eb-why"><b>The parametrize data drives both the action AND the expected outcome.</b> <code>click_count</code> controls how many times the button is clicked AND what count to assert. This is the most powerful parametrize pattern — the data does not just feed inputs, it feeds the expected result. <code>to_have_count(n)</code> asserts that exactly n elements match the locator — perfect for dynamic lists.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code"><span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(click_count):   <span class="cm"># _ means "I don't need this variable"</span></div>
+      <div class="eb-why"><b>Using <code>_</code> as the loop variable is a Python convention.</b> When you need a loop but do not use the iteration variable, name it <code>_</code>. It signals to any reader: "this variable is intentionally unused — I am just looping N times." Using <code>i</code> when you never reference <code>i</code> inside the loop is misleading.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p4">Test 4</span> dropdown_then_verify — value AND text assertion</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(value)
+<span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_contain_text</span>(label)</div>
+      <div class="eb-why"><b>Two assertions per test — value and visible text.</b> <code>to_have_value("1")</code> checks the HTML value attribute of the selected option — what gets submitted in a form. <code>to_contain_text("Option 1")</code> checks what the user actually sees on screen. A dropdown could have the right value but display the wrong label — checking both catches that bug. This is your QA instinct in code.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — asserting title instead of URL for page load</div>
+    <div class="diff-body"><span class="cm"># Fragile — title varies across pages on this site</span>
+<span class="fn">expect</span>(page).<span class="fn">to_have_title</span>(<span class="st">"The Internet"</span>)
+<span class="cm"># /add_remove_elements has empty title → test fails</span>
+
+<span class="cm"># Robust — URL always matches</span>
+<span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"https://the-internet.herokuapp.com{path}"</span>)</div>
+    <div class="diff-note"><b>You discovered this yourself during the lesson.</b> The page title is content controlled by the app — it can change, be empty, or vary per page. The URL is structural — if you navigated to it and it loaded, the URL matches. For "does the page load" checks, always assert the URL.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — no xfail on the leading space edge case</div>
+    <div class="diff-body"><span class="cm"># Wrong — test fails and blocks the suite</span>
+(<span class="st">" tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>),
+
+<span class="cm"># Or worse — test is commented out</span>
+<span class="cm"># (" tomsmith", "SuperSecretPassword!", "secure area"),</span>
+
+<span class="cm"># Correct — documented as known bug</span>
+pytest.<span class="fn">param</span>(
+    <span class="st">" tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>, <span class="st">"secure area"</span>,
+    id=<span class="st">"leading_space"</span>,
+    marks=pytest.mark.<span class="fn">xfail</span>(reason=<span class="st">"Bug: leading spaces not trimmed"</span>)
+)</div>
+    <div class="diff-note"><b>Commented-out tests are invisible bugs.</b> xfail tests are visible in the output, documented with a reason, and automatically flip to XPASS when the bug is fixed. A commented-out test is forgotten forever. Your 7.4 years of QA experience should make this instinctive — never suppress a known bug, document it.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — clicking Add Element in a loop with index variable</div>
+    <div class="diff-body"><span class="cm"># Unnecessary — index i is never used inside the loop</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(click_count):
+    add_btn.<span class="fn">click</span>()
+
+<span class="cm"># Correct Python convention</span>
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(click_count):
+    add_btn.<span class="fn">click</span>()</div>
+    <div class="diff-note"><b><code>_</code> signals "intentionally unused variable".</b> When the loop variable is never referenced inside the body, naming it <code>_</code> communicates intent clearly. Any reader immediately knows the loop is just for repetition — not for using the index value. Minor but marks professional Python awareness.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — only asserting value, not label text in dropdown</div>
+    <div class="diff-body"><span class="cm"># Incomplete — only checks the HTML value attribute</span>
+<span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(value)
+
+<span class="cm"># Complete — also checks what the user sees</span>
+<span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(value)
+<span class="fn">expect</span>(dropdown_page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_contain_text</span>(label)</div>
+    <div class="diff-note"><b>Value and label are different things.</b> A developer could accidentally swap option labels — Option 1 appears when Option 2 is selected — and a value-only assertion would miss it. Both assertions together catch both bugs. You discovered this mismatch yourself during the lesson when the assertion failed.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — missing ids= so test names are unreadable</div>
+    <div class="diff-body"><span class="cm"># Without ids= — hard to read in CI output</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"path"</span>, [<span class="st">"/login"</span>, <span class="st">"/checkboxes"</span>, <span class="st">"/dropdown"</span>])
+<span class="cm"># Output: test_pages_load[/login] test_pages_load[/checkboxes]</span>
+<span class="cm"># (OK here but breaks with complex data)</span>
+
+<span class="cm"># With ids= — always clear</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"path"</span>, [...], ids=[<span class="st">"login"</span>, <span class="st">"checkboxes"</span>, <span class="st">"dropdown"</span>])
+<span class="cm"># Output: test_pages_load[login] test_pages_load[checkboxes]</span></div>
+    <div class="diff-note"><b>ids= is not optional in professional suites.</b> With single simple strings it barely matters. With tuples of 3+ values the auto-generated ID becomes a wall of text. Always use ids= — it costs 30 seconds and saves minutes of debugging when a test fails in CI.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 1 — asserts <code>to_have_url()</code> not <code>to_have_title()</code> for page load check</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 1 — all 5 paths have <code>ids=</code> with short readable names</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 2 — uses <code>login_page</code> fixture — no <code>page.goto()</code> in the test function</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 2 — has at least one <code>pytest.param</code> with <code>xfail</code> and a reason string</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 3 — uses <code>for _ in range(click_count)</code> to click N times</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 3 — asserts with <code>to_have_count(click_count)</code> — count driven by parametrize data</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 3 — ids are <code>["one_click", "two_clicks", "three_clicks"]</code> or similar readable names</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 4 — uses <code>dropdown_page</code> fixture — no <code>page.goto()</code> in the test</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 4 — asserts BOTH <code>to_have_value(value)</code> AND <code>to_contain_text(label)</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">All 4 tests use <code>ids=</code> and total 14+ test cases from 4 functions</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 20 Playwright — Page Object Model in depth with a complete LoginPage and BasePage class example for the-internet.herokuapp.com')">Go to Day 20 — Page Object Model ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me a harder Playwright parametrize challenge — beyond Day 17, using complex data-driven scenarios with fixtures and xfail')">Give me a harder challenge ↗</button>
+  </div>
+</div>
+
+</div>
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#0C447C':'';
+  box.style.borderColor=on?'#0C447C':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. You now have the three pillars of professional Playwright testing — fixtures, parametrize, and conftest. Day 20 is Page Object Model — the pattern that makes large test suites maintainable.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Check Common Mistakes for what you missed, fix those parts, then move to Day 20.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Test by Test for each unchecked item, rewrite those tests, then move on.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution, then rewrite all 4 tests from scratch before Day 20.</div>';
+}
+</script>
+</body>
+</html>

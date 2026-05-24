@@ -1,0 +1,651 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#27500A;color:#fff;border-color:#27500A}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.dec{color:#993C1D;font-weight:500}
+.cls{color:#854F0B;font-weight:500}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#27500A;color:#fff;border-color:#27500A;font-weight:500}
+.btn-n:hover{background:#1d3d07}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+.cmp{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.cmp-head{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.04em}
+.bad-head{background:#FAEEDA;color:#633806}
+.good-head{background:#EAF3DE;color:#27500A}
+.cmp-body{background:var(--color-background-secondary);padding:9px 12px;font-family:var(--font-mono);font-size:12px;line-height:1.7;white-space:pre}
+.struct{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:11px 14px;border:0.5px solid var(--color-border-tertiary);font-family:var(--font-mono);font-size:13px;line-height:1.9;margin:9px 0}
+.s-dir{color:var(--color-text-primary);font-weight:500}
+.s-file{color:var(--color-text-secondary)}
+.s-note{color:var(--color-text-tertiary);font-style:italic}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT IS POM -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 20 — Page Object Model</div>
+    <div class="card-b">You now have 20+ tests across 3 files. Every test directly calls Playwright methods — <code>page.get_by_label("Username").fill(...)</code>. If the login form changes, you update every test that touches it.<br><br><b>Page Object Model</b> fixes this. You create one class per page — <code>LoginPage</code>, <code>CheckboxesPage</code> — that wraps all the Playwright calls. Tests only call methods on those classes. When a locator changes, you update one class, not 20 tests.</div>
+  </div>
+
+  <div class="sec">The problem it solves</div>
+  <div class="compare">
+    <div class="cmp">
+      <div class="cmp-head bad-head">Without POM — locator in every test</div>
+      <div class="cmp-body"><span class="cm"># 20 tests each have this</span>
+page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(u)
+page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(p)
+page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>,
+  name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+<span class="cm"># Form changes → update 20 tests</span></div>
+    </div>
+    <div class="cmp">
+      <div class="cmp-head good-head">With POM — one class, clean tests</div>
+      <div class="cmp-body"><span class="cm"># 20 tests each have this</span>
+login.<span class="fn">login</span>(username, password)
+
+<span class="cm"># Form changes → update LoginPage</span>
+<span class="cm"># Zero test changes needed</span></div>
+    </div>
+  </div>
+
+  <div class="sec">Project structure you will build today</div>
+  <div class="struct">
+<span class="s-dir">qa-automation/</span>
+├── <span class="s-dir">pages/</span>                 <span class="s-note">← new folder</span>
+│   ├── <span class="s-file">__init__.py</span>        <span class="s-note">← makes pages a package</span>
+│   ├── <span class="s-file">base_page.py</span>       <span class="s-note">← shared methods all pages use</span>
+│   ├── <span class="s-file">login_page.py</span>      <span class="s-note">← login page actions + locators</span>
+│   └── <span class="s-file">checkboxes_page.py</span> <span class="s-note">← checkboxes page</span>
+├── <span class="s-file">conftest.py</span>            <span class="s-note">← fixtures updated to use POM</span>
+├── <span class="s-file">test_login_pom.py</span>      <span class="s-note">← clean tests using POM</span>
+└── <span class="s-file">test_checkboxes_pom.py</span></div>
+
+  <div class="tip">Create the <code>pages/</code> folder inside your <code>qa-automation</code> folder right now before moving to the next page. You will create each file step by step.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">BasePage →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: BASE PAGE -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">BasePage — shared methods every page needs</div>
+    <div class="card-b"><code>BasePage</code> is the parent class all page objects inherit from. It holds methods used across every page — navigate, wait for load, take screenshot, get title. Instead of duplicating these in every page class, they live in one place.</div>
+  </div>
+
+  <div class="try-lbl">Create pages/base_page.py</div>
+  <div class="code"><span class="cm"># pages/base_page.py</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+
+<span class="kw">class</span> <span class="cls">BasePage</span>:
+    <span class="st">"""Base class for all page objects.
+    Contains shared methods every page uses."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, page: Page):
+        self.page = page
+
+    <span class="kw">def</span> <span class="fn">navigate</span>(self, url: <span class="fn">str</span>) -> <span class="st">"BasePage"</span>:
+        <span class="st">"""Navigate to a URL. Returns self for chaining."""</span>
+        self.page.<span class="fn">goto</span>(url)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">get_title</span>(self) -> <span class="fn">str</span>:
+        <span class="st">"""Return the current page title."""</span>
+        <span class="kw">return</span> self.page.<span class="fn">title</span>()
+
+    <span class="kw">def</span> <span class="fn">get_url</span>(self) -> <span class="fn">str</span>:
+        <span class="st">"""Return the current page URL."""</span>
+        <span class="kw">return</span> self.page.<span class="fn">url</span>
+
+    <span class="kw">def</span> <span class="fn">expect_url</span>(self, url: <span class="fn">str</span>) -> <span class="st">"BasePage"</span>:
+        <span class="st">"""Assert the current URL matches."""</span>
+        <span class="fn">expect</span>(self.page).<span class="fn">to_have_url</span>(url)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">expect_title</span>(self, title: <span class="fn">str</span>) -> <span class="st">"BasePage"</span>:
+        <span class="st">"""Assert the page title matches."""</span>
+        <span class="fn">expect</span>(self.page).<span class="fn">to_have_title</span>(title)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">screenshot</span>(self, name: <span class="fn">str</span>) -> <span class="st">"BasePage"</span>:
+        <span class="st">"""Take a screenshot. Returns self for chaining."""</span>
+        self.page.<span class="fn">screenshot</span>(path=<span class="fn">f</span><span class="st">"screenshots/{name}.png"</span>, full_page=<span class="kw">True</span>)
+        <span class="kw">return</span> self</div>
+
+  <div class="tip"><b>Method chaining</b> — returning <code>self</code> from every method lets you chain calls: <code>page.navigate(url).expect_url(url).screenshot("loaded")</code>. This is optional but makes test code read like a sentence. Standard pattern in professional page objects.</div>
+
+  <div class="tip">Create an empty <code>pages/__init__.py</code> file too — just create it with no content. This makes <code>pages</code> a Python package so you can import from it.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">LoginPage →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: LOGIN PAGE -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">LoginPage — all login actions and locators in one place</div>
+    <div class="card-b"><code>LoginPage</code> inherits from <code>BasePage</code> and adds everything specific to the login page — locators, actions, and assertions. Tests never touch a locator directly — they call <code>login_page.login(username, password)</code> and the page object handles everything.</div>
+  </div>
+
+  <div class="try-lbl">Create pages/login_page.py</div>
+  <div class="code"><span class="cm"># pages/login_page.py</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+<span class="kw">from</span> pages.base_page <span class="kw">import</span> BasePage
+
+BASE_URL = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+
+<span class="kw">class</span> <span class="cls">LoginPage</span>(<span class="cls">BasePage</span>):
+    <span class="st">"""Page object for the login page."""</span>
+
+    <span class="cm"># ── URL ────────────────────────────────────────</span>
+    URL = <span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>
+
+    <span class="cm"># ── Locators — defined as properties ───────────</span>
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">username_input</span>(self):
+        <span class="kw">return</span> self.page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">password_input</span>(self):
+        <span class="kw">return</span> self.page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>)
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">login_button</span>(self):
+        <span class="kw">return</span> self.page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>)
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">flash_message</span>(self):
+        <span class="kw">return</span> self.page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">success_flash</span>(self):
+        <span class="kw">return</span> self.page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">error_flash</span>(self):
+        <span class="kw">return</span> self.page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)
+
+    <span class="cm"># ── Actions ─────────────────────────────────────</span>
+    <span class="kw">def</span> <span class="fn">open</span>(self) -> <span class="st">"LoginPage"</span>:
+        <span class="st">"""Navigate to the login page."""</span>
+        self.page.<span class="fn">goto</span>(self.URL)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">fill_username</span>(self, username: <span class="fn">str</span>) -> <span class="st">"LoginPage"</span>:
+        self.username_input.<span class="fn">fill</span>(username)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">fill_password</span>(self, password: <span class="fn">str</span>) -> <span class="st">"LoginPage"</span>:
+        self.password_input.<span class="fn">fill</span>(password)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">click_login</span>(self) -> <span class="st">"LoginPage"</span>:
+        self.login_button.<span class="fn">click</span>()
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">login</span>(self, username: <span class="fn">str</span>, password: <span class="fn">str</span>) -> <span class="st">"LoginPage"</span>:
+        <span class="st">"""Fill credentials and click Login — one-step action."""</span>
+        <span class="kw">return</span> (self
+                .<span class="fn">fill_username</span>(username)
+                .<span class="fn">fill_password</span>(password)
+                .<span class="fn">click_login</span>())
+
+    <span class="cm"># ── Assertions ──────────────────────────────────</span>
+    <span class="kw">def</span> <span class="fn">expect_success</span>(self) -> <span class="st">"LoginPage"</span>:
+        <span class="st">"""Assert login succeeded."""</span>
+        <span class="fn">expect</span>(self.success_flash).<span class="fn">to_be_visible</span>()
+        <span class="fn">expect</span>(self.page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/secure"</span>)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">expect_error</span>(self, message: <span class="fn">str</span>) -> <span class="st">"LoginPage"</span>:
+        <span class="st">"""Assert login failed with specific message."""</span>
+        <span class="fn">expect</span>(self.error_flash).<span class="fn">to_be_visible</span>()
+        <span class="fn">expect</span>(self.error_flash).<span class="fn">to_contain_text</span>(message)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">expect_on_login_page</span>(self) -> <span class="st">"LoginPage"</span>:
+        <span class="st">"""Assert we are still on the login page."""</span>
+        <span class="fn">expect</span>(self.page).<span class="fn">to_have_url</span>(self.URL)
+        <span class="kw">return</span> self</div>
+
+  <div class="tip">Locators as <code>@property</code> means each access creates a fresh locator — Playwright locators are lazy, so this is correct and efficient. If the locator string changes, you update one property, and every action and assertion using it updates automatically.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">CheckboxesPage →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: CHECKBOXES PAGE -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">CheckboxesPage — a second page object</div>
+    <div class="card-b">Once you have written <code>LoginPage</code> the pattern is clear. Every new page follows the same structure — inherit BasePage, define locators as properties, write action methods, write assertion methods.</div>
+  </div>
+
+  <div class="try-lbl">Create pages/checkboxes_page.py</div>
+  <div class="code"><span class="cm"># pages/checkboxes_page.py</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+<span class="kw">from</span> pages.base_page <span class="kw">import</span> BasePage
+
+BASE_URL = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+
+<span class="kw">class</span> <span class="cls">CheckboxesPage</span>(<span class="cls">BasePage</span>):
+    <span class="st">"""Page object for the checkboxes page."""</span>
+
+    URL = <span class="fn">f</span><span class="st">"{BASE_URL}/checkboxes"</span>
+
+    <span class="cm"># ── Locators ─────────────────────────────────</span>
+    <span class="kw">def</span> <span class="fn">checkbox</span>(self, index: <span class="fn">int</span>):
+        <span class="st">"""Return checkbox at given index (0 or 1)."""</span>
+        <span class="kw">return</span> self.page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(index)
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">first_checkbox</span>(self):
+        <span class="kw">return</span> self.<span class="fn">checkbox</span>(<span class="nm">0</span>)
+
+    <span class="dec">@property</span>
+    <span class="kw">def</span> <span class="fn">second_checkbox</span>(self):
+        <span class="kw">return</span> self.<span class="fn">checkbox</span>(<span class="nm">1</span>)
+
+    <span class="cm"># ── Actions ──────────────────────────────────</span>
+    <span class="kw">def</span> <span class="fn">open</span>(self) -> <span class="st">"CheckboxesPage"</span>:
+        self.page.<span class="fn">goto</span>(self.URL)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">check_first</span>(self) -> <span class="st">"CheckboxesPage"</span>:
+        self.first_checkbox.<span class="fn">check</span>()
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">uncheck_second</span>(self) -> <span class="st">"CheckboxesPage"</span>:
+        self.second_checkbox.<span class="fn">uncheck</span>()
+        <span class="kw">return</span> self
+
+    <span class="cm"># ── Assertions ───────────────────────────────</span>
+    <span class="kw">def</span> <span class="fn">expect_first_unchecked</span>(self) -> <span class="st">"CheckboxesPage"</span>:
+        <span class="fn">expect</span>(self.first_checkbox).<span class="fn">not_to_be_checked</span>()
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">expect_first_checked</span>(self) -> <span class="st">"CheckboxesPage"</span>:
+        <span class="fn">expect</span>(self.first_checkbox).<span class="fn">to_be_checked</span>()
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">expect_second_checked</span>(self) -> <span class="st">"CheckboxesPage"</span>:
+        <span class="fn">expect</span>(self.second_checkbox).<span class="fn">to_be_checked</span>()
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">expect_second_unchecked</span>(self) -> <span class="st">"CheckboxesPage"</span>:
+        <span class="fn">expect</span>(self.second_checkbox).<span class="fn">not_to_be_checked</span>()
+        <span class="kw">return</span> self</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">Update conftest →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: CONFTEST UPDATE -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">Update conftest.py — fixtures that return page objects</div>
+    <div class="card-b">Fixtures now instantiate page objects instead of returning raw Playwright pages. Tests receive a <code>LoginPage</code> object — not a bare <code>page</code>. This is the bridge between fixtures and POM.</div>
+  </div>
+
+  <div class="try-lbl">Add these fixtures to conftest.py</div>
+  <div class="code"><span class="cm"># conftest.py — add these POM fixtures</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page
+<span class="kw">from</span> pages.login_page <span class="kw">import</span> LoginPage
+<span class="kw">from</span> pages.checkboxes_page <span class="kw">import</span> CheckboxesPage
+
+<span class="cm"># ── POM fixtures ─────────────────────────────────</span>
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">login_page_pom</span>(page: Page) -> <span class="cls">LoginPage</span>:
+    <span class="st">"""Returns a LoginPage object navigated to the login URL."""</span>
+    lp = <span class="cls">LoginPage</span>(page)
+    lp.<span class="fn">open</span>()
+    <span class="kw">yield</span> lp
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">logged_in_pom</span>(page: Page) -> <span class="cls">LoginPage</span>:
+    <span class="st">"""Returns LoginPage already logged in."""</span>
+    lp = <span class="cls">LoginPage</span>(page)
+    lp.<span class="fn">open</span>().<span class="fn">login</span>(<span class="st">"tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>)
+    <span class="kw">yield</span> lp
+
+<span class="dec">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">checkboxes_pom</span>(page: Page) -> <span class="cls">CheckboxesPage</span>:
+    <span class="st">"""Returns a CheckboxesPage object navigated to checkboxes."""</span>
+    cp = <span class="cls">CheckboxesPage</span>(page)
+    cp.<span class="fn">open</span>()
+    <span class="kw">yield</span> cp</div>
+
+  <div class="tip">Fixture names end in <code>_pom</code> to distinguish from your existing raw-page fixtures. Keep both — you can migrate tests gradually. Real projects do the same — POM and raw tests coexist during transition.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">Tests with POM →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: TESTS WITH POM -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">Tests using POM — see how clean they become</div>
+    <div class="card-b">This is the payoff. Tests with POM read like plain English. No locators, no Playwright calls — just actions and assertions expressed through the page object API.</div>
+  </div>
+
+  <div class="try-lbl">Create test_login_pom.py</div>
+  <div class="code"><span class="cm"># test_login_pom.py</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> pages.login_page <span class="kw">import</span> LoginPage
+
+
+<span class="kw">def</span> <span class="fn">test_valid_login</span>(login_page_pom: <span class="cls">LoginPage</span>):
+    (login_page_pom
+     .<span class="fn">login</span>(<span class="st">"tomsmith"</span>, <span class="st">"SuperSecretPassword!"</span>)
+     .<span class="fn">expect_success</span>())
+
+
+<span class="kw">def</span> <span class="fn">test_wrong_username</span>(login_page_pom: <span class="cls">LoginPage</span>):
+    (login_page_pom
+     .<span class="fn">login</span>(<span class="st">"wronguser"</span>, <span class="st">"wrongpass"</span>)
+     .<span class="fn">expect_error</span>(<span class="st">"Your username is invalid"</span>)
+     .<span class="fn">expect_on_login_page</span>())
+
+
+<span class="kw">def</span> <span class="fn">test_wrong_password</span>(login_page_pom: <span class="cls">LoginPage</span>):
+    (login_page_pom
+     .<span class="fn">login</span>(<span class="st">"tomsmith"</span>, <span class="st">"wrongpass"</span>)
+     .<span class="fn">expect_error</span>(<span class="st">"Your password is invalid"</span>)
+     .<span class="fn">expect_on_login_page</span>())
+
+
+<span class="kw">def</span> <span class="fn">test_empty_fields</span>(login_page_pom: <span class="cls">LoginPage</span>):
+    (login_page_pom
+     .<span class="fn">login</span>(<span class="st">""</span>, <span class="st">""</span>)
+     .<span class="fn">expect_error</span>(<span class="st">"Your username is invalid"</span>))
+
+
+<span class="cm"># POM + parametrize together</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"username, password, error"</span>, [
+    (<span class="st">"wronguser"</span>, <span class="st">"pass"</span>,  <span class="st">"Your username is invalid"</span>),
+    (<span class="st">"tomsmith"</span>,  <span class="st">"wrong"</span>, <span class="st">"Your password is invalid"</span>),
+    (<span class="st">""</span>,          <span class="st">""</span>,      <span class="st">"Your username is invalid"</span>),
+], ids=[<span class="st">"bad_user"</span>, <span class="st">"bad_pass"</span>, <span class="st">"empty"</span>])
+<span class="kw">def</span> <span class="fn">test_invalid_logins_parametrized</span>(login_page_pom: <span class="cls">LoginPage</span>, username, password, error):
+    (login_page_pom
+     .<span class="fn">login</span>(username, password)
+     .<span class="fn">expect_error</span>(error))</div>
+
+  <div class="try-lbl">Create test_checkboxes_pom.py</div>
+  <div class="code"><span class="cm"># test_checkboxes_pom.py</span>
+<span class="kw">from</span> pages.checkboxes_page <span class="kw">import</span> CheckboxesPage
+
+
+<span class="kw">def</span> <span class="fn">test_initial_state</span>(checkboxes_pom: <span class="cls">CheckboxesPage</span>):
+    (checkboxes_pom
+     .<span class="fn">expect_first_unchecked</span>()
+     .<span class="fn">expect_second_checked</span>())
+
+
+<span class="kw">def</span> <span class="fn">test_check_first</span>(checkboxes_pom: <span class="cls">CheckboxesPage</span>):
+    (checkboxes_pom
+     .<span class="fn">check_first</span>()
+     .<span class="fn">expect_first_checked</span>())
+
+
+<span class="kw">def</span> <span class="fn">test_uncheck_second</span>(checkboxes_pom: <span class="cls">CheckboxesPage</span>):
+    (checkboxes_pom
+     .<span class="fn">uncheck_second</span>()
+     .<span class="fn">expect_second_unchecked</span>())</div>
+
+  <div class="code">pytest test_login_pom.py test_checkboxes_pom.py -v --headed</div>
+
+  <div class="ok">Look at how the test reads: <code>login_page_pom.login("wronguser", "wrongpass").expect_error("Your username is invalid").expect_on_login_page()</code> — that is a complete test scenario in one chained sentence. Any non-technical stakeholder can read it and understand what it tests.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">Why POM matters →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: WHY POM -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">Why POM is asked in every SDET interview <span class="badge bg" style="margin-left:6px">interview critical</span></div>
+    <div class="card-b">Every SDET interview asks "explain Page Object Model". Not because it is hard — because it shows you think about <b>maintainability</b>, not just making tests pass. Here is how to answer it.</div>
+  </div>
+
+  <div class="sec">The 3 things POM gives you</div>
+  <div class="code"><span class="cm"># 1. MAINTAINABILITY
+# If the Username label changes to "Email":</span>
+
+<span class="cm"># Without POM — update 20 test files</span>
+page.<span class="fn">get_by_label</span>(<span class="st">"Email"</span>).<span class="fn">fill</span>(...)  <span class="cm"># × 20 tests</span>
+
+<span class="cm"># With POM — update one property in LoginPage</span>
+<span class="dec">@property</span>
+<span class="kw">def</span> <span class="fn">username_input</span>(self):
+    <span class="kw">return</span> self.page.<span class="fn">get_by_label</span>(<span class="st">"Email"</span>)  <span class="cm"># one change</span>
+
+<span class="cm"># 2. READABILITY — tests read like requirements</span>
+login_page.<span class="fn">login</span>(user, pw).<span class="fn">expect_success</span>()
+<span class="cm"># vs</span>
+page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(user)
+page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(pw)
+page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="cm"># 3. REUSABILITY — one page object, many test files</span>
+<span class="kw">from</span> pages.login_page <span class="kw">import</span> LoginPage
+<span class="cm"># Used in: test_login.py, test_security.py, test_session.py...</span></div>
+
+  <div class="sec">How to answer in an interview</div>
+  <div class="code"><span class="cm"># "What is Page Object Model?"
+
+# Answer:
+# POM is a design pattern where each page of the application
+# has a corresponding class that encapsulates all the locators,
+# actions, and assertions for that page.
+
+# Tests call methods on page objects instead of using
+# Playwright/Selenium directly.
+
+# Benefits:
+# - Maintainability: locator changes = one class update
+# - Readability: tests read like requirements
+# - Reusability: page objects shared across test files
+# - Separation of concerns: test logic vs page interactions</span></div>
+
+  <div class="tip">When the interviewer says "show me an example", say: "I have a <code>LoginPage</code> class with an <code>open()</code> method, a <code>login(username, password)</code> method, and <code>expect_success()</code> / <code>expect_error()</code> assertion methods. Tests chain these methods — <code>login_page.open().login(user, pw).expect_success()</code>." That answer gets you to the next round.</tip>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">Full file structure →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: FULL STRUCTURE -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">Complete file structure — Portfolio Project #1</div>
+    <div class="card-b">This is the structure you push to GitHub as your first portfolio project. It shows a professional understanding of automation architecture — not just "I can write a test".</div>
+  </div>
+
+  <div class="struct">
+<span class="s-dir">qa-automation/</span>
+├── <span class="s-dir">pages/</span>
+│   ├── <span class="s-file">__init__.py</span>           <span class="s-note">empty file</span>
+│   ├── <span class="s-file">base_page.py</span>          <span class="s-note">navigate, title, url, screenshot</span>
+│   ├── <span class="s-file">login_page.py</span>         <span class="s-note">open, login, expect_success/error</span>
+│   └── <span class="s-file">checkboxes_page.py</span>    <span class="s-note">open, check/uncheck, expect_checked</span>
+├── <span class="s-file">conftest.py</span>               <span class="s-note">all fixtures including _pom variants</span>
+├── <span class="s-file">test_login.py</span>             <span class="s-note">raw tests (Days 15-17)</span>
+├── <span class="s-file">test_checkboxes.py</span>        <span class="s-note">raw tests</span>
+├── <span class="s-file">test_dropdowns.py</span>         <span class="s-note">raw tests</span>
+├── <span class="s-file">test_login_pom.py</span>         <span class="s-note">POM tests ← new</span>
+├── <span class="s-file">test_checkboxes_pom.py</span>    <span class="s-note">POM tests ← new</span>
+├── <span class="s-file">test_day17_challenge.py</span>   <span class="s-note">parametrize tests</span>
+└── <span class="s-file">screenshots/</span>              <span class="s-note">auto-generated on failure</span></div>
+
+  <div class="sec">Run everything</div>
+  <div class="code">pytest -v --headed</div>
+
+  <div class="out">
+    <div class="out-lbl">Expected — all tests passing</div>
+    <div class="ol ol-g">PASSED test_login.py::test_valid_login</div>
+    <div class="ol ol-g">PASSED test_login_pom.py::test_valid_login</div>
+    <div class="ol ol-g">PASSED test_login_pom.py::test_wrong_username</div>
+    <div class="ol ol-g">PASSED test_login_pom.py::test_wrong_password</div>
+    <div class="ol ol-g">PASSED test_login_pom.py::test_empty_fields</div>
+    <div class="ol ol-g">PASSED test_checkboxes_pom.py::test_initial_state</div>
+    <div class="ol ol-g">PASSED test_checkboxes_pom.py::test_check_first</div>
+    <div class="ol ol-g">PASSED test_checkboxes_pom.py::test_uncheck_second</div>
+    <div class="ol">... and all your other existing tests</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 20 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 20 challenge — build a DropdownPage</div>
+    <div class="card-b">You have <code>LoginPage</code> and <code>CheckboxesPage</code>. Now build <code>DropdownPage</code> from scratch following the same pattern.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Build pages/dropdown_page.py + tests</div>
+    <div class="ch-b">
+      <b>Part 1 — pages/dropdown_page.py</b><br>
+      Inherit from BasePage. Add:<br>
+      • <code>URL</code> class variable pointing to <code>/dropdown</code><br>
+      • <code>dropdown</code> property — locator for <code>#dropdown</code><br>
+      • <code>open()</code> — navigate to URL<br>
+      • <code>select_option(value)</code> — select by value, return self<br>
+      • <code>expect_value(value)</code> — assert <code>to_have_value()</code>, return self<br>
+      • <code>expect_text(text)</code> — assert <code>to_contain_text()</code>, return self<br><br>
+
+      <b>Part 2 — conftest.py</b><br>
+      Add a <code>dropdown_pom</code> fixture that returns a <code>DropdownPage</code> already navigated.<br><br>
+
+      <b>Part 3 — test_dropdown_pom.py</b><br>
+      Write 3 tests using method chaining:<br>
+      • <code>test_default_visible</code> — assert dropdown is visible<br>
+      • <code>test_select_option1</code> — select "1", assert value and text<br>
+      • <code>test_select_option2</code> — select "2", assert value and text<br><br>
+
+      <b>Bonus — add parametrize</b><br>
+      Combine <code>dropdown_pom</code> fixture with parametrize for both options in one test function.
+    </div>
+  </div>
+
+  <div class="ok">When this is done you have a complete POM framework with 3 page objects, a BasePage, POM fixtures in conftest, and tests using method chaining. Push this to GitHub — it is Portfolio Project #1 complete.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 20 Playwright Page Object Model challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 20 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 20 Page Object Model challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 21 Playwright — Portfolio Project 1: push my complete Playwright test suite to GitHub with a professional README and project structure')">Go to Day 21 — Portfolio Project #1 ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['What is POM','BasePage','LoginPage','CheckboxesPage','Update conftest','Tests with POM','Why POM matters','Full structure','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

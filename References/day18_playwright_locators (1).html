@@ -1,0 +1,570 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#185FA5;color:#fff;border-color:#185FA5}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.xt{color:#993C1D}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500}
+.btn-n:hover{background:#0F4A80}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.br{background:#FCEBEB;color:#791F1F}
+.priority-grid{display:flex;flex-direction:column;gap:6px;margin:9px 0}
+.pri{border-radius:var(--border-radius-md);padding:9px 13px;border:0.5px solid var(--color-border-tertiary);display:flex;gap:10px;align-items:flex-start}
+.pri-rank{font-size:11px;font-weight:500;padding:2px 8px;border-radius:8px;flex-shrink:0;margin-top:1px}
+.pri-body{flex:1}
+.pri-name{font-size:13px;font-weight:500;font-family:var(--font-mono);margin-bottom:2px}
+.pri-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.45}
+.r1{background:#EAF3DE}.r1 .pri-rank{background:#27500A;color:#fff}
+.r2{background:#E6F1FB}.r2 .pri-rank{background:#0C447C;color:#fff}
+.r3{background:#EEEDFE}.r3 .pri-rank{background:#534AB7;color:#fff}
+.r4{background:#FAEEDA}.r4 .pri-rank{background:#633806;color:#fff}
+.r5{background:var(--color-background-secondary)}.r5 .pri-rank{background:var(--color-text-tertiary);color:#fff}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT ARE LOCATORS -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 18 — Locators in depth</div>
+    <div class="card-b">A locator is how Playwright finds an element on the page. Pick the wrong locator strategy and your tests become brittle — they break every time a developer changes a class name or moves an element. Pick the right one and tests survive UI changes for months.<br><br>Today you learn <b>all 7 locator types</b>, when to use each, and how to handle the tricky cases — multiple matches, nested elements, dynamic content.</div>
+  </div>
+
+  <div class="sec">The 7 locator types — priority order</div>
+  <div class="priority-grid">
+    <div class="pri r1"><div class="pri-rank">#1</div><div class="pri-body"><div class="pri-name">get_by_role()</div><div class="pri-desc">Finds by ARIA role — button, link, heading, textbox, checkbox. Most resilient — tied to semantics not styling.</div></div></div>
+    <div class="pri r1"><div class="pri-rank">#2</div><div class="pri-body"><div class="pri-name">get_by_label()</div><div class="pri-desc">Finds form inputs by their label text. Perfect for login forms, search boxes, any labeled input.</div></div></div>
+    <div class="pri r2"><div class="pri-rank">#3</div><div class="pri-body"><div class="pri-name">get_by_placeholder()</div><div class="pri-desc">Finds inputs by placeholder text. Good fallback when no label exists.</div></div></div>
+    <div class="pri r2"><div class="pri-rank">#4</div><div class="pri-body"><div class="pri-name">get_by_text()</div><div class="pri-desc">Finds elements by visible text content. Good for links and buttons with text.</div></div></div>
+    <div class="pri r3"><div class="pri-rank">#5</div><div class="pri-body"><div class="pri-name">get_by_test_id()</div><div class="pri-desc">Finds by data-testid attribute. Ideal when dev team adds test IDs — most stable of all.</div></div></div>
+    <div class="pri r4"><div class="pri-rank">#6</div><div class="pri-body"><div class="pri-name">CSS selector</div><div class="pri-desc">locator("#id"), locator(".class"), locator("input[type='checkbox']"). Use when semantic locators don't work.</div></div></div>
+    <div class="pri r5"><div class="pri-rank">#7</div><div class="pri-body"><div class="pri-name">XPath</div><div class="pri-desc">locator("//button[@type='submit']"). Last resort — fragile, verbose, but powerful for complex cases.</div></div></div>
+  </div>
+
+  <div class="tip"><b>Always start at #1 and work down.</b> If get_by_role works — use it and stop. Only move down the list when the higher option does not work or produces strict mode violations.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">get_by_role →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: GET_BY_ROLE -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">get_by_role() — the locator you use 80% of the time</div>
+    <div class="card-b">ARIA roles describe what an element IS — a button, a link, a heading, a checkbox. They survive CSS class changes and ID changes. This is why get_by_role is always first choice.</div>
+  </div>
+
+  <div class="sec">Common roles you will use every day</div>
+  <div class="code"><span class="cm"># Buttons</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>)
+page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Submit"</span>)
+page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>)
+
+<span class="cm"># Links</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Logout"</span>)
+page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Home"</span>)
+
+<span class="cm"># Headings</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"heading"</span>, name=<span class="st">"Secure Area"</span>, exact=<span class="kw">True</span>)
+page.<span class="fn">get_by_role</span>(<span class="st">"heading"</span>, level=<span class="nm">1</span>)   <span class="cm"># h1 specifically</span>
+
+<span class="cm"># Form inputs</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"textbox"</span>, name=<span class="st">"Username"</span>)
+page.<span class="fn">get_by_role</span>(<span class="st">"checkbox"</span>)
+page.<span class="fn">get_by_role</span>(<span class="st">"combobox"</span>)   <span class="cm"># dropdown select</span></div>
+
+  <div class="try-lbl">Create Day18_locators.py — type this first</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="kw">def</span> <span class="fn">test_get_by_role_button</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># Find the login button by its role and name</span>
+    btn = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>)
+    <span class="fn">expect</span>(btn).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>(btn).<span class="fn">to_be_enabled</span>()
+
+<span class="kw">def</span> <span class="fn">test_get_by_role_heading</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># exact=True prevents matching substrings</span>
+    heading = page.<span class="fn">get_by_role</span>(<span class="st">"heading"</span>, name=<span class="st">"Login Page"</span>, exact=<span class="kw">True</span>)
+    <span class="fn">expect</span>(heading).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_get_by_role_link</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}"</span>)
+    <span class="cm"># Find a link by its text</span>
+    link = page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Form Authentication"</span>)
+    <span class="fn">expect</span>(link).<span class="fn">to_be_visible</span>()
+    link.<span class="fn">click</span>()
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)</div>
+
+  <div class="code">pytest Day18_locators.py -v --headed</div>
+
+  <div class="tip"><code>exact=True</code> means the name must match exactly — not just contain the text. Always use it for headings and links to avoid strict mode violations where multiple elements match.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">get_by_label + get_by_placeholder →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: LABEL PLACEHOLDER TEXT -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">get_by_label, get_by_placeholder, get_by_text</div>
+    <div class="card-b">These three cover form inputs and content. <code>get_by_label</code> is the best for any input with a visible label. <code>get_by_placeholder</code> is the fallback when no label exists. <code>get_by_text</code> finds elements by their visible text — but watch out for strict mode violations.</div>
+  </div>
+
+  <div class="try-lbl">Add these to Day18_locators.py</div>
+  <div class="code"><span class="cm"># ── get_by_label ─────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_get_by_label</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># Label "Username" is linked to the input via for= attribute</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_have_value</span>(<span class="st">"tomsmith"</span>)
+
+<span class="cm"># ── get_by_placeholder ───────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_get_by_placeholder</span>(page: Page):
+    <span class="cm"># inputs page has fields with placeholder text</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/inputs"</span>)
+
+    number_input = page.<span class="fn">get_by_role</span>(<span class="st">"spinbutton"</span>)
+    number_input.<span class="fn">fill</span>(<span class="st">"42"</span>)
+    <span class="fn">expect</span>(number_input).<span class="fn">to_have_value</span>(<span class="st">"42"</span>)
+
+<span class="cm"># ── get_by_text ──────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_get_by_text</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># exact=True prevents strict mode violations</span>
+    <span class="fn">expect</span>(
+        page.<span class="fn">get_by_text</span>(<span class="st">"Login Page"</span>, exact=<span class="kw">True</span>)
+    ).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_get_by_text_link</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}"</span>)
+    <span class="cm"># Click a link by its text</span>
+    page.<span class="fn">get_by_text</span>(<span class="st">"Checkboxes"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)</div>
+
+  <div class="warn">When <code>get_by_text("Secure Area")</code> matches multiple elements — you saw this error on Day 16 — add <code>exact=True</code> or switch to <code>get_by_role("heading", name="Secure Area", exact=True)</code>. This is the most common locator mistake.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">CSS selectors →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: CSS -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">CSS selectors — locator() for precise targeting</div>
+    <div class="card-b">CSS selectors use the same syntax as CSS stylesheets. They are more powerful than semantic locators for targeting specific element types, attributes, or positions. Use them when no semantic locator works cleanly.</div>
+  </div>
+
+  <div class="sec">CSS selector patterns you need to know</div>
+  <div class="code"><span class="cm"># By ID — the most specific CSS selector</span>
+page.<span class="fn">locator</span>(<span class="st">"#username"</span>)         <span class="cm"># element with id="username"</span>
+page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)            <span class="cm"># the flash message div</span>
+
+<span class="cm"># By class</span>
+page.<span class="fn">locator</span>(<span class="st">".flash"</span>)            <span class="cm"># any element with class="flash"</span>
+page.<span class="fn">locator</span>(<span class="st">".flash.success"</span>)   <span class="cm"># has BOTH classes</span>
+page.<span class="fn">locator</span>(<span class="st">".flash.error"</span>)     <span class="cm"># has BOTH classes</span>
+
+<span class="cm"># By element type</span>
+page.<span class="fn">locator</span>(<span class="st">"button"</span>)            <span class="cm"># all buttons</span>
+page.<span class="fn">locator</span>(<span class="st">"h2"</span>)               <span class="cm"># all h2 headings</span>
+
+<span class="cm"># By attribute</span>
+page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)   <span class="cm"># checkboxes</span>
+page.<span class="fn">locator</span>(<span class="st">"input[type='text']"</span>)       <span class="cm"># text inputs</span>
+page.<span class="fn">locator</span>(<span class="st">"button[type='submit']"</span>)    <span class="cm"># submit button</span>
+page.<span class="fn">locator</span>(<span class="st">"a[href='/login']"</span>)        <span class="cm"># link with specific href</span>
+
+<span class="cm"># Combined</span>
+page.<span class="fn">locator</span>(<span class="st">"div#flash.success"</span>)  <span class="cm"># div with id=flash AND class=success</span></div>
+
+  <div class="try-lbl">Add to Day18_locators.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">test_css_id_selector</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># Use CSS ID selector for the username input</span>
+    page.<span class="fn">locator</span>(<span class="st">"#username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"#password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"button[type='submit']"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_css_attribute_selector</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    <span class="cm"># Target checkboxes by type attribute</span>
+    checkboxes = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)
+    <span class="fn">expect</span>(checkboxes).<span class="fn">to_have_count</span>(<span class="nm">2</span>)
+
+<span class="kw">def</span> <span class="fn">test_css_class_selector</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"#username"</span>).<span class="fn">fill</span>(<span class="st">"wrong"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"#password"</span>).<span class="fn">fill</span>(<span class="st">"wrong"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"button[type='submit']"</span>).<span class="fn">click</span>()
+    <span class="cm"># Flash error has both .flash and .error classes</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_be_visible</span>()</div>
+
+  <div class="tip">CSS selectors like <code>#flash.error</code> are how you handled flash messages in Day 16 and 17. You already know them — this page formalises the patterns.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">XPath →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: XPATH -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">XPath — last resort but powerful <span class="badge br" style="margin-left:6px">use sparingly</span></div>
+    <div class="card-b">XPath is a query language for navigating XML/HTML. It can do things CSS cannot — traverse upward to parents, find elements by text content, select by position. Use it only when CSS and semantic locators fail.</div>
+  </div>
+
+  <div class="sec">XPath patterns you need to know</div>
+  <div class="code"><span class="cm"># Basic syntax — always starts with //</span>
+page.<span class="fn">locator</span>(<span class="st">"//button"</span>)                        <span class="cm"># all buttons</span>
+page.<span class="fn">locator</span>(<span class="st">"//button[@type='submit']"</span>)         <span class="cm"># button with attribute</span>
+page.<span class="fn">locator</span>(<span class="st">"//button[text()='Login']"</span>)          <span class="cm"># button with exact text</span>
+page.<span class="fn">locator</span>(<span class="st">"//button[contains(text(),'Log')]"</span>)  <span class="cm"># button containing text</span>
+
+<span class="cm"># By ID and class</span>
+page.<span class="fn">locator</span>(<span class="st">"//*[@id='username']"</span>)              <span class="cm"># any element with id</span>
+page.<span class="fn">locator</span>(<span class="st">"//*[@class='flash success']"</span>)      <span class="cm"># exact class match</span>
+
+<span class="cm"># Traversing relationships</span>
+page.<span class="fn">locator</span>(<span class="st">"//form//input[@type='text']"</span>)      <span class="cm"># input inside a form</span>
+page.<span class="fn">locator</span>(<span class="st">"//label[text()='Username']/../input"</span>) <span class="cm"># sibling of label</span>
+
+<span class="cm"># By position</span>
+page.<span class="fn">locator</span>(<span class="st">"(//input[@type='checkbox'])[1]"</span>)   <span class="cm"># first checkbox</span>
+page.<span class="fn">locator</span>(<span class="st">"(//input[@type='checkbox'])[2]"</span>)   <span class="cm"># second checkbox</span></div>
+
+  <div class="try-lbl">Add to Day18_locators.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">test_xpath_button</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//*[@id='username']"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//*[@id='password']"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//button[@type='submit']"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"//div[@id='flash']"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"secure area"</span>)
+
+<span class="kw">def</span> <span class="fn">test_xpath_checkboxes_by_position</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    <span class="cm"># XPath position() starts at 1 not 0</span>
+    first  = page.<span class="fn">locator</span>(<span class="st">"(//input[@type='checkbox'])[1]"</span>)
+    second = page.<span class="fn">locator</span>(<span class="st">"(//input[@type='checkbox'])[2]"</span>)
+    <span class="fn">expect</span>(first).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(second).<span class="fn">to_be_checked</span>()</div>
+
+  <div class="warn">XPath tests break easily when developers restructure the HTML — adding a wrapper div or moving an element changes the path. Always prefer get_by_role or CSS. Only use XPath when absolutely nothing else works.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">nth, first, last →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: NTH FIRST LAST FILTER -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">Handling multiple matches — .nth() .first .last .filter()</div>
+    <div class="card-b">When a locator matches multiple elements, Playwright's strict mode throws an error. These four methods let you pick exactly which element you want from a list of matches.</div>
+  </div>
+
+  <div class="sec">All four methods</div>
+  <div class="code"><span class="cm"># .nth(index) — pick by position (0-based)</span>
+page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">0</span>)   <span class="cm"># first</span>
+page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">1</span>)   <span class="cm"># second</span>
+
+<span class="cm"># .first and .last — shorthand</span>
+page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">first</span>    <span class="cm"># same as .nth(0)</span>
+page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">last</span>     <span class="cm"># last one</span>
+
+<span class="cm"># .filter(has_text=) — narrow by text content</span>
+page.<span class="fn">locator</span>(<span class="st">"li"</span>).<span class="fn">filter</span>(has_text=<span class="st">"Option 1"</span>)
+page.<span class="fn">locator</span>(<span class="st">".menu-item"</span>).<span class="fn">filter</span>(has_text=<span class="st">"Settings"</span>)
+
+<span class="cm"># Chaining — find parent then child</span>
+page.<span class="fn">locator</span>(<span class="st">"form"</span>).<span class="fn">locator</span>(<span class="st">"input[type='text']"</span>)</div>
+
+  <div class="try-lbl">Add to Day18_locators.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">test_nth_checkbox</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    checkboxes = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)
+
+    <span class="cm"># Total count</span>
+    <span class="fn">expect</span>(checkboxes).<span class="fn">to_have_count</span>(<span class="nm">2</span>)
+
+    <span class="cm"># First is unchecked, second is checked</span>
+    <span class="fn">expect</span>(checkboxes.<span class="fn">nth</span>(<span class="nm">0</span>)).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(checkboxes.<span class="fn">nth</span>(<span class="nm">1</span>)).<span class="fn">to_be_checked</span>()
+
+    <span class="cm"># .first and .last are shorthand</span>
+    <span class="fn">expect</span>(checkboxes.<span class="fn">first</span>).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(checkboxes.<span class="fn">last</span>).<span class="fn">to_be_checked</span>()
+
+<span class="kw">def</span> <span class="fn">test_chained_locator</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># Find the form first, then inputs inside it</span>
+    form = page.<span class="fn">locator</span>(<span class="st">"form"</span>)
+    form.<span class="fn">locator</span>(<span class="st">"#username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    form.<span class="fn">locator</span>(<span class="st">"#password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    form.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)).<span class="fn">to_be_visible</span>()</div>
+
+  <div class="tip"><code>.nth()</code> is 0-based like Python lists. XPath position() is 1-based. This trips people up — <code>.nth(0)</code> is the first element, <code>(//input)[1]</code> is also the first element.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">codegen tool →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: CODEGEN -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">playwright codegen — auto-generate locators <span class="badge bg" style="margin-left:6px">saves hours</span></div>
+    <div class="card-b">Playwright's codegen tool opens a browser and records your clicks — generating Python code with locators automatically. Instead of inspecting HTML and writing locators manually, you click through the app and Playwright writes the code for you.</div>
+  </div>
+
+  <div class="sec">How to use codegen</div>
+  <div class="code"><span class="cm"># Run codegen pointing at your test site</span>
+playwright codegen https://the-internet.herokuapp.com/login</div>
+
+  <div class="sec">What happens</div>
+  <div class="code"><span class="cm"># Two windows open:
+# 1. A browser — interact with it normally
+# 2. A code panel — shows generated code as you click
+
+# Example: you click Username field and type "hello"
+# Code panel shows:
+page.get_by_label("Username").fill("hello")
+
+# You click the Login button
+# Code panel shows:
+page.get_by_role("button", name="Login").click()</span></div>
+
+  <div class="try-lbl">Run it now</div>
+  <div class="code"><span class="cm"># In terminal:</span>
+playwright codegen https://the-internet.herokuapp.com
+
+<span class="cm"># Click through these pages and watch the code generate:</span>
+<span class="cm"># 1. Click "Form Authentication" → login page</span>
+<span class="cm"># 2. Fill username and password</span>
+<span class="cm"># 3. Click Login button</span>
+<span class="cm"># 4. Click Logout</span>
+
+<span class="cm"># Copy the generated code into a new file</span></div>
+
+  <div class="sec">Use codegen to debug locators too</div>
+  <div class="code"><span class="cm"># Add page.pause() to stop a running test and inspect the page</span>
+<span class="kw">def</span> <span class="fn">test_debug_locator</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    page.<span class="fn">pause</span>()   <span class="cm"># browser freezes here — opens inspector</span>
+    <span class="cm"># hover over elements in the browser to see locator suggestions</span>
+    <span class="cm"># press Resume when done</span></div>
+
+  <div class="ok">Use codegen at the start of every new test page. It gives you the best available locators in seconds. Then review what it generates — if it uses XPath, see if you can rewrite it with get_by_role instead.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">Complete example →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: COMPLETE EXAMPLE -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">Complete example — all locator types in one file</div>
+    <div class="card-b">This is the reference file for Day 18. Every locator type, every method. Commit this to your <code>qa-automation</code> repo as your locator reference.</div>
+  </div>
+  <div class="try-lbl">Create Day18_all_locators.py</div>
+  <div class="code"><span class="cm"># Day18_all_locators.py — complete locator reference</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="cm"># ── Role locators ─────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_role_locators</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>)).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"heading"</span>, name=<span class="st">"Login Page"</span>, exact=<span class="kw">True</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="cm"># ── Label locators ────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_label_locators</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="cm"># ── CSS locators ──────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_css_locators</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)).<span class="fn">to_have_count</span>(<span class="nm">2</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">first</span>).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">last</span>).<span class="fn">to_be_checked</span>()
+
+<span class="cm"># ── XPath locators ────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_xpath_locators</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//*[@id='username']"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//*[@id='password']"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//button[@type='submit']"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"//div[@id='flash']"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"secure area"</span>)
+
+<span class="cm"># ── nth, first, last ──────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_nth_locators</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">0</span>).<span class="fn">check</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">0</span>)).<span class="fn">to_be_checked</span>()
+
+<span class="cm"># ── Dropdown with CSS ─────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_dropdown_css</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/dropdown"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>).<span class="fn">select_option</span>(<span class="st">"1"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(<span class="st">"1"</span>)</div>
+
+  <div class="code">pytest Day18_all_locators.py -v --headed</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 18 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 18 challenge — use every locator type</div>
+    <div class="card-b">New file: <b>test_day18_challenge.py</b> in your <code>qa-automation</code> folder. Use the-internet.herokuapp.com.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Write these 6 tests — one per locator type</div>
+    <div class="ch-b">
+      <b>Test 1 — get_by_role</b><br>
+      Go to /add_remove_elements. Use get_by_role to click "Add Element" 3 times. Assert 3 Delete buttons are visible using to_have_count(3).<br><br>
+
+      <b>Test 2 — get_by_label</b><br>
+      Go to /login. Use get_by_label for both inputs. Login with valid credentials. Assert URL contains /secure.<br><br>
+
+      <b>Test 3 — get_by_text</b><br>
+      Go to the homepage. Use get_by_text to click the "Hovers" link. Assert URL is /hovers. Use exact=True.<br><br>
+
+      <b>Test 4 — CSS selector</b><br>
+      Go to /checkboxes. Use CSS <code>input[type='checkbox']</code> with .first and .last. Assert first is unchecked, last is checked. Then check the first. Assert both are now checked.<br><br>
+
+      <b>Test 5 — XPath</b><br>
+      Go to /login. Use XPath <code>//*[@id='username']</code> and <code>//*[@id='password']</code> to fill the form. Use <code>//button[@type='submit']</code> to click. Assert success flash visible.<br><br>
+
+      <b>Test 6 — .nth() + .filter()</b><br>
+      Go to /dropdown. Use CSS <code>#dropdown</code> to select option "2". Assert to_have_value("2") AND to_contain_text("Option 2").
+    </div>
+  </div>
+
+  <div class="ok">When all 6 pass you have used every locator type on real pages. Run codegen on /hovers for Test 3 if you are unsure what the link text is exactly.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 18 Playwright locators challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 18 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 18 Playwright locators challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 19 Playwright — assertions and waits in depth to_be_visible to_have_text wait_for_selector with hands-on exercises')">Go to Day 19 — Assertions and waits ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['What are locators','get_by_role','Label+Placeholder+Text','CSS selectors','XPath','nth first last filter','codegen tool','Complete example','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

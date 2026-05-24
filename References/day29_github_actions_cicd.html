@@ -1,0 +1,502 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#1a1a2e;color:#58a6ff;border-color:#388bfd}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.yaml{background:#161b22;border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre;border:0.5px solid #30363d}
+.yk{color:#79c0ff}
+.yv{color:#a5d6ff}
+.ys{color:#a8daab}
+.yc{color:#8b949e;font-style:italic}
+.yn{color:#f0883e}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.out{background:#0d1117;border:0.5px solid #30363d;border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:12px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:#8b949e;text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:#e6edf3}
+.ol-g{color:#3fb950}
+.ol-r{color:#f85149}
+.ol-y{color:#d29922}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#1f6feb;color:#fff;border-color:#1f6feb;font-weight:500}
+.btn-n:hover{background:#1158c7}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0;font-size:12px}
+.flow-box{background:#161b22;border:0.5px solid #30363d;border-radius:var(--border-radius-md);padding:6px 12px;font-family:var(--font-mono);font-size:12px;color:#e6edf3}
+.flow-arrow{color:var(--color-text-tertiary);font-size:14px}
+.badge-green{display:inline-block;background:#1a3f1a;color:#3fb950;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;font-family:var(--font-mono)}
+.badge-red{display:inline-block;background:#3f1a1a;color:#f85149;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;font-family:var(--font-mono)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHAT IS CI/CD -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 29 — GitHub Actions CI/CD</div>
+    <div class="card-b">Right now you run tests manually — <code>pytest -v --headed</code> in your terminal. <b>CI/CD automates this</b> — every time you push code to GitHub, your tests run automatically in the cloud. If they pass, a green badge appears on your repo. If they fail, you get an email.<br><br>This is what every real automation team does. No more "it works on my machine" — tests run in a clean environment every single push.</div>
+  </div>
+
+  <div class="sec">What happens with GitHub Actions</div>
+  <div class="flow">
+    <div class="flow-box">git push</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">GitHub detects push</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">spins up Ubuntu VM</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">installs Python + Playwright</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">runs pytest</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">✓ or ✗</div>
+  </div>
+
+  <div class="sec">What it looks like on GitHub</div>
+  <div class="out">
+    <div class="out-lbl">Your repo page after CI runs</div>
+    <div class="ol ol-g">✓ All checks have passed</div>
+    <div class="ol">playwright-ui-tests / CI  <span class="badge-green">passing</span></div>
+    <div class="ol">15 tests passed in 45s</div>
+  </div>
+
+  <div class="tip">A <span class="badge-green">passing</span> badge on your GitHub repo is visible to every recruiter who clicks your portfolio link. It proves your tests actually run — not just that you wrote them. This is the difference between a portfolio and a professional portfolio.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 8</span>
+    <button class="btn btn-n" onclick="go(1)">Workflow file structure →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: YAML STRUCTURE -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">The workflow file — how GitHub Actions works</div>
+    <div class="card-b">Everything GitHub Actions does is defined in a YAML file inside your repo. YAML uses indentation instead of brackets — <b>spaces matter</b>, not tabs. The file lives in a specific folder GitHub looks for automatically.</div>
+  </div>
+
+  <div class="sec">Where the file lives</div>
+  <div class="code">playwright-ui-tests/
+└── .github/
+    └── workflows/
+        └── ci.yml        ← GitHub reads this automatically</div>
+
+  <div class="sec">YAML structure — every concept you need</div>
+  <div class="yaml"><span class="yk">name</span>: <span class="yv">CI Pipeline</span>           <span class="yc"># displayed on GitHub</span>
+
+<span class="yk">on</span>:                            <span class="yc"># WHEN to run</span>
+  <span class="yk">push</span>:
+    <span class="yk">branches</span>: [<span class="yv">main</span>]           <span class="yc"># on push to main branch</span>
+  <span class="yk">pull_request</span>:
+    <span class="yk">branches</span>: [<span class="yv">main</span>]           <span class="yc"># on any PR to main</span>
+
+<span class="yk">jobs</span>:                          <span class="yc"># WHAT to run</span>
+  <span class="yk">test</span>:                        <span class="yc"># job name (your choice)</span>
+    <span class="yk">runs-on</span>: <span class="yv">ubuntu-latest</span>    <span class="yc"># VM type</span>
+
+    <span class="yk">steps</span>:                     <span class="yc"># list of steps</span>
+      - <span class="yk">name</span>: <span class="yv">Checkout code</span>
+        <span class="yk">uses</span>: <span class="yv">actions/checkout@v4</span>
+
+      - <span class="yk">name</span>: <span class="yv">Set up Python</span>
+        <span class="yk">uses</span>: <span class="yv">actions/setup-python@v5</span>
+        <span class="yk">with</span>:
+          <span class="yk">python-version</span>: <span class="yv">"3.10"</span>
+
+      - <span class="yk">name</span>: <span class="yv">Install dependencies</span>
+        <span class="yk">run</span>: <span class="yv">pip install pytest pytest-playwright requests</span>
+
+      - <span class="yk">name</span>: <span class="yv">Install Playwright browsers</span>
+        <span class="yk">run</span>: <span class="yv">playwright install --with-deps chromium</span>
+
+      - <span class="yk">name</span>: <span class="yv">Run tests</span>
+        <span class="yk">run</span>: <span class="yv">pytest --tb=short</span></div>
+
+  <div class="tip"><b>Indentation is everything in YAML.</b> Use 2 spaces per level — never tabs. Each <code>-</code> under <code>steps</code> is one step. <code>uses</code> runs a pre-built action. <code>run</code> runs a shell command. If indentation is wrong, GitHub will show a red error before even running your tests.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 8</span>
+    <button class="btn btn-n" onclick="go(2)">API key as secret →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: SECRETS -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">Secrets — keeping your API key safe in CI</div>
+    <div class="card-b">Your reqres.in API key must never appear in your YAML file or any committed code. GitHub Secrets store sensitive values securely — they are encrypted, never shown in logs, and injected as environment variables when your workflow runs.</div>
+  </div>
+
+  <div class="sec">Step 1 — Add the secret to GitHub</div>
+  <div class="card-b" style="font-size:13px;line-height:1.8;padding:4px 0">
+    1. Go to your <b>playwright-ui-tests</b> repo on GitHub<br>
+    2. Click <b>Settings</b> tab<br>
+    3. Click <b>Secrets and variables</b> → <b>Actions</b><br>
+    4. Click <b>New repository secret</b><br>
+    5. Name: <code>REQRES_API_KEY</code><br>
+    6. Value: paste your full API key<br>
+    7. Click <b>Add secret</b>
+  </div>
+
+  <div class="sec">Step 2 — Use the secret in your workflow</div>
+  <div class="yaml">      - <span class="yk">name</span>: <span class="yv">Run tests</span>
+        <span class="yk">run</span>: <span class="yv">pytest --tb=short</span>
+        <span class="yk">env</span>:
+          <span class="yk">REQRES_API_KEY</span>: <span class="yv">${{ secrets.REQRES_API_KEY }}</span></div>
+
+  <div class="sec">Step 3 — Read it in your Python code</div>
+  <div class="code"><span class="kw">import</span> os
+
+<span class="cm"># Reads from environment — works locally AND in CI</span>
+API_KEY = os.<span class="fn">environ</span>.<span class="fn">get</span>(<span class="st">"REQRES_API_KEY"</span>, <span class="st">"your-local-fallback-key"</span>)
+HEADERS = {<span class="st">"x-api-key"</span>: API_KEY}</div>
+
+  <div class="warn">Never hardcode your API key directly in the YAML file. Never commit it to your repo. GitHub scans for exposed secrets and will warn you — but more importantly, anyone who forks or views your repo could use your key. Always use <code>secrets.</code></div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 8</span>
+    <button class="btn btn-n" onclick="go(3)">Full workflow file →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: FULL WORKFLOW -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">The complete workflow file — copy this exactly</div>
+    <div class="card-b">This is the production-ready workflow for your <code>playwright-ui-tests</code> repo. It runs API tests and UI tests separately, uploads screenshots on failure, and runs on every push.</div>
+  </div>
+
+  <div class="try-lbl">Create this file: .github/workflows/ci.yml</div>
+  <div class="yaml"><span class="yk">name</span>: <span class="yv">Playwright + API Tests</span>
+
+<span class="yk">on</span>:
+  <span class="yk">push</span>:
+    <span class="yk">branches</span>: [<span class="yv">main</span>]
+  <span class="yk">pull_request</span>:
+    <span class="yk">branches</span>: [<span class="yv">main</span>]
+  <span class="yk">workflow_dispatch</span>:          <span class="yc"># lets you trigger manually from GitHub UI</span>
+
+<span class="yk">jobs</span>:
+  <span class="yk">api-tests</span>:
+    <span class="yk">name</span>: <span class="yv">API Tests</span>
+    <span class="yk">runs-on</span>: <span class="yv">ubuntu-latest</span>
+
+    <span class="yk">steps</span>:
+      - <span class="yk">name</span>: <span class="yv">Checkout code</span>
+        <span class="yk">uses</span>: <span class="yv">actions/checkout@v4</span>
+
+      - <span class="yk">name</span>: <span class="yv">Set up Python 3.10</span>
+        <span class="yk">uses</span>: <span class="yv">actions/setup-python@v5</span>
+        <span class="yk">with</span>:
+          <span class="yk">python-version</span>: <span class="yv">"3.10"</span>
+
+      - <span class="yk">name</span>: <span class="yv">Install dependencies</span>
+        <span class="yk">run</span>: <span class="yv">pip install requests pytest</span>
+
+      - <span class="yk">name</span>: <span class="yv">Run API tests</span>
+        <span class="yk">run</span>: <span class="yv">pytest tests/api/ -v --tb=short</span>
+        <span class="yk">env</span>:
+          <span class="yk">REQRES_API_KEY</span>: <span class="yv">${{ secrets.REQRES_API_KEY }}</span>
+
+  <span class="yk">ui-tests</span>:
+    <span class="yk">name</span>: <span class="yv">Playwright UI Tests</span>
+    <span class="yk">runs-on</span>: <span class="yv">ubuntu-latest</span>
+
+    <span class="yk">steps</span>:
+      - <span class="yk">name</span>: <span class="yv">Checkout code</span>
+        <span class="yk">uses</span>: <span class="yv">actions/checkout@v4</span>
+
+      - <span class="yk">name</span>: <span class="yv">Set up Python 3.10</span>
+        <span class="yk">uses</span>: <span class="yv">actions/setup-python@v5</span>
+        <span class="yk">with</span>:
+          <span class="yk">python-version</span>: <span class="yv">"3.10"</span>
+
+      - <span class="yk">name</span>: <span class="yv">Install dependencies</span>
+        <span class="yk">run</span>: <span class="yv">pip install pytest pytest-playwright</span>
+
+      - <span class="yk">name</span>: <span class="yv">Install Playwright browsers</span>
+        <span class="yk">run</span>: <span class="yv">playwright install --with-deps chromium</span>
+
+      - <span class="yk">name</span>: <span class="yv">Run UI tests</span>
+        <span class="yk">run</span>: <span class="yv">pytest tests/ui/ -v --tb=short</span>
+
+      - <span class="yk">name</span>: <span class="yv">Upload screenshots on failure</span>
+        <span class="yk">if</span>: <span class="yv">failure()</span>
+        <span class="yk">uses</span>: <span class="yv">actions/upload-artifact@v4</span>
+        <span class="yk">with</span>:
+          <span class="yk">name</span>: <span class="yv">failure-screenshots</span>
+          <span class="yk">path</span>: <span class="yv">screenshots/</span></div>
+
+  <div class="tip"><code>workflow_dispatch</code> adds a "Run workflow" button to your GitHub Actions tab — so you can trigger tests manually any time without pushing code. <code>if: failure()</code> on the screenshot upload means screenshots are only uploaded when tests fail — not on every run.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 8</span>
+    <button class="btn btn-n" onclick="go(4)">Create and push →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: CREATE AND PUSH -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">Step by step — create the file and trigger CI</div>
+    <div class="card-b">Follow these steps exactly. The folder structure matters — GitHub only reads workflows from <code>.github/workflows/</code>.</div>
+  </div>
+
+  <div class="try-lbl">In your terminal — navigate to playwright-ui-tests</div>
+  <div class="code">cd ~/Desktop/playwright-ui-tests</div>
+
+  <div class="try-lbl">Create the workflows folder</div>
+  <div class="code">mkdir -p .github/workflows</div>
+
+  <div class="try-lbl">Create the workflow file</div>
+  <div class="code">touch .github/workflows/ci.yml</div>
+
+  <div class="try-lbl">Open in VS Code and paste the full YAML from Page 3</div>
+  <div class="code">code .github/workflows/ci.yml</div>
+
+  <div class="try-lbl">Also update your test files to read the API key from env</div>
+  <div class="code"><span class="cm"># Add this to the top of every API test file</span>
+<span class="kw">import</span> os
+API_KEY = os.<span class="fn">environ</span>.<span class="fn">get</span>(<span class="st">"REQRES_API_KEY"</span>, <span class="st">"your-local-key-here"</span>)
+HEADERS  = {<span class="st">"x-api-key"</span>: API_KEY}</div>
+
+  <div class="try-lbl">Commit and push — this triggers CI automatically</div>
+  <div class="code">git add .
+git commit -m "Day 29: add GitHub Actions CI/CD workflow"
+git push</div>
+
+  <div class="try-lbl">Watch it run — go to GitHub</div>
+  <div class="code"><span class="cm"># Go to: github.com/KajalKadam2/playwright-ui-tests</span>
+<span class="cm"># Click the "Actions" tab</span>
+<span class="cm"># You will see your workflow running in real time</span></div>
+
+  <div class="out">
+    <div class="out-lbl">GitHub Actions tab — what you see</div>
+    <div class="ol ol-y">● Playwright + API Tests  — in progress</div>
+    <div class="ol">  ├── API Tests          ● running</div>
+    <div class="ol">  └── Playwright UI Tests ● running</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 8</span>
+    <button class="btn btn-n" onclick="go(5)">Read the results →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: READ RESULTS -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">Reading CI results — passing and failing</div>
+    <div class="card-b">After the workflow runs you will see either green ticks or red crosses. Here is exactly what each output means and how to debug failures.</div>
+  </div>
+
+  <div class="sec">When everything passes</div>
+  <div class="out">
+    <div class="out-lbl">GitHub Actions — success</div>
+    <div class="ol ol-g">✓ API Tests           (12s)</div>
+    <div class="ol ol-g">✓ Playwright UI Tests (45s)</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol ol-g">All jobs passed</div>
+  </div>
+
+  <div class="sec">When a test fails</div>
+  <div class="out">
+    <div class="out-lbl">GitHub Actions — failure</div>
+    <div class="ol ol-r">✗ Playwright UI Tests</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol">FAILED tests/ui/test_login_pom.py::test_valid_login</div>
+    <div class="ol ol-r">AssertionError: Locator expected to be visible</div>
+    <div class="ol">  Actual value: None</div>
+  </div>
+
+  <div class="sec">How to debug a CI failure</div>
+  <div class="code"><span class="cm"># 1. Click the failed job in GitHub Actions</span>
+<span class="cm"># 2. Expand the failed step — see the full pytest output</span>
+<span class="cm"># 3. Download the screenshots artifact if UI test failed</span>
+<span class="cm"># 4. Reproduce locally:</span>
+pytest tests/ui/test_login_pom.py::test_valid_login -v --headed</div>
+
+  <div class="tip"><code>--tb=short</code> in the workflow gives you just the key failure lines — not the full traceback. For more detail during debugging change it to <code>--tb=long</code>. For a quick summary in CI output, <code>--tb=short</code> is correct.</div>
+
+  <div class="sec">Add a status badge to your README</div>
+  <div class="code"><span class="cm"># Copy this into your README.md — replace YOUR_USERNAME</span>
+![CI](https://github.com/KajalKadam2/playwright-ui-tests/actions/workflows/ci.yml/badge.svg)</div>
+
+  <div class="out">
+    <div class="out-lbl">What it looks like in your README</div>
+    <div class="ol">playwright-ui-tests</div>
+    <div class="ol"><span class="badge-green">CI passing</span>   ← recruiters see this immediately</div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 8</span>
+    <button class="btn btn-n" onclick="go(6)">requirements.txt →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: REQUIREMENTS -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">requirements.txt — the professional way to manage dependencies</div>
+    <div class="card-b">Right now your workflow installs packages by listing them in the YAML. The professional way is a <code>requirements.txt</code> file — one file lists all dependencies, CI installs from it, and anyone cloning your repo can run the same setup.</div>
+  </div>
+
+  <div class="try-lbl">Create requirements.txt in your repo root</div>
+  <div class="code">pytest
+pytest-playwright
+requests
+python-dotenv</div>
+
+  <div class="try-lbl">Update your workflow to use it</div>
+  <div class="yaml">      - <span class="yk">name</span>: <span class="yv">Install dependencies</span>
+        <span class="yk">run</span>: <span class="yv">pip install -r requirements.txt</span></div>
+
+  <div class="try-lbl">Update your README.md run instructions</div>
+  <div class="code"><span class="cm">## Setup
+```bash
+pip install -r requirements.txt
+playwright install chromium
+pytest -v
+```</span></div>
+
+  <div class="tip">Anyone who clones your repo now runs <code>pip install -r requirements.txt</code> and gets exactly the same packages. No manual figuring out what to install. This is the standard for every Python project.</div>
+
+  <div class="sec">Use python-dotenv for local secrets</div>
+  <div class="code"><span class="cm"># Create .env file (add to .gitignore — never commit this)</span>
+<span class="cm"># .env</span>
+REQRES_API_KEY=your-actual-key-here</div>
+
+  <div class="code"><span class="kw">import</span> os
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+
+load_dotenv()   <span class="cm"># loads .env file locally — ignored in CI (uses GitHub Secret)</span>
+
+API_KEY = os.<span class="fn">environ</span>.<span class="fn">get</span>(<span class="st">"REQRES_API_KEY"</span>, <span class="st">""</span>)
+HEADERS  = {<span class="st">"x-api-key"</span>: API_KEY}</div>
+
+  <div class="warn">Make sure <code>.env</code> is in your <code>.gitignore</code>. Run <code>echo ".env" >> .gitignore</code> to add it. If you accidentally commit your API key, rotate it immediately at app.reqres.in.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 8</span>
+    <button class="btn btn-n" onclick="go(7)">Day 29 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: CHALLENGE -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">Day 29 challenge — CI/CD fully working</div>
+    <div class="card-b">Complete these steps. When done, your portfolio will have a passing CI badge — the most visible proof of automation skill a recruiter can see.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Complete all 6 parts</div>
+    <div class="ch-b">
+      <b>Part 1 — Create the workflow file</b><br>
+      Create <code>.github/workflows/ci.yml</code> in your <code>playwright-ui-tests</code> repo with separate jobs for API tests and UI tests.<br><br>
+
+      <b>Part 2 — Add the API key as a GitHub Secret</b><br>
+      Settings → Secrets and variables → Actions → New repository secret → <code>REQRES_API_KEY</code>.<br><br>
+
+      <b>Part 3 — Update API test files</b><br>
+      Replace hardcoded API key with <code>os.environ.get("REQRES_API_KEY", "local-fallback")</code> in every API test file.<br><br>
+
+      <b>Part 4 — Add requirements.txt</b><br>
+      Create <code>requirements.txt</code> with pytest, pytest-playwright, requests. Update workflow to use it.<br><br>
+
+      <b>Part 5 — Push and watch CI run</b><br>
+      <code>git add . && git commit -m "Day 29: CI/CD" && git push</code><br>
+      Go to Actions tab on GitHub — watch both jobs pass.<br><br>
+
+      <b>Part 6 — Add badge to README</b><br>
+      Add the CI badge to the top of README.md. Push. Your portfolio now shows a live passing badge.
+    </div>
+  </div>
+
+  <div class="ok">When both jobs show green on GitHub Actions and your README displays a passing badge — you have completed Portfolio Project #1 in its final form. Two repos on GitHub, CI/CD running, green badge visible. That is the portfolio that gets interviews.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('My GitHub Actions workflow is failing — here is the error from the Actions tab:')">Help me debug CI failure ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 36 SDET interview preparation — top Python Playwright and API testing interview questions with ideal answers')">Jump to Day 36 — Interview prep ↗</button>
+    <button class="ask" onclick="sendPrompt('Help me rewrite my QA resume for SDET and automation engineer roles highlighting my 7.4 years experience and new automation skills')">Day 33 — Rewrite my resume ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 8</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=8;
+const labs=['What is CI/CD','Workflow structure','Secrets','Full workflow','Create and push','Read results','requirements.txt','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#3C3489;color:#fff;border-color:#3C3489}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#3C3489;color:#fff;border-color:#3C3489;font-weight:500}
+.btn-n:hover{background:#2D2768}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+.acard{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:9px 12px}
+.acard-t{font-size:12px;font-weight:500;font-family:var(--font-mono);color:#3C3489;margin-bottom:3px}
+.acard-d{font-size:11px;color:var(--color-text-secondary);line-height:1.4}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0 -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 19 — Assertions and waits in depth</div>
+    <div class="card-b">On Day 15 you used <code>expect(element).to_be_visible()</code> and it worked. But production websites have elements that appear after API calls, animations, or user actions. <b>Knowing which assertion to use and how Playwright's auto-waiting works</b> is what separates flaky tests from reliable ones.<br><br>Today you learn every assertion you need, how Playwright waits automatically, and when to add explicit waits.</div>
+  </div>
+
+  <div class="sec">Why tests go flaky — the root cause</div>
+  <div class="code"><span class="cm"># Flaky test — races against the page loading</span>
+page.<span class="fn">click</span>(<span class="st">"#submit"</span>)
+<span class="cm"># assert runs immediately — element may not exist yet</span>
+assert page.<span class="fn">locator</span>(<span class="st">".result"</span>).<span class="fn">is_visible</span>()  <span class="cm"># ← plain Python — no waiting</span>
+
+<span class="cm"># Reliable — Playwright retries until timeout</span>
+page.<span class="fn">click</span>(<span class="st">"#submit"</span>)
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">".result"</span>)).<span class="fn">to_be_visible</span>()  <span class="cm"># ← retries for 5 seconds</span></div>
+
+  <div class="tip"><b>The most important rule of Day 19:</b> always use <code>expect(locator).to_be_*()</code> instead of <code>assert locator.is_*()</code>. The <code>expect</code> version retries automatically for 5 seconds. The <code>assert</code> version runs once and fails immediately if the element is not ready yet.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">Visibility assertions →</button>
+  </div>
+</div>
+
+<!-- PAGE 1 -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">Visibility assertions — the ones you use every day</div>
+    <div class="card-b">These four cover 80% of all assertions you will ever write. Know them cold.</div>
+  </div>
+
+  <div class="grid2">
+    <div class="acard"><div class="acard-t">to_be_visible()</div><div class="acard-d">Element exists AND is visible on screen</div></div>
+    <div class="acard"><div class="acard-t">to_be_hidden()</div><div class="acard-d">Element is hidden or does not exist</div></div>
+    <div class="acard"><div class="acard-t">to_be_enabled()</div><div class="acard-d">Form element is not disabled</div></div>
+    <div class="acard"><div class="acard-t">to_be_disabled()</div><div class="acard-d">Form element is disabled</div></div>
+  </div>
+
+  <div class="try-lbl">Create Day19_assertions.py</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="kw">def</span> <span class="fn">test_visibility_assertions</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># Element is visible on screen</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>)).<span class="fn">to_be_visible</span>()
+
+    <span class="cm"># Element is enabled (not greyed out)</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_be_enabled</span>()
+
+    <span class="cm"># NOT assertions — the negative form</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_be_hidden</span>()   <span class="cm"># flash not shown yet</span>
+
+<span class="kw">def</span> <span class="fn">test_visible_after_action</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># Flash is hidden before login</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_be_hidden</span>()
+
+    <span class="cm"># After failed login — flash appears</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"wrong"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"wrong"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+    <span class="cm"># Now flash is visible — expect retries until it appears</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_be_visible</span>()</div>
+
+  <div class="code">pytest Day19_assertions.py -v --headed</div>
+
+  <div class="tip"><code>to_be_hidden()</code> passes if the element is either not in the DOM at all OR exists but is hidden with CSS. It does not care which — both count as hidden. Use it to assert "this error message is not showing yet".</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">Text assertions →</button>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">Text and value assertions</div>
+    <div class="card-b">After visibility, the next most common assertion type is checking what text or value an element contains. Know the difference between exact and contains matching.</div>
+  </div>
+
+  <div class="grid2">
+    <div class="acard"><div class="acard-t">to_have_text()</div><div class="acard-d">Exact full text match</div></div>
+    <div class="acard"><div class="acard-t">to_contain_text()</div><div class="acard-d">Text contains the string (partial match)</div></div>
+    <div class="acard"><div class="acard-t">to_have_value()</div><div class="acard-d">Input field value matches exactly</div></div>
+    <div class="acard"><div class="acard-t">to_have_attribute()</div><div class="acard-d">Element has attribute with value</div></div>
+  </div>
+
+  <div class="try-lbl">Add to Day19_assertions.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">test_text_assertions</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"wrong"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"wrong"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+    flash = page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)
+
+    <span class="cm"># to_contain_text — partial match — most flexible</span>
+    <span class="fn">expect</span>(flash).<span class="fn">to_contain_text</span>(<span class="st">"Your username is invalid"</span>)
+
+    <span class="cm"># to_have_text — full exact match including whitespace</span>
+    <span class="cm"># Use to_contain_text unless you need the full string</span>
+
+<span class="kw">def</span> <span class="fn">test_value_assertions</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># Fill field — assert value was set correctly</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_have_value</span>(<span class="st">"tomsmith"</span>)
+
+    <span class="cm"># Dropdown value</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/dropdown"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>).<span class="fn">select_option</span>(<span class="st">"1"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(<span class="st">"1"</span>)
+
+<span class="kw">def</span> <span class="fn">test_attribute_assertion</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># Assert input type attribute</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#username"</span>)).<span class="fn">to_have_attribute</span>(<span class="st">"type"</span>, <span class="st">"text"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#password"</span>)).<span class="fn">to_have_attribute</span>(<span class="st">"type"</span>, <span class="st">"password"</span>)</div>
+
+  <div class="warn"><code>to_have_text()</code> does a full exact match — it fails if there is extra whitespace or surrounding text. <code>to_contain_text()</code> is a partial match — it passes if your string appears anywhere in the element. Use <code>to_contain_text</code> for flash messages and dynamic content where extra text may appear.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">URL and page assertions →</button>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">URL, title and count assertions</div>
+    <div class="card-b">These assert the page itself — not a specific element. Essential for navigation tests and dynamic lists.</div>
+  </div>
+
+  <div class="grid2">
+    <div class="acard"><div class="acard-t">to_have_url()</div><div class="acard-d">Page URL matches exactly</div></div>
+    <div class="acard"><div class="acard-t">to_have_title()</div><div class="acard-d">Page title matches</div></div>
+    <div class="acard"><div class="acard-t">to_have_count()</div><div class="acard-d">Locator matches exactly N elements</div></div>
+    <div class="acard"><div class="acard-t">to_have_class()</div><div class="acard-d">Element has a specific CSS class</div></div>
+  </div>
+
+  <div class="try-lbl">Add to Day19_assertions.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">test_url_assertions</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># After login — URL changes to /secure</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/secure"</span>)
+
+<span class="kw">def</span> <span class="fn">test_count_assertion</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)).<span class="fn">to_have_count</span>(<span class="nm">2</span>)
+
+<span class="kw">def</span> <span class="fn">test_dynamic_count</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/add_remove_elements/"</span>)
+    <span class="cm"># No delete buttons initially</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>)).<span class="fn">to_have_count</span>(<span class="nm">0</span>)
+
+    <span class="cm"># Add 2 elements</span>
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>).<span class="fn">click</span>()
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>)).<span class="fn">to_have_count</span>(<span class="nm">2</span>)
+
+    <span class="cm"># Remove one — count drops to 1</span>
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>).<span class="fn">first</span>.<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>)).<span class="fn">to_have_count</span>(<span class="nm">1</span>)</div>
+
+  <div class="tip"><code>to_have_count(0)</code> is how you assert that something is NOT on the page without getting an error. It retries until there are exactly 0 matching elements — perfect for asserting items were deleted or error messages cleared.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">Checkbox assertions →</button>
+  </div>
+</div>
+
+<!-- PAGE 4 -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">Checkbox, focus and state assertions</div>
+    <div class="card-b">Form state assertions go beyond visibility — they check whether checkboxes are ticked, fields are focused, and elements are in the right state for the user.</div>
+  </div>
+
+  <div class="grid2">
+    <div class="acard"><div class="acard-t">to_be_checked()</div><div class="acard-d">Checkbox or radio is checked</div></div>
+    <div class="acard"><div class="acard-t">not_to_be_checked()</div><div class="acard-d">Checkbox or radio is unchecked</div></div>
+    <div class="acard"><div class="acard-t">to_be_focused()</div><div class="acard-d">Element has keyboard focus</div></div>
+    <div class="acard"><div class="acard-t">to_be_editable()</div><div class="acard-d">Input can be typed into</div></div>
+  </div>
+
+  <div class="try-lbl">Add to Day19_assertions.py</div>
+  <div class="code"><span class="kw">def</span> <span class="fn">test_checkbox_assertions</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    first  = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">first</span>
+    second = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">last</span>
+
+    <span class="cm"># Initial state</span>
+    <span class="fn">expect</span>(first).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(second).<span class="fn">to_be_checked</span>()
+
+    <span class="cm"># Check first, uncheck second</span>
+    first.<span class="fn">check</span>()
+    second.<span class="fn">uncheck</span>()
+
+    <span class="cm"># Assert state flipped</span>
+    <span class="fn">expect</span>(first).<span class="fn">to_be_checked</span>()
+    <span class="fn">expect</span>(second).<span class="fn">not_to_be_checked</span>()
+
+<span class="kw">def</span> <span class="fn">test_editable_assertion</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># Inputs should be editable</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_be_editable</span>()
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>)).<span class="fn">to_be_editable</span>()</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">Auto-waiting explained →</button>
+  </div>
+</div>
+
+<!-- PAGE 5 -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">Auto-waiting — how Playwright prevents flaky tests</div>
+    <div class="card-b">Playwright automatically waits before every action and every <code>expect</code> assertion. You almost never need explicit waits. Understanding this prevents you from adding unnecessary <code>time.sleep()</code> calls that slow tests down.</div>
+  </div>
+
+  <div class="sec">What Playwright waits for automatically</div>
+  <div class="code"><span class="cm"># Before EVERY action (click, fill, check, select_option):</span>
+<span class="cm"># ✓ Element exists in DOM</span>
+<span class="cm"># ✓ Element is visible (not hidden)</span>
+<span class="cm"># ✓ Element is enabled (not disabled)</span>
+<span class="cm"># ✓ Element is stable (not animating)</span>
+<span class="cm"># ✓ Element receives events (not covered by overlay)</span>
+<span class="cm"># → Only then does the action execute</span>
+
+<span class="cm"># Before EVERY expect assertion:</span>
+<span class="cm"># ✓ Retries the condition for up to 5 seconds (default timeout)</span>
+<span class="cm"># ✓ Passes as soon as the condition is true</span>
+<span class="cm"># ✓ Fails only when timeout expires</span></div>
+
+  <div class="sec">What this means for your tests</div>
+  <div class="code"><span class="cm"># You DO NOT need this:</span>
+page.<span class="fn">click</span>(<span class="st">"#submit"</span>)
+<span class="kw">import</span> time
+time.<span class="fn">sleep</span>(<span class="nm">2</span>)   <span class="cm"># ← NEVER do this. Slow and fragile.</span>
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">".result"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="cm"># This is all you need — expect handles the wait:</span>
+page.<span class="fn">click</span>(<span class="st">"#submit"</span>)
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">".result"</span>)).<span class="fn">to_be_visible</span>()  <span class="cm"># retries for 5s</span></div>
+
+  <div class="sec">When you DO need explicit waits</div>
+  <div class="code"><span class="cm"># 1. Waiting for navigation to complete</span>
+page.<span class="fn">click</span>(<span class="st">"#submit"</span>)
+page.<span class="fn">wait_for_url</span>(<span class="st">"**/dashboard"</span>)   <span class="cm"># waits until URL matches pattern</span>
+
+<span class="cm"># 2. Waiting for an element to appear (when you need the element itself)</span>
+page.<span class="fn">wait_for_selector</span>(<span class="st">".result"</span>)   <span class="cm"># waits for element, returns it</span>
+
+<span class="cm"># 3. Custom timeout for slow pages</span>
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">".slow-chart"</span>)).<span class="fn">to_be_visible</span>(timeout=<span class="nm">15000</span>)  <span class="cm"># 15s</span>
+
+<span class="cm"># 4. Waiting for network requests to finish</span>
+page.<span class="fn">wait_for_load_state</span>(<span class="st">"networkidle"</span>)   <span class="cm"># all network activity stopped</span></div>
+
+  <div class="warn">Never use <code>time.sleep()</code> in tests. It makes every test run slower by a fixed amount even when the page is fast. Use <code>expect().to_be_visible()</code> instead — it returns as soon as the element appears and only waits the full timeout if it never does.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">Soft assertions →</button>
+  </div>
+</div>
+
+<!-- PAGE 6 -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">Soft assertions — collect all failures at once <span class="badge bp" style="margin-left:6px">advanced pattern</span></div>
+    <div class="card-b">Normal assertions stop the test on the first failure. <b>Soft assertions</b> collect all failures and report them all at the end. Use them when you want to check multiple things on a page and see all problems at once instead of fixing one at a time.</div>
+  </div>
+
+  <div class="try-lbl">Add to Day19_assertions.py</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+<span class="kw">def</span> <span class="fn">test_soft_assertions</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># Create a soft assertion context</span>
+    soft = <span class="fn">expect</span>.soft(page)
+
+    <span class="cm"># All these run — even if one fails</span>
+    soft.<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    soft.<span class="fn">to_have_title</span>(<span class="st">"The Internet"</span>)
+
+    <span class="cm"># Soft assert on elements</span>
+    <span class="fn">expect</span>.<span class="fn">soft</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>.<span class="fn">soft</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>)).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>.<span class="fn">soft</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>)).<span class="fn">to_be_visible</span>()
+
+    <span class="cm"># At the end — raises ALL failures at once if any failed</span>
+    page.context.pages[<span class="nm">0</span>]  <span class="cm"># soft failures reported when test ends</span></div>
+
+  <div class="sec">When to use soft vs hard assertions</div>
+  <div class="code"><span class="cm"># Hard assertion (default) — use for critical checks</span>
+<span class="cm"># If login URL is wrong, rest of test makes no sense → stop immediately</span>
+<span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/secure"</span>)
+
+<span class="cm"># Soft assertion — use for page content checks</span>
+<span class="cm"># Check all form fields exist — want to see ALL missing fields at once</span>
+<span class="fn">expect</span>.<span class="fn">soft</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Name"</span>)).<span class="fn">to_be_visible</span>()
+<span class="fn">expect</span>.<span class="fn">soft</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Email"</span>)).<span class="fn">to_be_visible</span>()
+<span class="fn">expect</span>.<span class="fn">soft</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Phone"</span>)).<span class="fn">to_be_visible</span>()</div>
+
+  <div class="ok">Soft assertions are especially useful for form validation testing — check that all error messages appear when you submit an empty form. Without soft assertions, you fix one error, re-run, find the next error. With soft assertions, you see all missing fields in one run.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">Complete reference →</button>
+  </div>
+</div>
+
+<!-- PAGE 7 -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">Complete assertion reference — all in one file</div>
+    <div class="card-b">Every assertion you will need in real projects. Keep this as your reference.</div>
+  </div>
+  <div class="code"><span class="cm"># Day19_reference.py — complete assertion cheat sheet</span>
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="kw">def</span> <span class="fn">test_all_assertions</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># ── Page assertions ───────────────────────────</span>
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="fn">expect</span>(page).<span class="fn">to_have_title</span>(<span class="st">"The Internet"</span>)
+
+    <span class="cm"># ── Visibility ────────────────────────────────</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_be_hidden</span>()
+
+    <span class="cm"># ── State ─────────────────────────────────────</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_be_enabled</span>()
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_be_editable</span>()
+
+    <span class="cm"># ── Fill and assert value ─────────────────────</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_have_value</span>(<span class="st">"tomsmith"</span>)
+
+    <span class="cm"># ── Attribute ─────────────────────────────────</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#password"</span>)).<span class="fn">to_have_attribute</span>(<span class="st">"type"</span>, <span class="st">"password"</span>)
+
+    <span class="cm"># ── Login and assert result ───────────────────</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/secure"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"secure area"</span>)
+
+<span class="kw">def</span> <span class="fn">test_checkboxes_assertions</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    checkboxes = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)
+
+    <span class="cm"># ── Count ─────────────────────────────────────</span>
+    <span class="fn">expect</span>(checkboxes).<span class="fn">to_have_count</span>(<span class="nm">2</span>)
+
+    <span class="cm"># ── Checked state ─────────────────────────────</span>
+    <span class="fn">expect</span>(checkboxes.<span class="fn">first</span>).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(checkboxes.<span class="fn">last</span>).<span class="fn">to_be_checked</span>()
+
+    <span class="cm"># ── After action ──────────────────────────────</span>
+    checkboxes.<span class="fn">first</span>.<span class="fn">check</span>()
+    <span class="fn">expect</span>(checkboxes.<span class="fn">first</span>).<span class="fn">to_be_checked</span>()</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 19 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8 -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 19 challenge — use every assertion type</div>
+    <div class="card-b">New file: <b>test_day19_challenge.py</b> in your <code>qa-automation</code> folder.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-b">
+      <b>Test 1 — to_be_visible and to_be_hidden</b><br>
+      Go to /login. Assert flash message is hidden before login. Submit wrong credentials. Assert flash error is now visible. Assert flash contains "Your username is invalid".<br><br>
+
+      <b>Test 2 — to_have_value and to_have_attribute</b><br>
+      Go to /login. Fill username with "tomsmith". Assert <code>to_have_value("tomsmith")</code>. Assert username input has attribute type="text". Assert password input has attribute type="password".<br><br>
+
+      <b>Test 3 — to_have_count with dynamic content</b><br>
+      Go to /add_remove_elements/. Assert Delete button count is 0. Click Add Element 4 times. Assert count is 4. Click Delete twice. Assert count is 2.<br><br>
+
+      <b>Test 4 — to_be_checked and not_to_be_checked</b><br>
+      Go to /checkboxes. Assert initial state (first unchecked, second checked). Check first, uncheck second. Assert state flipped. Assert to_have_count(2) still passes.<br><br>
+
+      <b>Test 5 — to_have_url after navigation</b><br>
+      Go to homepage. Click the "Dropdown" link. Assert URL is /dropdown. Select option 1. Assert to_have_value("1") and to_contain_text("Option 1"). Select option 2. Assert to_have_value("2").<br><br>
+
+      <b>Test 6 — custom timeout</b><br>
+      Go to /login. Assert the Login button is visible with a custom <code>timeout=10000</code> (10 seconds). Assert the heading is visible with <code>timeout=5000</code>.
+    </div>
+  </div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 19 Playwright assertions and waits challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 19 ideal solution ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 19 challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+    <button class="ask" onclick="sendPrompt('Help me rewrite my QA resume for SDET and automation engineer roles highlighting my 7.4 years experience and new automation skills')">Day 33 — Rewrite my resume ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+</div>
+
+<script>
+const total=9;
+const labs=['Why tests go flaky','Visibility','Text + Value','URL + Count','Checkbox + State','Auto-waiting','Soft assertions','Full reference','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

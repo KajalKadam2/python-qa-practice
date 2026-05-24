@@ -1,0 +1,591 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#791F1F;color:#fff;border-color:#791F1F}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.ch{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin:9px 0}
+.ch-t{font-size:13px;font-weight:500;margin-bottom:6px}
+.ch-b{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.ch-b code,.card-b code,.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#791F1F;color:#fff;border-color:#791F1F;font-weight:500}
+.btn-n:hover{background:#5A1515}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.bp{background:#EEEDFE;color:#3C3489}
+.ba{background:#FAEEDA;color:#633806}
+.br{background:#FCEBEB;color:#791F1F}
+.priority-grid{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.pr{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)}
+.pr-rank{font-size:11px;font-weight:500;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pr-cmd{font-family:var(--font-mono);font-size:12px;flex:1;color:var(--color-text-primary)}
+.pr-why{font-size:11px;color:var(--color-text-secondary)}
+.r1{background:#EAF3DE;color:#27500A;border-color:#97C459}.r1 .pr-rank{background:#27500A;color:#fff}
+.r2{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}.r2 .pr-rank{background:#0C447C;color:#fff}
+.r3{background:#FAEEDA;color:#633806;border-color:#EF9F27}.r3 .pr-rank{background:#633806;color:#fff}
+.r4{background:#FCEBEB;color:#791F1F;border-color:#F09595}.r4 .pr-rank{background:#791F1F;color:#fff}
+.html-box{background:#161b22;border-radius:var(--border-radius-md);padding:11px 14px;font-family:var(--font-mono);font-size:12px;line-height:1.75;margin:8px 0;border:0.5px solid #30363d;white-space:pre}
+.ht{color:#79c0ff}
+.ha{color:#ffb347}
+.hv{color:#a8daab}
+.hc{color:#8b949e;font-style:italic}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: LOCATOR PRIORITY -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 18 — Locators in depth</div>
+    <div class="card-b">A locator tells Playwright <b>which element on the page to interact with</b>. Choosing the right locator determines whether your tests are stable or flaky. There is a clear priority order — use the highest-ranked locator that works for your element.</div>
+  </div>
+
+  <div class="sec">The locator priority order — memorise this</div>
+  <div class="priority-grid">
+    <div class="pr r1"><span class="pr-rank">1</span><span class="pr-cmd">get_by_role()</span><span class="pr-why">Accessibility role — best for buttons, links, headings, inputs</span></div>
+    <div class="pr r1"><span class="pr-rank">2</span><span class="pr-cmd">get_by_label()</span><span class="pr-why">Form label — best for all form fields</span></div>
+    <div class="pr r1"><span class="pr-rank">3</span><span class="pr-cmd">get_by_placeholder()</span><span class="pr-why">Placeholder text — when no label exists</span></div>
+    <div class="pr r1"><span class="pr-rank">4</span><span class="pr-cmd">get_by_text()</span><span class="pr-why">Visible text — for links and text content</span></div>
+    <div class="pr r2"><span class="pr-rank">5</span><span class="pr-cmd">get_by_test_id()</span><span class="pr-why">data-testid attribute — when devs add test IDs</span></div>
+    <div class="pr r3"><span class="pr-rank">6</span><span class="pr-cmd">locator("css")</span><span class="pr-why">CSS selector — when semantic locators do not work</span></div>
+    <div class="pr r4"><span class="pr-rank">7</span><span class="pr-cmd">locator("xpath")</span><span class="pr-why">XPath — last resort only</span></div>
+  </div>
+
+  <div class="tip">Playwright's own documentation recommends this exact priority. Semantic locators (1–5) survive UI redesigns because they describe <b>what</b> the element is, not <b>where</b> it is on the page. CSS and XPath break when developers move things around.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 9</span>
+    <button class="btn btn-n" onclick="go(1)">get_by_role →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: GET BY ROLE -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">get_by_role() — the most powerful locator <span class="badge bg" style="margin-left:6px">use first always</span></div>
+    <div class="card-b"><code>get_by_role()</code> finds elements by their ARIA role — the accessibility label that describes what the element <b>is</b>. A button is a button, a heading is a heading, a link is a link. This matches how screen readers see the page and survives CSS class changes.</div>
+  </div>
+
+  <div class="sec">Common roles you will use every day</div>
+  <div class="try-lbl">Type this — test_locators_role.py</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="kw">def</span> <span class="fn">test_role_button</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># Button by role + name</span>
+    btn = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>)
+    <span class="fn">expect</span>(btn).<span class="fn">to_be_visible</span>()
+    <span class="fn">expect</span>(btn).<span class="fn">to_be_enabled</span>()
+
+<span class="kw">def</span> <span class="fn">test_role_heading</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># Heading by role + exact name</span>
+    heading = page.<span class="fn">get_by_role</span>(<span class="st">"heading"</span>, name=<span class="st">"Login Page"</span>)
+    <span class="fn">expect</span>(heading).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_role_link</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}"</span>)
+    <span class="cm"># Link by role + name</span>
+    link = page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Form Authentication"</span>)
+    <span class="fn">expect</span>(link).<span class="fn">to_be_visible</span>()
+    link.<span class="fn">click</span>()
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+<span class="kw">def</span> <span class="fn">test_role_checkbox</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    <span class="cm"># Checkbox by role</span>
+    checkboxes = page.<span class="fn">get_by_role</span>(<span class="st">"checkbox"</span>)
+    <span class="fn">expect</span>(checkboxes).<span class="fn">to_have_count</span>(<span class="nm">2</span>)
+
+<span class="kw">def</span> <span class="fn">test_role_exact</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/secure"</span> <span class="kw">if</span> <span class="kw">False</span> <span class="kw">else</span> <span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># exact=True — matches ONLY "Login" not "Login Page"</span>
+    btn = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>, exact=<span class="kw">True</span>)
+    <span class="fn">expect</span>(btn).<span class="fn">to_be_visible</span>()</div>
+
+  <div class="sec">All roles you will encounter</div>
+  <div class="code"><span class="cm"># Most common ARIA roles in web apps</span>
+<span class="st">"button"</span>      <span class="cm"># &lt;button&gt; or role="button"</span>
+<span class="st">"link"</span>        <span class="cm"># &lt;a href&gt;</span>
+<span class="st">"heading"</span>     <span class="cm"># &lt;h1&gt; through &lt;h6&gt;</span>
+<span class="st">"textbox"</span>     <span class="cm"># &lt;input type="text"&gt;</span>
+<span class="st">"checkbox"</span>    <span class="cm"># &lt;input type="checkbox"&gt;</span>
+<span class="st">"radio"</span>       <span class="cm"># &lt;input type="radio"&gt;</span>
+<span class="st">"combobox"</span>    <span class="cm"># &lt;select&gt; dropdown</span>
+<span class="st">"listitem"</span>    <span class="cm"># &lt;li&gt; in a list</span>
+<span class="st">"alert"</span>       <span class="cm"># role="alert" — flash messages</span>
+<span class="st">"img"</span>         <span class="cm"># &lt;img&gt; with alt text</span>
+<span class="st">"navigation"</span>  <span class="cm"># &lt;nav&gt;</span>
+<span class="st">"main"</span>        <span class="cm"># &lt;main&gt;</span></div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 9</span>
+    <button class="btn btn-n" onclick="go(2)">get_by_label + text →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: GET BY LABEL TEXT PLACEHOLDER -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">get_by_label, get_by_text, get_by_placeholder</div>
+    <div class="card-b">These three cover the remaining semantic locators. <code>get_by_label</code> is for form fields. <code>get_by_text</code> is for visible text. <code>get_by_placeholder</code> is a fallback when no label exists.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="cm"># ── get_by_label ─────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_label_locator</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># Finds the input associated with the label "Username"</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+
+    <span class="cm"># Verify values were filled</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_have_value</span>(<span class="st">"tomsmith"</span>)
+
+<span class="cm"># ── get_by_text ───────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_text_locator</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+    <span class="cm"># get_by_text — finds element containing this text</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_text</span>(<span class="st">"You logged into a secure area!"</span>)).<span class="fn">to_be_visible</span>()
+
+    <span class="cm"># exact=True — must match exactly, no partial matches</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_text</span>(<span class="st">"Secure Area"</span>, exact=<span class="kw">True</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="cm"># ── get_by_placeholder ───────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_placeholder_locator</span>(page: Page):
+    <span class="cm"># Use when no label exists — placeholder is fallback</span>
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+
+    <span class="cm"># If the input had placeholder="Enter your username"</span>
+    <span class="cm"># page.get_by_placeholder("Enter your username").fill("tomsmith")</span>
+
+    <span class="cm"># Our login page uses labels so use get_by_label instead</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>)).<span class="fn">to_have_value</span>(<span class="st">"tomsmith"</span>)</div>
+
+  <div class="warn">When <code>get_by_text("Secure Area")</code> matches multiple elements you get a strict mode violation. Fix with <code>exact=True</code> or switch to <code>get_by_role("heading", name="Secure Area", exact=True)</code>. You solved this exact error in Day 16.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 9</span>
+    <button class="btn btn-n" onclick="go(3)">CSS selectors →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: CSS -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">CSS selectors — when semantic locators are not enough <span class="badge ba" style="margin-left:6px">rank 6</span></div>
+    <div class="card-b">CSS selectors target elements by their HTML attributes — ID, class, tag, attribute value. Use them when an element has no accessible role, no label, and no visible text. They are more fragile than semantic locators but more readable than XPath.</div>
+  </div>
+
+  <div class="sec">HTML we are targeting</div>
+  <div class="html-box"><span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hv">"flash"</span> <span class="ha">class</span>=<span class="hv">"flash success"</span><span class="ht">&gt;</span>
+  You logged into a secure area!
+<span class="ht">&lt;/div&gt;</span>
+
+<span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hv">"checkbox"</span> <span class="ha">checked</span><span class="ht">&gt;</span>
+<span class="ht">&lt;select</span> <span class="ha">id</span>=<span class="hv">"dropdown"</span><span class="ht">&gt;&lt;/select&gt;</span>
+<span class="ht">&lt;button</span> <span class="ha">class</span>=<span class="hv">"btn-danger"</span><span class="ht">&gt;</span>Delete<span class="ht">&lt;/button&gt;</span></div>
+
+  <div class="try-lbl">Type this — CSS selector patterns</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="kw">def</span> <span class="fn">test_css_by_id</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="cm"># #id selector</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_css_by_class</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"wronguser"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"wrongpass"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="cm"># .class selector — element with BOTH flash and error classes</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"invalid"</span>)
+
+<span class="kw">def</span> <span class="fn">test_css_by_attribute</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    <span class="cm"># [attr] — element with this attribute</span>
+    checked = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox'][checked]"</span>)
+    <span class="fn">expect</span>(checked).<span class="fn">to_be_checked</span>()
+
+<span class="kw">def</span> <span class="fn">test_css_by_tag</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/add_remove_elements/"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>).<span class="fn">click</span>()
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>).<span class="fn">click</span>()
+    <span class="cm"># tag + class selector</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"button.added-manually"</span>)).<span class="fn">to_have_count</span>(<span class="nm">2</span>)</div>
+
+  <div class="sec">CSS selector quick reference</div>
+  <div class="code"><span class="st">"#flash"</span>                  <span class="cm"># by ID</span>
+<span class="st">".error"</span>                  <span class="cm"># by class</span>
+<span class="st">"#flash.error"</span>            <span class="cm"># ID + class combined</span>
+<span class="st">"input[type='checkbox']"</span>  <span class="cm"># by attribute</span>
+<span class="st">"button.added-manually"</span>  <span class="cm"># tag + class</span>
+<span class="st">"div > p"</span>                 <span class="cm"># direct child</span>
+<span class="st">"ul li:first-child"</span>       <span class="cm"># first list item</span>
+<span class="st">"ul li:nth-child(2)"</span>      <span class="cm"># second list item</span></div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 9</span>
+    <button class="btn btn-n" onclick="go(4)">XPath →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: XPATH -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">XPath — last resort only <span class="badge br" style="margin-left:6px">rank 7</span></div>
+    <div class="card-b">XPath traverses the entire HTML tree to find elements. It is the most powerful locator — it can find things nothing else can — but also the most brittle. Any change in page structure breaks XPath. Use it only when all other locators fail.</div>
+  </div>
+
+  <div class="try-lbl">Type this — XPath patterns you actually need</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="kw">def</span> <span class="fn">test_xpath_by_text</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># XPath to find element containing specific text</span>
+    label = page.<span class="fn">locator</span>(<span class="st">"//label[contains(text(),'Username')]"</span>)
+    <span class="fn">expect</span>(label).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_xpath_by_attribute</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># XPath by attribute value</span>
+    username = page.<span class="fn">locator</span>(<span class="st">"//input[@id='username']"</span>)
+    username.<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    <span class="fn">expect</span>(username).<span class="fn">to_have_value</span>(<span class="st">"tomsmith"</span>)
+
+<span class="kw">def</span> <span class="fn">test_xpath_parent_child</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    <span class="cm"># XPath: find form, then get checkboxes inside it</span>
+    checkboxes = page.<span class="fn">locator</span>(<span class="st">"//form[@id='checkboxes']//input"</span>)
+    <span class="fn">expect</span>(checkboxes).<span class="fn">to_have_count</span>(<span class="nm">2</span>)</div>
+
+  <div class="sec">XPath quick reference</div>
+  <div class="code"><span class="st">"//div"</span>                         <span class="cm"># any div anywhere</span>
+<span class="st">"//input[@id='username']"</span>       <span class="cm"># by attribute</span>
+<span class="st">"//label[text()='Username']"</span>    <span class="cm"># exact text match</span>
+<span class="st">"//label[contains(.,'User')]"</span>   <span class="cm"># partial text match</span>
+<span class="st">"//form//input"</span>                 <span class="cm"># input inside a form</span>
+<span class="st">"//ul/li[1]"</span>                    <span class="cm"># first li (XPath is 1-indexed)</span>
+<span class="st">"//button[not(@disabled)]"</span>      <span class="cm"># button that is not disabled</span></div>
+
+  <div class="warn">XPath is 1-indexed — <code>//li[1]</code> is the first item. CSS <code>:nth-child()</code> is also 1-indexed. But Python lists and Playwright's <code>.nth()</code> are 0-indexed. Do not mix them up.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 9</span>
+    <button class="btn btn-n" onclick="go(5)">nth + filter + chain →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: NTH FILTER CHAIN -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">nth, filter, and chaining — advanced locator patterns <span class="badge bb" style="margin-left:6px">interview level</span></div>
+    <div class="card-b">When a locator matches multiple elements you need to narrow it down. <code>.nth()</code> picks by position, <code>.filter()</code> picks by content or state, and chaining combines locators for precision.</div>
+  </div>
+
+  <div class="try-lbl">Type this</div>
+  <div class="code"><span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="cm"># ── .nth() — pick by position ───────────────────</span>
+<span class="kw">def</span> <span class="fn">test_nth</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    checkboxes = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)
+
+    first  = checkboxes.<span class="fn">nth</span>(<span class="nm">0</span>)   <span class="cm"># 0-indexed</span>
+    second = checkboxes.<span class="fn">nth</span>(<span class="nm">1</span>)
+    last   = checkboxes.<span class="fn">last</span>      <span class="cm"># shortcut for last</span>
+    first_item = checkboxes.<span class="fn">first</span> <span class="cm"># shortcut for first</span>
+
+    <span class="fn">expect</span>(first).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(second).<span class="fn">to_be_checked</span>()
+
+<span class="cm"># ── .filter() — narrow by content or state ──────</span>
+<span class="kw">def</span> <span class="fn">test_filter</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/add_remove_elements/"</span>)
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>):
+        page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>).<span class="fn">click</span>()
+
+    <span class="cm"># Filter buttons to only "Delete" ones</span>
+    delete_buttons = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>).<span class="fn">filter</span>(has_text=<span class="st">"Delete"</span>)
+    <span class="fn">expect</span>(delete_buttons).<span class="fn">to_have_count</span>(<span class="nm">3</span>)
+
+<span class="cm"># ── Chaining — narrow from parent to child ───────</span>
+<span class="kw">def</span> <span class="fn">test_chain</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    <span class="cm"># Find the form, then find the button inside it</span>
+    form = page.<span class="fn">locator</span>(<span class="st">"#login"</span>)
+    submit = form.<span class="fn">get_by_role</span>(<span class="st">"button"</span>)
+    <span class="fn">expect</span>(submit).<span class="fn">to_be_visible</span>()
+
+<span class="cm"># ── .first and .last shortcuts ───────────────────</span>
+<span class="kw">def</span> <span class="fn">test_first_last</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/add_remove_elements/"</span>)
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">2</span>):
+        page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>).<span class="fn">click</span>()
+    deletes = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>)
+    <span class="cm"># Click only the first Delete button</span>
+    deletes.<span class="fn">first</span>.<span class="fn">click</span>()
+    <span class="fn">expect</span>(deletes).<span class="fn">to_have_count</span>(<span class="nm">1</span>)</div>
+
+  <div class="tip">Chaining is the cleanest way to handle ambiguous locators. Instead of a complex CSS or XPath that reaches deep into the DOM, find the parent container first, then find the child element within it. Each step is simple and readable.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 9</span>
+    <button class="btn btn-n" onclick="go(6)">Debugging locators →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: DEBUGGING -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">Debugging locators — finding the right selector</div>
+    <div class="card-b">When a locator fails, you need to investigate. These tools let you find the right locator without trial and error.</div>
+  </div>
+
+  <div class="sec">Tool 1 — Playwright Inspector (best tool)</div>
+  <div class="code"><span class="cm"># Run with --headed and pause to inspect</span>
+pytest test_login_pom.py -v --headed --slowmo=1000
+
+<span class="cm"># Or add a pause inside your test</span>
+<span class="kw">def</span> <span class="fn">test_debug</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="st">"https://the-internet.herokuapp.com/login"</span>)
+    page.<span class="fn">pause</span>()   <span class="cm"># opens Playwright Inspector — hover to highlight elements</span></div>
+
+  <div class="sec">Tool 2 — Browser DevTools</div>
+  <div class="code"><span class="cm"># In any browser — right-click element → Inspect
+# In the Console tab type:</span>
+document.<span class="fn">querySelector</span>(<span class="st">"#username"</span>)         <span class="cm"># test CSS selector</span>
+document.<span class="fn">querySelectorAll</span>(<span class="st">".flash"</span>)         <span class="cm"># see how many match</span>
+$x(<span class="st">"//input[@id='username']"</span>)               <span class="cm"># test XPath</span></div>
+
+  <div class="sec">Tool 3 — Playwright codegen (auto-generates locators)</div>
+  <div class="code"><span class="cm"># This opens a browser and records your clicks</span>
+<span class="cm"># It suggests the best locator for each element you click</span>
+playwright codegen https://the-internet.herokuapp.com/login</div>
+
+  <div class="out">
+    <div class="out-lbl">Codegen output — it writes the test for you</div>
+    <div class="ol ol-g">page.get_by_label("Username").click()</div>
+    <div class="ol ol-g">page.get_by_label("Username").fill("tomsmith")</div>
+    <div class="ol ol-g">page.get_by_role("button", name="Login").click()</div>
+  </div>
+
+  <div class="sec">When you get strict mode violation</div>
+  <div class="code"><span class="cm"># Error: strict mode violation: get_by_text("X") resolved to N elements
+# Fix options — in priority order:</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"heading"</span>, name=<span class="st">"X"</span>, exact=<span class="kw">True</span>)   <span class="cm"># most specific</span>
+page.<span class="fn">get_by_text</span>(<span class="st">"X"</span>, exact=<span class="kw">True</span>)               <span class="cm"># exact match</span>
+page.<span class="fn">locator</span>(<span class="st">"h2"</span>).<span class="fn">filter</span>(has_text=<span class="st">"X"</span>)           <span class="cm"># filter by tag + text</span>
+page.<span class="fn">get_by_text</span>(<span class="st">"X"</span>).<span class="fn">first</span>                       <span class="cm"># take first match</span></div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 9</span>
+    <button class="btn btn-n" onclick="go(7)">QA example →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: QA EXAMPLE -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">QA Example — complete locator showcase <span class="badge bg" style="margin-left:6px">portfolio quality</span></div>
+    <div class="card-b">A single test file that demonstrates every locator type on the practice site — suitable for showing in interviews as a locator skills showcase.</div>
+  </div>
+  <div class="try-lbl">Create test_day18_locators.py</div>
+  <div class="code"><span class="cm"># test_day18_locators.py — locator showcase</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="kw">def</span> <span class="fn">test_semantic_locators</span>(page: Page):
+    <span class="st">"""Demonstrate get_by_role and get_by_label."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+
+    <span class="cm"># role: heading</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"heading"</span>, name=<span class="st">"Login Page"</span>)).<span class="fn">to_be_visible</span>()
+
+    <span class="cm"># label: form fields</span>
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+
+    <span class="cm"># role: button</span>
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+    <span class="cm"># text: flash message</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_text</span>(<span class="st">"You logged into a secure area!"</span>)).<span class="fn">to_be_visible</span>()
+
+    <span class="cm"># role: heading exact — avoids strict mode violation</span>
+    <span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"heading"</span>, name=<span class="st">"Secure Area"</span>, exact=<span class="kw">True</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="kw">def</span> <span class="fn">test_css_locators</span>(page: Page):
+    <span class="st">"""Demonstrate CSS selectors."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"wronguser"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"wrongpass"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+
+    <span class="cm"># CSS: ID + class</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.error"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"Your username is invalid"</span>)
+
+<span class="kw">def</span> <span class="fn">test_nth_and_filter</span>(page: Page):
+    <span class="st">"""Demonstrate .nth() and .filter()."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+
+    <span class="cm"># nth(0) = first, nth(1) = second</span>
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">0</span>)).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">nth</span>(<span class="nm">1</span>)).<span class="fn">to_be_checked</span>()
+
+<span class="kw">def</span> <span class="fn">test_dynamic_elements</span>(page: Page):
+    <span class="st">"""Demonstrate to_have_count on dynamic list."""</span>
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/add_remove_elements/"</span>)
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>):
+        page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>).<span class="fn">click</span>()
+
+    delete_btns = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>).<span class="fn">filter</span>(has_text=<span class="st">"Delete"</span>)
+    <span class="fn">expect</span>(delete_btns).<span class="fn">to_have_count</span>(<span class="nm">3</span>)
+    delete_btns.<span class="fn">first</span>.<span class="fn">click</span>()
+    <span class="fn">expect</span>(delete_btns).<span class="fn">to_have_count</span>(<span class="nm">2</span>)</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 9</span>
+    <button class="btn btn-n" onclick="go(8)">Day 18 challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: CHALLENGE -->
+<div class="pg" id="pg8">
+  <div class="card">
+    <div class="card-t">Day 18 challenge</div>
+    <div class="card-b">New file: <b>test_day18_challenge.py</b>. Use every locator type at least once.</div>
+  </div>
+
+  <div class="ch">
+    <div class="ch-t">Write these 5 tests on the practice site</div>
+    <div class="ch-b">
+      <b>Test 1 — Hovers page</b> (<code>/hovers</code>)<br>
+      Go to /hovers. Hover over each user figure using <code>.hover()</code>. After hovering assert the name text appears using <code>get_by_text()</code>. There are 3 figures.<br><br>
+
+      <b>Test 2 — Dropdown page</b> (<code>/dropdown</code>)<br>
+      Use <code>locator("#dropdown")</code> to find the select element. Select "Option 1" then assert <code>to_have_value("1")</code>. Select "Option 2" then assert <code>to_have_value("2")</code>.<br><br>
+
+      <b>Test 3 — Add/Remove elements</b> (<code>/add_remove_elements/</code>)<br>
+      Use <code>get_by_role("button")</code> with <code>.filter(has_text="Delete")</code>. Add 4 elements. Assert count is 4. Delete first. Assert count is 3.<br><br>
+
+      <b>Test 4 — Checkboxes both states</b> (<code>/checkboxes</code>)<br>
+      Use <code>locator("input[type='checkbox']")</code> with <code>.nth()</code>. Check the first checkbox and assert it is now checked. Uncheck the second and assert it is unchecked.<br><br>
+
+      <b>Test 5 — Key presses</b> (<code>/key_presses</code>)<br>
+      Use <code>locator("#target")</code> to find the input. Press the "A" key using <code>.press("A")</code>. Assert the result text using <code>get_by_text()</code> contains "A".
+    </div>
+  </div>
+
+  <div class="ok">When all 5 tests pass you have demonstrated every locator strategy from the priority list. Push to GitHub via a feature branch and open a PR — combining Day 13 and Day 18 in one workflow.</div>
+
+  <div style="margin-top:12px">
+    <button class="ask" onclick="sendPrompt('I finished the Day 18 Playwright locators challenge. Show me the ideal solution so I can compare mine.')">Show me the Day 18 solution ↗</button>
+    <button class="ask" onclick="sendPrompt('Teach me Day 19 Playwright — assertions and waits to_be_visible to_have_text expect in depth with hands-on exercises')">Go to Day 19 — assertions and waits ↗</button>
+    <button class="ask" onclick="sendPrompt('I am stuck on the Day 18 locators challenge — help me debug. Here is my error:')">Help me debug ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(7)">← Back</button>
+    <span class="pi">9 of 9</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=9;
+const labs=['Priority order','get_by_role','Label+Text+Placeholder','CSS selectors','XPath','nth+filter+chain','Debugging','QA Example','Challenge'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

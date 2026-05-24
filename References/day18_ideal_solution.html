@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part{font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px;background:var(--color-background-secondary)}
+.pn{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.p5{background:#FCEBEB;color:#791F1F}
+.p6{background:#FFF3C4;color:#7A5000}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#185FA5;border-color:#185FA5}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#185FA5;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Test by test</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every test that differs from yours, understand the reason before moving on.</div>
+
+<div class="code"><span class="cm"># ─────────────────────────────────────────────────────
+# Day 18 Challenge — Ideal Solution
+# test_day18_challenge.py
+# ─────────────────────────────────────────────────────</span>
+<span class="kw">import</span> pytest
+<span class="kw">from</span> playwright.sync_api <span class="kw">import</span> Page, expect
+
+BASE = <span class="st">"https://the-internet.herokuapp.com"</span>
+
+<span class="cm"># ── Test 1: get_by_role ───────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_add_remove_with_role</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/add_remove_elements/"</span>)
+    add_btn = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>)
+
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>):
+        add_btn.<span class="fn">click</span>()
+
+    <span class="fn">expect</span>(
+        page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>)
+    ).<span class="fn">to_have_count</span>(<span class="nm">3</span>)
+
+<span class="cm"># ── Test 2: get_by_label ──────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_login_with_label</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Username"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">get_by_label</span>(<span class="st">"Password"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Login"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/secure"</span>)
+
+<span class="cm"># ── Test 3: get_by_text ───────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_navigate_with_text</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}"</span>)
+    page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Hovers"</span>, exact=<span class="kw">True</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/hovers"</span>)
+
+<span class="cm"># ── Test 4: CSS selector ──────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_checkboxes_with_css</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/checkboxes"</span>)
+    checkboxes = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)
+
+    <span class="cm"># Assert initial state</span>
+    <span class="fn">expect</span>(checkboxes.<span class="fn">first</span>).<span class="fn">not_to_be_checked</span>()
+    <span class="fn">expect</span>(checkboxes.<span class="fn">last</span>).<span class="fn">to_be_checked</span>()
+
+    <span class="cm"># Check the first checkbox</span>
+    checkboxes.<span class="fn">first</span>.<span class="fn">check</span>()
+
+    <span class="cm"># Both should now be checked</span>
+    <span class="fn">expect</span>(checkboxes.<span class="fn">first</span>).<span class="fn">to_be_checked</span>()
+    <span class="fn">expect</span>(checkboxes.<span class="fn">last</span>).<span class="fn">to_be_checked</span>()
+
+<span class="cm"># ── Test 5: XPath ─────────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_login_with_xpath</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/login"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//*[@id='username']"</span>).<span class="fn">fill</span>(<span class="st">"tomsmith"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//*[@id='password']"</span>).<span class="fn">fill</span>(<span class="st">"SuperSecretPassword!"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"//button[@type='submit']"</span>).<span class="fn">click</span>()
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"//div[@id='flash']"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"secure area"</span>)
+
+<span class="cm"># ── Test 6: nth + dropdown ────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">test_dropdown_with_css</span>(page: Page):
+    page.<span class="fn">goto</span>(<span class="fn">f</span><span class="st">"{BASE}/dropdown"</span>)
+    page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>).<span class="fn">select_option</span>(<span class="st">"2"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(<span class="st">"2"</span>)
+    <span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"Option 2"</span>)</div>
+
+  <div class="sec">Run command and expected output</div>
+  <div class="code">cd ~/Desktop/qa-automation
+pytest test_day18_challenge.py -v --headed</div>
+  <div class="out">
+    <div class="out-lbl">All 6 tests passing</div>
+    <div class="ol ol-g">PASSED test_day18_challenge.py::test_add_remove_with_role</div>
+    <div class="ol ol-g">PASSED test_day18_challenge.py::test_login_with_label</div>
+    <div class="ol ol-g">PASSED test_day18_challenge.py::test_navigate_with_text</div>
+    <div class="ol ol-g">PASSED test_day18_challenge.py::test_checkboxes_with_css</div>
+    <div class="ol ol-g">PASSED test_day18_challenge.py::test_login_with_xpath</div>
+    <div class="ol ol-g">PASSED test_day18_challenge.py::test_dropdown_with_css</div>
+  </div>
+</div>
+
+<!-- TEST BY TEST -->
+<div class="pg" id="exp">
+
+  <div class="part"><span class="pn p1">Test 1</span> get_by_role — both Add and Delete use the same strategy</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">add_btn = page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Add Element"</span>)
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">3</span>):
+    add_btn.<span class="fn">click</span>()
+<span class="fn">expect</span>(page.<span class="fn">get_by_role</span>(<span class="st">"button"</span>, name=<span class="st">"Delete"</span>)).<span class="fn">to_have_count</span>(<span class="nm">3</span>)</div>
+      <div class="eb-why"><b>Store the locator in a variable when you use it multiple times.</b> <code>add_btn</code> is evaluated once and reused in the loop — cleaner than calling <code>get_by_role</code> on every iteration. The Delete assertion uses <code>to_have_count(3)</code> which waits for exactly 3 Delete buttons — it handles dynamic page updates automatically without needing an explicit wait.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p2">Test 2</span> get_by_label — assert URL not flash message</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/secure"</span>)</div>
+      <div class="eb-why"><b>URL assertion is more reliable than flash message for login success.</b> The flash message can sometimes not appear if the page loads too fast or the element is dismissed. The URL change is definitive — if you are on /secure, login succeeded. This is the same lesson from Day 17 where <code>to_have_url</code> proved more reliable than <code>to_have_title</code>.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p3">Test 3</span> Hovers link — get_by_role beats get_by_text</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># Better — role makes the element type explicit</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Hovers"</span>, exact=<span class="kw">True</span>).<span class="fn">click</span>()
+
+<span class="cm"># Also works but less specific</span>
+page.<span class="fn">get_by_text</span>(<span class="st">"Hovers"</span>, exact=<span class="kw">True</span>).<span class="fn">click</span>()</div>
+      <div class="eb-why"><b>get_by_role("link") is more precise than get_by_text for navigation.</b> The homepage has many text elements — headings, paragraphs, list items. <code>get_by_role("link")</code> restricts the search to anchor elements only, eliminating false matches. <code>exact=True</code> prevents matching "Hovers" inside a longer string like "Mouse Hovers".</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p4">Test 4</span> CSS checkboxes — .first and .last over .nth()</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">checkboxes = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)
+<span class="fn">expect</span>(checkboxes.<span class="fn">first</span>).<span class="fn">not_to_be_checked</span>()
+<span class="fn">expect</span>(checkboxes.<span class="fn">last</span>).<span class="fn">to_be_checked</span>()</div>
+      <div class="eb-why"><b>Store the locator collection in a variable — avoid repeating the selector.</b> <code>checkboxes.first</code> and <code>checkboxes.last</code> are more readable than <code>checkboxes.nth(0)</code> and <code>checkboxes.nth(1)</code> when you specifically mean the first and last items. Both work, but <code>.first</code> and <code>.last</code> communicate intent more clearly.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p5">Test 5</span> XPath — use //* not specific element type</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># Better — //* matches ANY element with that id</span>
+page.<span class="fn">locator</span>(<span class="st">"//*[@id='username']"</span>)
+
+<span class="cm"># More fragile — breaks if element type changes from input to textarea</span>
+page.<span class="fn">locator</span>(<span class="st">"//input[@id='username']"</span>)</div>
+      <div class="eb-why"><b><code>//*</code> means "any element" — more resilient than specifying the tag.</b> If a developer changes <code>&lt;input id="username"&gt;</code> to a custom component that renders differently, <code>//*[@id='username']</code> still finds it. <code>//input[@id='username']</code> would break. For ID-based XPath, always use <code>//*</code>.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p6">Test 6</span> Dropdown — assert both value AND visible text</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_have_value</span>(<span class="st">"2"</span>)
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#dropdown"</span>)).<span class="fn">to_contain_text</span>(<span class="st">"Option 2"</span>)</div>
+      <div class="eb-why"><b>Two assertions cover two different bugs.</b> <code>to_have_value("2")</code> checks the HTML value submitted in forms. <code>to_contain_text("Option 2")</code> checks what the user sees on screen. A bug could swap the labels — value 2 shows "Option 1" — and a single assertion would miss it. You applied this correctly from Day 17 lesson.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — using get_by_text for a link instead of get_by_role</div>
+    <div class="diff-body"><span class="cm"># Fragile — matches any element containing "Hovers"</span>
+page.<span class="fn">get_by_text</span>(<span class="st">"Hovers"</span>).<span class="fn">click</span>()
+
+<span class="cm"># Correct — explicitly matches only anchor elements</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Hovers"</span>, exact=<span class="kw">True</span>).<span class="fn">click</span>()</div>
+    <div class="diff-note"><b>get_by_role is always preferred over get_by_text for clickable elements.</b> The homepage has text in headings, paragraphs, and links. get_by_text("Hovers") could match a heading or paragraph too. get_by_role("link") restricts to anchor elements only — exactly what you want to click.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — missing exact=True on get_by_role with name</div>
+    <div class="diff-body"><span class="cm"># Can cause strict mode violations on pages with similar text</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Hovers"</span>).<span class="fn">click</span>()
+
+<span class="cm"># Safe — matches only exactly "Hovers"</span>
+page.<span class="fn">get_by_role</span>(<span class="st">"link"</span>, name=<span class="st">"Hovers"</span>, exact=<span class="kw">True</span>).<span class="fn">click</span>()</div>
+    <div class="diff-note"><b>Without exact=True, name= does a contains match.</b> A link named "Mouse Hovers" would also match <code>name="Hovers"</code>. You hit this exact issue on Day 16 with the "Secure Area" heading. Make exact=True a habit for any name= argument when you want a specific element.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — not storing the locator in a variable</div>
+    <div class="diff-body"><span class="cm"># Repeating the same locator expression 3 times</span>
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">first</span>).<span class="fn">not_to_be_checked</span>()
+page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">first</span>.<span class="fn">check</span>()
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>).<span class="fn">first</span>).<span class="fn">to_be_checked</span>()
+
+<span class="cm"># Correct — define once, reuse everywhere</span>
+checkboxes = page.<span class="fn">locator</span>(<span class="st">"input[type='checkbox']"</span>)
+<span class="fn">expect</span>(checkboxes.<span class="fn">first</span>).<span class="fn">not_to_be_checked</span>()
+checkboxes.<span class="fn">first</span>.<span class="fn">check</span>()
+<span class="fn">expect</span>(checkboxes.<span class="fn">first</span>).<span class="fn">to_be_checked</span>()</div>
+    <div class="diff-note"><b>DRY applies to locators too.</b> If the CSS selector ever changes, you update one variable not three lines. The code is also easier to read — <code>checkboxes.first</code> communicates intent better than the full repeated expression each time.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — using //input in XPath instead of //*</div>
+    <div class="diff-body"><span class="cm"># Fragile — breaks if element type changes</span>
+page.<span class="fn">locator</span>(<span class="st">"//input[@id='username']"</span>)
+
+<span class="cm"># Resilient — works regardless of element type</span>
+page.<span class="fn">locator</span>(<span class="st">"//*[@id='username']"</span>)</div>
+    <div class="diff-note"><b>//* matches any HTML element with that attribute.</b> Modern frameworks often wrap inputs in custom components — the rendered HTML might be a div or span, not an input. Using //* future-proofs your XPath against element type changes while still targeting the exact element by ID.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — asserting flash message instead of URL for login</div>
+    <div class="diff-body"><span class="cm"># Flakier — flash message timing can vary</span>
+<span class="fn">expect</span>(page.<span class="fn">locator</span>(<span class="st">"#flash.success"</span>)).<span class="fn">to_be_visible</span>()
+
+<span class="cm"># More reliable — URL change is definitive</span>
+<span class="fn">expect</span>(page).<span class="fn">to_have_url</span>(<span class="fn">f</span><span class="st">"{BASE}/secure"</span>)</div>
+    <div class="diff-note"><b>URL is a more reliable success indicator than flash messages.</b> Flash messages can be dismissed, fade out, or load at different speeds. The URL only changes when the server confirms login success and redirects. If you are on /secure, you are logged in — no ambiguity.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 1 — <code>get_by_role("button", name="Add Element")</code> stored in variable, loop uses <code>_</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 1 — asserts <code>to_have_count(3)</code> on Delete buttons</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 2 — uses <code>get_by_label</code> for both inputs, asserts <code>to_have_url</code> not flash message</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 3 — uses <code>get_by_role("link")</code> with <code>exact=True</code> instead of get_by_text</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 4 — locator stored in variable, uses <code>.first</code> and <code>.last</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 4 — asserts initial state, then checks first, then asserts both are checked</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 5 — uses <code>//*[@id='...']</code> not <code>//input[@id='...']</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 5 — XPath flash assertion uses <code>to_contain_text</code> not exact text match</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 6 — asserts both <code>to_have_value("2")</code> AND <code>to_contain_text("Option 2")</code></div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">All 6 tests pass with no strict mode violations</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 19 Playwright — assertions and waits in depth to_be_visible to_have_text wait_for_selector with hands-on exercises')">Go to Day 19 — Assertions and waits ↗</button>
+    <button class="ask" onclick="sendPrompt('Help me rewrite my QA resume for SDET and automation engineer roles highlighting my 7.4 years experience and new automation skills')">Day 33 — Rewrite my resume ↗</button>
+  </div>
+</div>
+</div>
+
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#185FA5':'';
+  box.style.borderColor=on?'#185FA5':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. You now know all 7 locator types, when to use each, and how to handle multiple matches. Day 19 is assertions and waits — the other half of reliable tests.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Check Common Mistakes for what you missed, fix those tests, then move to Day 19.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Test by Test for unchecked items and rewrite those tests before Day 19.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution carefully and rewrite all 6 tests from scratch before moving on.</div>';
+}
+</script>
+</body>
+</html>

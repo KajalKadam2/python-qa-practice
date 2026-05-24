@@ -1,0 +1,454 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.progress{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);transition:all .15s;flex-shrink:0;user-select:none}
+.dot:hover{background:var(--color-background-tertiary)}
+.dot.done{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.dot.active{background:#1a1a2e;color:#58a6ff;border-color:#388bfd}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:13px 16px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.card-t{font-size:15px;font-weight:500;margin-bottom:5px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.card-b b,.tip b,.warn b,.ok b{font-weight:500;color:var(--color-text-primary)}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.cmd{background:#1a1a2e;border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre;border:0.5px solid #30363d}
+.prompt{color:#4CAF50}
+.c{color:#E8E8E8}
+.hl{color:#FFD700}
+.st{color:#87CEEB}
+.cm{color:#888;font-style:italic}
+.out{background:#0d1117;border:0.5px solid #30363d;border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:12px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:#8b949e;text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:#e6edf3}
+.ol-g{color:#3fb950}
+.ol-b{color:#58a6ff}
+.ol-y{color:#d29922}
+.ol-r{color:#f85149}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.try-lbl{font-size:11px;font-weight:500;color:var(--color-text-success);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{font-size:13px;padding:7px 18px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);background:var(--color-background-secondary);font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-tertiary)}
+.btn-n{background:#1f6feb;color:#fff;border-color:#1f6feb;font-weight:500}
+.btn-n:hover{background:#1158c7}
+.btn:disabled{opacity:.35;cursor:default}
+.pi{font-size:12px;color:var(--color-text-tertiary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.bg{background:#EAF3DE;color:#27500A}
+.bb{background:#E6F1FB;color:#0C447C}
+.flow{display:flex;align-items:center;gap:0;margin:12px 0;flex-wrap:wrap}
+.branch{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:500;font-family:var(--font-mono)}
+.main-b{background:#1a3f1a;color:#3fb950;border:0.5px solid #3fb950}
+.feat-b{background:#1a2f4a;color:#58a6ff;border:0.5px solid #388bfd}
+.arrow{color:var(--color-text-tertiary);font-size:18px;margin:0 8px}
+.conflict{background:#161b22;border:0.5px solid #f85149;border-radius:var(--border-radius-md);padding:11px 14px;font-family:var(--font-mono);font-size:12px;line-height:1.75;margin:8px 0}
+.conf-marker{color:#f85149;font-weight:500}
+.conf-ours{color:#3fb950}
+.conf-theirs{color:#58a6ff}
+.conf-sep{color:#888}
+.tip code,.warn code,.ok code,.card-b code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.cheat{background:#161b22;border-radius:var(--border-radius-lg);padding:14px 16px;border:0.5px solid #30363d;margin:10px 0}
+.cheat-row{display:flex;gap:12px;margin:5px 0;font-size:12px;align-items:baseline}
+.cheat-cmd{font-family:var(--font-mono);color:#FFD700;min-width:220px;flex-shrink:0}
+.cheat-desc{color:#8b949e}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="progress" id="dots"></div>
+
+<!-- PAGE 0: WHY BRANCHES -->
+<div class="pg on" id="pg0">
+  <div class="card">
+    <div class="card-t">Day 13 — Git branching and pull requests</div>
+    <div class="card-b">So far you have been pushing everything directly to <code>main</code>. That works for solo projects but every company uses branches. A branch is a separate copy of your code where you make changes safely — without affecting <code>main</code> until you are ready.<br><br>Today you learn the workflow every QA automation team uses: <b>create a branch → write tests → open a PR → merge → done</b>.</div>
+  </div>
+
+  <div class="sec">Why branches matter — the real scenario</div>
+  <div class="card-b" style="font-size:13px;line-height:1.8;padding:4px 0">
+    Imagine you are adding 10 new Playwright tests for the checkout page. While you are working, a colleague pushes a fix for a broken login test directly to <code>main</code>.<br><br>
+    <b>Without branches</b> — your half-finished checkout tests and their login fix collide. CI fails. Everyone is blocked.<br><br>
+    <b>With branches</b> — you both work independently. When each piece is ready and tested, it gets merged. CI always stays green on <code>main</code>.
+  </div>
+
+  <div class="sec">The branch workflow</div>
+  <div class="flow">
+    <div class="branch main-b">main</div>
+    <div class="arrow">→</div>
+    <div class="branch feat-b">feature/checkout-tests</div>
+    <div class="arrow">→</div>
+    <div class="branch feat-b">write + commit</div>
+    <div class="arrow">→</div>
+    <div class="branch feat-b">open PR</div>
+    <div class="arrow">→</div>
+    <div class="branch main-b">merge to main</div>
+  </div>
+
+  <div class="tip">Every company you interview at uses this workflow. When they ask "how do you manage your test code changes?" — the answer is feature branches and pull requests. Today you learn to do it for real.</div>
+
+  <div class="nav">
+    <button class="btn" disabled>← Back</button>
+    <span class="pi">1 of 8</span>
+    <button class="btn btn-n" onclick="go(1)">Create a branch →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: CREATE BRANCH -->
+<div class="pg" id="pg1">
+  <div class="card">
+    <div class="card-t">Creating and switching branches</div>
+    <div class="card-b">A branch is just a pointer to a commit. Creating one is instant. The key commands are <code>git branch</code> to see branches, <code>git checkout -b</code> to create and switch, and <code>git switch</code> in newer Git versions.</div>
+  </div>
+
+  <div class="try-lbl">Run these in your playwright-ui-tests folder</div>
+  <div class="cmd"><span class="prompt">$</span> <span class="c"><span class="cm"># See all branches — * shows current branch</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git branch</span></span>
+<span class="prompt">$</span> <span class="c"><span class="cm"># Create AND switch to a new branch in one command</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout -b</span> <span class="st">feature/add-dropdown-tests</span></span>
+<span class="prompt">$</span> <span class="c"><span class="cm"># Confirm you are on the new branch</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git branch</span></span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol">* main                        ← before creating</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol ol-g">Switched to a new branch 'feature/add-dropdown-tests'</div>
+    <div class="ol">&nbsp;</div>
+    <div class="ol ol-g">* feature/add-dropdown-tests  ← now here</div>
+    <div class="ol">  main</div>
+  </div>
+
+  <div class="sec">Branch naming convention for QA projects</div>
+  <div class="cmd"><span class="cm"># Format: type/short-description</span>
+<span class="c">feature/add-checkout-tests     <span class="cm"># new test files</span></span>
+<span class="c">fix/login-test-wrong-locator   <span class="cm"># fixing a broken test</span></span>
+<span class="c">refactor/extract-base-page     <span class="cm"># restructuring code</span></span>
+<span class="c">chore/update-requirements      <span class="cm"># updating dependencies</span></span></div>
+
+  <div class="tip">Use lowercase with hyphens — no spaces, no underscores. The prefix (<code>feature/</code>, <code>fix/</code>) tells anyone reading the branch list exactly what kind of change it contains.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(0)">← Back</button>
+    <span class="pi">2 of 8</span>
+    <button class="btn btn-n" onclick="go(2)">Work on a branch →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: WORK ON BRANCH -->
+<div class="pg" id="pg2">
+  <div class="card">
+    <div class="card-t">Working on a branch — the daily flow</div>
+    <div class="card-b">Once you are on a branch, everything works exactly the same as before — edit files, git add, git commit, git push. The only difference is your commits go to the branch, not main.</div>
+  </div>
+
+  <div class="try-lbl">Complete workflow — branch to push</div>
+  <div class="cmd"><span class="cm"># 1. Create branch</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout -b</span> <span class="st">feature/add-dropdown-tests</span></span>
+
+<span class="cm"># 2. Make your changes — edit test files in VS Code</span>
+<span class="cm">#    (add a new test, fix a locator, whatever)</span>
+
+<span class="cm"># 3. Stage and commit — same as always</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git add .</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git commit -m</span> <span class="st">"add dropdown selection tests with parametrize"</span></span>
+
+<span class="cm"># 4. Push branch to GitHub — first time needs -u</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git push -u origin</span> <span class="st">feature/add-dropdown-tests</span></span>
+
+<span class="cm"># 5. After first push, just use git push</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git push</span></span></div>
+
+  <div class="out">
+    <div class="out-lbl">After git push -u</div>
+    <div class="ol ol-g">To https://github.com/KajalKadam2/playwright-ui-tests.git</div>
+    <div class="ol ol-g"> * [new branch]  feature/add-dropdown-tests -> feature/add-dropdown-tests</div>
+  </div>
+
+  <div class="sec">Switch between branches</div>
+  <div class="cmd"><span class="cm"># Switch to main</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout</span> <span class="st">main</span></span>
+
+<span class="cm"># Switch back to your feature branch</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout</span> <span class="st">feature/add-dropdown-tests</span></span>
+
+<span class="cm"># See all branches including remote ones</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git branch -a</span></span></div>
+
+  <div class="warn">Always check which branch you are on before committing — run <code>git branch</code> or look at your terminal prompt. Committing to the wrong branch is the most common Git mistake.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(1)">← Back</button>
+    <span class="pi">3 of 8</span>
+    <button class="btn btn-n" onclick="go(3)">Pull requests →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: PULL REQUESTS -->
+<div class="pg" id="pg3">
+  <div class="card">
+    <div class="card-t">Pull Requests — proposing your changes</div>
+    <div class="card-b">A Pull Request (PR) is a proposal to merge your branch into main. It shows exactly what changed, runs CI automatically, and gives teammates a chance to review before the code lands in main. Every professional team uses PRs — even solo developers use them for their own portfolio.</div>
+  </div>
+
+  <div class="sec">Create a PR on GitHub — step by step</div>
+  <div class="card-b" style="font-size:13px;line-height:1.9;padding:4px 0">
+    <b>1.</b> Push your branch to GitHub<br>
+    <b>2.</b> Go to your repo on GitHub — you will see a yellow banner: <em>"feature/add-dropdown-tests had recent pushes"</em><br>
+    <b>3.</b> Click <b>Compare &amp; pull request</b><br>
+    <b>4.</b> Write a clear title: <em>"Add parametrized dropdown selection tests"</em><br>
+    <b>5.</b> Write a description — what you changed and why<br>
+    <b>6.</b> Click <b>Create pull request</b><br>
+    <b>7.</b> GitHub Actions runs CI automatically on the PR<br>
+    <b>8.</b> Once CI passes → click <b>Merge pull request</b><br>
+    <b>9.</b> Delete the branch — keep the repo clean
+  </div>
+
+  <div class="sec">Good PR description template</div>
+  <div class="cmd"><span class="cm">## What changed</span>
+<span class="c">- Added parametrized dropdown tests covering Option 1 and Option 2</span>
+<span class="c">- Used dropdown_page fixture from conftest.py</span>
+<span class="c">- Both tests assert value AND visible label text</span>
+
+<span class="cm">## Why</span>
+<span class="c">Dropdown selection was not covered in the test suite</span>
+
+<span class="cm">## Test output</span>
+<span class="c">PASSED test_dropdown_selection[option_1]</span>
+<span class="c">PASSED test_dropdown_selection[option_2]</span></div>
+
+  <div class="tip">Even for your personal portfolio repo, write real PR descriptions. Screenshots of your PRs with good descriptions go in your portfolio. A recruiter who sees a well-written PR knows you work like a professional.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">← Back</button>
+    <span class="pi">4 of 8</span>
+    <button class="btn btn-n" onclick="go(4)">After merging →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: AFTER MERGING -->
+<div class="pg" id="pg4">
+  <div class="card">
+    <div class="card-t">After merging — keeping your local repo in sync</div>
+    <div class="card-b">After a PR is merged on GitHub, your local <code>main</code> branch is behind. You need to pull the merged changes down and clean up the old branch.</div>
+  </div>
+
+  <div class="try-lbl">Run these after merging on GitHub</div>
+  <div class="cmd"><span class="cm"># 1. Switch back to main</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout</span> <span class="st">main</span></span>
+
+<span class="cm"># 2. Pull the merged changes from GitHub</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git pull</span></span>
+
+<span class="cm"># 3. Delete the feature branch locally — it is merged, no longer needed</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git branch -d</span> <span class="st">feature/add-dropdown-tests</span></span>
+
+<span class="cm"># 4. See clean branch list</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git branch</span></span></div>
+
+  <div class="out">
+    <div class="out-lbl">Output</div>
+    <div class="ol ol-g">Switched to branch 'main'</div>
+    <div class="ol ol-g">Already up to date.  (or: Fast-forward, N files changed)</div>
+    <div class="ol ol-g">Deleted branch feature/add-dropdown-tests (was a1b2c3d).</div>
+    <div class="ol">* main             ← only main remains</div>
+  </div>
+
+  <div class="sec">The complete daily workflow in one block</div>
+  <div class="cmd"><span class="prompt">$</span> <span class="c"><span class="hl">git checkout -b</span> <span class="st">feature/my-new-tests</span>  <span class="cm"># create branch</span></span>
+<span class="cm"># ... write tests ...</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git add .</span> && <span class="hl">git commit -m</span> <span class="st">"add tests"</span>    <span class="cm"># commit</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git push -u origin</span> <span class="st">feature/my-new-tests</span>   <span class="cm"># push branch</span></span>
+<span class="cm"># ... open PR on GitHub, CI passes, merge ...</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout</span> <span class="st">main</span>                          <span class="cm"># back to main</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git pull</span>                                    <span class="cm"># sync merged changes</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git branch -d</span> <span class="st">feature/my-new-tests</span>         <span class="cm"># clean up</span></span></div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(3)">← Back</button>
+    <span class="pi">5 of 8</span>
+    <button class="btn btn-n" onclick="go(5)">Merge conflicts →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: MERGE CONFLICTS -->
+<div class="pg" id="pg5">
+  <div class="card">
+    <div class="card-t">Merge conflicts — what they are and how to fix them <span class="badge bb" style="margin-left:6px">asked in every interview</span></div>
+    <div class="card-b">A merge conflict happens when two branches change the <b>same line</b> of the same file. Git cannot decide which version to keep so it marks both and asks you to choose. Conflicts sound scary — they are just a text editing task.</div>
+  </div>
+
+  <div class="sec">What a conflict looks like in a file</div>
+  <div class="conflict"><span class="conf-marker">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+<span class="conf-ours">BASE_URL = "https://staging.myapp.com"   </span><span class="cm"># your version on main</span>
+<span class="conf-sep">=======</span>
+<span class="conf-theirs">BASE_URL = "https://qa.myapp.com"        </span><span class="cm"># incoming version from branch</span>
+<span class="conf-marker">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/update-base-url</span></div>
+
+  <div class="sec">How to read it</div>
+  <div class="card-b" style="font-size:13px;line-height:1.85;padding:4px 0">
+    <b style="color:#3fb950">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</b> — your current branch version (what you have)<br>
+    <b style="color:#888">=======</b> — the divider between the two versions<br>
+    <b style="color:#58a6ff">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/...</b> — the incoming branch version (what is coming in)
+  </div>
+
+  <div class="try-lbl">Fix it — three steps</div>
+  <div class="cmd"><span class="cm"># Step 1 — Open the conflicted file in VS Code</span>
+<span class="cm"># Delete the conflict markers and keep the version you want:</span>
+
+<span class="cm"># BEFORE (conflicted)</span>
+<span class="c">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+BASE_URL = "https://staging.myapp.com"
+=======
+BASE_URL = "https://qa.myapp.com"
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/update-base-url</span>
+
+<span class="cm"># AFTER (resolved — kept the qa version)</span>
+<span class="c">BASE_URL = <span class="st">"https://qa.myapp.com"</span></span>
+
+<span class="cm"># Step 2 — Stage the resolved file</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git add</span> <span class="st">conftest.py</span></span>
+
+<span class="cm"># Step 3 — Complete the merge</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git commit -m</span> <span class="st">"resolve merge conflict in conftest.py"</span></span></div>
+
+  <div class="ok">VS Code shows conflicts with colour-coded buttons — "Accept Current Change", "Accept Incoming Change", "Accept Both Changes". Click the right one and the markers are removed automatically. You do not have to edit the markers manually.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(4)">← Back</button>
+    <span class="pi">6 of 8</span>
+    <button class="btn btn-n" onclick="go(6)">QA team workflow →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: QA TEAM WORKFLOW -->
+<div class="pg" id="pg6">
+  <div class="card">
+    <div class="card-t">The real QA team Git workflow</div>
+    <div class="card-b">This is exactly how QA automation teams work at real companies. Each feature or fix gets its own branch, CI runs on every PR, and main is always deployable.</div>
+  </div>
+
+  <div class="sec">Real team scenario</div>
+  <div class="cmd"><span class="cm"># Monday: You start new test coverage for checkout page</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout</span> <span class="st">main</span> && <span class="hl">git pull</span>                    <span class="cm"># always start from latest main</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout -b</span> <span class="st">feature/checkout-page-tests</span></span>
+
+<span class="cm"># ... write tests across Monday and Tuesday ...</span>
+
+<span class="prompt">$</span> <span class="c"><span class="hl">git add .</span> && <span class="hl">git commit -m</span> <span class="st">"WIP: checkout page tests"</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git push -u origin</span> <span class="st">feature/checkout-page-tests</span></span>
+
+<span class="cm"># Wednesday: Colleague merges a change to conftest.py into main</span>
+<span class="cm"># You need to bring those changes into your branch</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git fetch origin</span>                                   <span class="cm"># get latest from GitHub</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git merge origin/main</span>                              <span class="cm"># bring main changes into your branch</span></span>
+
+<span class="cm"># Thursday: Tests complete, open PR</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git add .</span> && <span class="hl">git commit -m</span> <span class="st">"feat: checkout page full test coverage"</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git push</span></span>
+<span class="cm"># → Open PR on GitHub → CI runs → team reviews → merge</span>
+
+<span class="cm"># Friday: Clean up</span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git checkout</span> <span class="st">main</span> && <span class="hl">git pull</span></span>
+<span class="prompt">$</span> <span class="c"><span class="hl">git branch -d</span> <span class="st">feature/checkout-page-tests</span></span></div>
+
+  <div class="tip"><code>git fetch origin</code> downloads changes from GitHub without applying them. <code>git merge origin/main</code> then applies them to your current branch. This keeps your branch up to date with what teammates are doing — preventing large conflicts at PR time.</div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(5)">← Back</button>
+    <span class="pi">7 of 8</span>
+    <button class="btn btn-n" onclick="go(7)">Cheat sheet + challenge →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: CHEAT SHEET -->
+<div class="pg" id="pg7">
+  <div class="card">
+    <div class="card-t">Git branching cheat sheet + Day 13 challenge</div>
+    <div class="card-b">Every command you need. Bookmark this page.</div>
+  </div>
+
+  <div class="cheat">
+    <div class="cheat-row"><span class="cheat-cmd">git branch</span><span class="cheat-desc">list all local branches</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git branch -a</span><span class="cheat-desc">list all branches including remote</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git checkout -b &lt;name&gt;</span><span class="cheat-desc">create and switch to new branch</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git checkout &lt;name&gt;</span><span class="cheat-desc">switch to existing branch</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git push -u origin &lt;name&gt;</span><span class="cheat-desc">push branch to GitHub first time</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git push</span><span class="cheat-desc">push after first time</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git pull</span><span class="cheat-desc">pull latest from current branch's remote</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git fetch origin</span><span class="cheat-desc">download remote changes without applying</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git merge origin/main</span><span class="cheat-desc">bring main changes into current branch</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git branch -d &lt;name&gt;</span><span class="cheat-desc">delete merged branch locally</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git status</span><span class="cheat-desc">see what changed and current branch</span></div>
+    <div class="cheat-row"><span class="cheat-cmd">git log --oneline -5</span><span class="cheat-desc">see last 5 commits</span></div>
+  </div>
+
+  <div class="sec">Day 13 challenge — do this right now</div>
+  <div class="card-b" style="font-size:13px;line-height:1.9;padding:4px 0">
+    On your <code>playwright-ui-tests</code> repo:<br><br>
+    <b>1.</b> Create a branch called <code>feature/day13-practice</code><br>
+    <b>2.</b> Add one new test to any existing test file — something simple like a new assertion<br>
+    <b>3.</b> Commit with a good message<br>
+    <b>4.</b> Push the branch to GitHub<br>
+    <b>5.</b> Open a Pull Request on GitHub with a proper title and description<br>
+    <b>6.</b> Wait for CI to pass (green tick)<br>
+    <b>7.</b> Merge the PR<br>
+    <b>8.</b> Back in terminal: <code>git checkout main && git pull && git branch -d feature/day13-practice</code>
+  </div>
+
+  <div class="ok">When you complete this challenge you will have done the full professional Git workflow — branch, commit, push, PR, CI, merge, clean up. That is what every SDET does every single day at work.</div>
+
+  <div class="sec">Interview answer — "how do you manage test code changes?"</div>
+  <div class="card-b" style="font-size:13px;line-height:1.8;padding:4px 0;font-style:italic;color:var(--color-text-secondary)">
+    "We use feature branches for all test changes. Each piece of work — new test coverage, bug fix, refactor — gets its own branch named with a type prefix like feature/ or fix/. When ready, we open a pull request. CI runs automatically on the PR. Once tests pass and the team reviews, we merge to main and delete the branch. Main is always green and deployable."
+  </div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Help me rewrite my QA resume for SDET and automation engineer roles highlighting my 7.4 years experience and new automation skills with Playwright Python API testing and CI/CD')">Day 33 — Rewrite my resume ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me the top 20 Python interview questions for SDET roles with ideal answers')">Day 36 — Interview prep ↗</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(6)">← Back</button>
+    <span class="pi">8 of 8</span>
+    <button class="btn" disabled>Done ✓</button>
+  </div>
+</div>
+
+</div>
+<script>
+const total=8;
+const labs=['Why branches','Create branch','Work on branch','Pull requests','After merging','Merge conflicts','Team workflow','Cheat sheet'];
+let cur=0;
+function render(){
+  const c=document.getElementById('dots');
+  c.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':i<cur?' done':'');
+    d.textContent=i<cur?'✓':(i+1);
+    d.title=labs[i];
+    const n=i;d.onclick=()=>go(n);
+    c.appendChild(d);
+  }
+}
+function go(n){
+  document.getElementById('pg'+cur).classList.remove('on');
+  cur=n;
+  document.getElementById('pg'+cur).classList.add('on');
+  render();
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

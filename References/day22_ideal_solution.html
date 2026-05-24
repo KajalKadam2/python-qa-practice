@@ -1,0 +1,427 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap;font-family:var(--font-sans)}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{font-weight:500;background:#FAEEDA;color:#633806;border-color:#EF9F27}
+.pg{display:none}.pg.on{display:block}
+.code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:13px 16px;font-family:var(--font-mono);font-size:13px;line-height:1.95;margin:8px 0;overflow-x:auto;white-space:pre}
+.kw{color:#534AB7;font-weight:500}
+.st{color:#0F6E56}
+.cm{color:var(--color-text-tertiary);font-style:italic}
+.fn{color:#185FA5}
+.nm{color:#854F0B}
+.dec{color:#993C1D;font-weight:500}
+.out{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:11px 15px;font-family:var(--font-mono);font-size:13px;line-height:1.85;margin:8px 0}
+.out-lbl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.ol{color:var(--color-text-primary)}
+.ol-g{color:#27500A}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55;margin:9px 0}
+.ok{background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55;margin:9px 0}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55;margin:9px 0}
+.sec{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
+.part{font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;margin-top:16px;display:flex;align-items:center;gap:8px;background:var(--color-background-secondary)}
+.pn{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.p1{background:#EAF3DE;color:#27500A}
+.p2{background:#E6F1FB;color:#0C447C}
+.p3{background:#EEEDFE;color:#3C3489}
+.p4{background:#FAEEDA;color:#633806}
+.p5{background:#FFF3C4;color:#7A5000}
+.eb-grid{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.eb{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.eb-code{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.eb-why{background:var(--color-background-primary);padding:8px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.55;border-top:0.5px solid var(--color-border-tertiary)}
+.eb-why b{font-weight:500;color:var(--color-text-primary)}
+.eb-why code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.diff{border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.diff-lbl{font-size:11px;font-weight:500;padding:5px 12px;text-transform:uppercase;letter-spacing:.05em}
+.lbl-bad{background:#FAEEDA;color:#633806}
+.diff-body{background:var(--color-background-secondary);padding:9px 13px;font-family:var(--font-mono);font-size:12px;line-height:1.75;white-space:pre}
+.diff-note{background:var(--color-background-primary);padding:7px 13px;font-size:12px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.diff-note b{font-weight:500;color:var(--color-text-primary)}
+.ci{font-size:13px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ci:last-child{border-bottom:none}
+.ci-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.ci.checked .ci-box{background:#633806;border-color:#633806}
+.ci-text{font-size:13px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.ci-text code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.ci.checked .ci-text{color:var(--color-text-tertiary);text-decoration:line-through}
+.score-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin:12px 0;border:0.5px solid var(--color-border-tertiary)}
+.score-row{display:flex;align-items:center;gap:14px}
+.score-n{font-size:26px;font-weight:500;min-width:55px}
+.score-right{flex:1}
+.score-bar{height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.score-fill{height:100%;border-radius:4px;background:#633806;transition:width .4s}
+.score-lbl{font-size:12px;color:var(--color-text-secondary)}
+.ask{font-size:12px;padding:5px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-info);background:var(--color-background-info);margin:3px 3px 0 0;display:inline-block;font-family:var(--font-sans)}
+.ask:hover{opacity:.8}
+.tip code,.warn code,.ok code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="tabs">
+  <button class="tab on" onclick="sw('sol',this)">Full solution</button>
+  <button class="tab" onclick="sw('exp',this)">Test by test</button>
+  <button class="tab" onclick="sw('mis',this)">Common mistakes</button>
+  <button class="tab" onclick="sw('score',this)">Mark your score</button>
+</div>
+
+<!-- FULL SOLUTION -->
+<div class="pg on" id="sol">
+  <div class="tip">Read and compare — do not copy. For every test that differs from yours, understand the reason before moving on.</div>
+
+<div class="code"><span class="cm"># ──────────────────────────────────────────────────────
+# Day 22 Challenge — Ideal Solution
+# test_day22_challenge.py
+# ──────────────────────────────────────────────────────</span>
+<span class="kw">import</span> requests
+<span class="kw">import</span> pytest
+
+BASE_URL = <span class="st">"https://reqres.in/api"</span>
+HEADERS  = {<span class="st">"x-api-key"</span>: <span class="st">"your-key-here"</span>}
+
+<span class="cm"># ── Test 1: GET /users?page=2 schema ──────────────────</span>
+<span class="kw">def</span> <span class="fn">test_get_all_users_schema</span>():
+    r = requests.<span class="fn">get</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/users"</span>, params={<span class="st">"page"</span>: <span class="nm">2</span>}, headers=HEADERS)
+
+    assert r.status_code == <span class="nm">200</span>
+    body = r.<span class="fn">json</span>()
+
+    <span class="cm"># Pagination fields</span>
+    assert body[<span class="st">"page"</span>]     == <span class="nm">2</span>
+    assert body[<span class="st">"total"</span>]    == <span class="nm">12</span>
+    assert body[<span class="st">"per_page"</span>] == <span class="nm">6</span>
+    assert <span class="fn">len</span>(body[<span class="st">"data"</span>]) == <span class="nm">6</span>
+
+    <span class="cm"># Every user has required fields</span>
+    required = [<span class="st">"id"</span>, <span class="st">"email"</span>, <span class="st">"first_name"</span>, <span class="st">"last_name"</span>, <span class="st">"avatar"</span>]
+    <span class="kw">for</span> user <span class="kw">in</span> body[<span class="st">"data"</span>]:
+        <span class="kw">for</span> field <span class="kw">in</span> required:
+            assert field <span class="kw">in</span> user, <span class="fn">f</span><span class="st">"User {user.get('id')} missing '{field}'"</span>
+
+<span class="cm"># ── Test 2: POST /users create and verify ─────────────</span>
+<span class="kw">def</span> <span class="fn">test_create_and_verify_user</span>():
+    payload = {<span class="st">"name"</span>: <span class="st">"Kajal Kadam"</span>, <span class="st">"job"</span>: <span class="st">"QA Engineer"</span>}
+    r = requests.<span class="fn">post</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/users"</span>, json=payload, headers=HEADERS)
+
+    assert r.status_code == <span class="nm">201</span>
+    body = r.<span class="fn">json</span>()
+
+    <span class="cm"># Response echoes our data</span>
+    assert body[<span class="st">"name"</span>] == <span class="st">"Kajal Kadam"</span>
+    assert body[<span class="st">"job"</span>]  == <span class="st">"QA Engineer"</span>
+
+    <span class="cm"># API assigned id and timestamp</span>
+    assert <span class="st">"id"</span>        <span class="kw">in</span> body
+    assert <span class="st">"createdAt"</span> <span class="kw">in</span> body
+    assert body[<span class="st">"id"</span>]          <span class="cm"># truthy — not empty</span>
+    assert body[<span class="st">"createdAt"</span>]   <span class="cm"># truthy — timestamp present</span>
+
+    <span class="cm"># id is a string type (reqres returns id as string)</span>
+    assert <span class="fn">isinstance</span>(body[<span class="st">"id"</span>], <span class="fn">str</span>), (
+        <span class="fn">f</span><span class="st">"Expected id to be str, got {type(body['id']).__name__}"</span>
+    )
+
+<span class="cm"># ── Test 3: login parametrized ───────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"email, password, expected_status, expect_token"</span>, [
+    (<span class="st">"eve.holt@reqres.in"</span>,   <span class="st">"cityslicka"</span>, <span class="nm">200</span>, <span class="kw">True</span>),
+    (<span class="st">"eve.holt@reqres.in"</span>,   <span class="st">""</span>,            <span class="nm">400</span>, <span class="kw">False</span>),
+    (<span class="st">""</span>,                      <span class="st">"cityslicka"</span>, <span class="nm">400</span>, <span class="kw">False</span>),
+    (<span class="st">"notfound@reqres.in"</span>,    <span class="st">"anypass"</span>,    <span class="nm">400</span>, <span class="kw">False</span>),
+], ids=[<span class="st">"valid"</span>, <span class="st">"no_password"</span>, <span class="st">"no_email"</span>, <span class="st">"not_registered"</span>])
+<span class="kw">def</span> <span class="fn">test_login_parametrized</span>(email, password, expected_status, expect_token):
+    r = requests.<span class="fn">post</span>(
+        <span class="fn">f</span><span class="st">"{BASE_URL}/login"</span>,
+        json={<span class="st">"email"</span>: email, <span class="st">"password"</span>: password},
+        headers=HEADERS
+    )
+    assert r.status_code == expected_status
+    body = r.<span class="fn">json</span>()
+    <span class="kw">if</span> expect_token:
+        assert <span class="st">"token"</span> <span class="kw">in</span> body
+        assert <span class="fn">len</span>(body[<span class="st">"token"</span>]) <span class="op">&gt;</span> <span class="nm">0</span>
+    <span class="kw">else</span>:
+        assert <span class="st">"error"</span> <span class="kw">in</span> body
+
+<span class="cm"># ── Test 4a: valid user IDs → 200 ────────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"user_id"</span>, [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>, <span class="nm">6</span>],
+    ids=[<span class="fn">f</span><span class="st">"user_{i}"</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">7</span>)])
+<span class="kw">def</span> <span class="fn">test_valid_user_ids_return_200</span>(user_id):
+    r = requests.<span class="fn">get</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/users/{user_id}"</span>, headers=HEADERS)
+    assert r.status_code == <span class="nm">200</span>
+    assert r.<span class="fn">json</span>()[<span class="st">"data"</span>][<span class="st">"id"</span>] == user_id
+
+<span class="cm"># ── Test 4b: invalid user IDs → 404 ──────────────────</span>
+<span class="dec">@pytest.mark.parametrize</span>(<span class="st">"user_id"</span>, [<span class="nm">0</span>, <span class="nm">99</span>, <span class="nm">999</span>],
+    ids=[<span class="st">"zero"</span>, <span class="st">"ninety_nine"</span>, <span class="st">"nine_ninety_nine"</span>])
+<span class="kw">def</span> <span class="fn">test_invalid_user_ids_return_404</span>(user_id):
+    r = requests.<span class="fn">get</span>(<span class="fn">f</span><span class="st">"{BASE_URL}/users/{user_id}"</span>, headers=HEADERS)
+    assert r.status_code == <span class="nm">404</span>
+
+<span class="cm"># ── Test 5: PATCH update then verify ─────────────────</span>
+<span class="kw">def</span> <span class="fn">test_update_then_verify</span>():
+    <span class="cm"># First update</span>
+    r = requests.<span class="fn">patch</span>(
+        <span class="fn">f</span><span class="st">"{BASE_URL}/users/2"</span>,
+        json={<span class="st">"job"</span>: <span class="st">"Senior QA Engineer"</span>},
+        headers=HEADERS
+    )
+    assert r.status_code == <span class="nm">200</span>
+    body = r.<span class="fn">json</span>()
+    assert body[<span class="st">"job"</span>] == <span class="st">"Senior QA Engineer"</span>
+    assert <span class="st">"updatedAt"</span> <span class="kw">in</span> body
+
+    <span class="cm"># Second update — different job</span>
+    r = requests.<span class="fn">patch</span>(
+        <span class="fn">f</span><span class="st">"{BASE_URL}/users/2"</span>,
+        json={<span class="st">"job"</span>: <span class="st">"SDET"</span>},
+        headers=HEADERS
+    )
+    assert r.status_code == <span class="nm">200</span>
+    assert r.<span class="fn">json</span>()[<span class="st">"job"</span>] == <span class="st">"SDET"</span></div>
+
+  <div class="sec">Run command and expected output</div>
+  <div class="code">pytest test_day22_challenge.py -v</div>
+  <div class="out">
+    <div class="out-lbl">15 tests — runs in ~4 seconds, no browser</div>
+    <div class="ol ol-g">PASSED test_get_all_users_schema</div>
+    <div class="ol ol-g">PASSED test_create_and_verify_user</div>
+    <div class="ol ol-g">PASSED test_login_parametrized[valid]</div>
+    <div class="ol ol-g">PASSED test_login_parametrized[no_password]</div>
+    <div class="ol ol-g">PASSED test_login_parametrized[no_email]</div>
+    <div class="ol ol-g">PASSED test_login_parametrized[not_registered]</div>
+    <div class="ol ol-g">PASSED test_valid_user_ids_return_200[user_1..6]</div>
+    <div class="ol ol-g">PASSED test_invalid_user_ids_return_404[zero..nine_ninety_nine]</div>
+    <div class="ol ol-g">PASSED test_update_then_verify</div>
+  </div>
+</div>
+
+<!-- TEST BY TEST -->
+<div class="pg" id="exp">
+
+  <div class="part"><span class="pn p1">Test 1</span> Schema validation — assert structure not just status</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="kw">for</span> user <span class="kw">in</span> body[<span class="st">"data"</span>]:
+    <span class="kw">for</span> field <span class="kw">in</span> required:
+        assert field <span class="kw">in</span> user, <span class="fn">f</span><span class="st">"User {user.get('id')} missing '{field}'"</span></div>
+      <div class="eb-why"><b>Schema validation — check every record, not just the first.</b> A nested loop checks every user has every required field. The assertion message includes the user ID and field name so when it fails in CI you know exactly which user and which field without reading the JSON. This is the difference between a useful failure message and a useless one.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code">assert body[<span class="st">"total"</span>]    == <span class="nm">12</span>
+assert body[<span class="st">"per_page"</span>] == <span class="nm">6</span>
+assert <span class="fn">len</span>(body[<span class="st">"data"</span>]) == <span class="nm">6</span></div>
+      <div class="eb-why"><b>Assert pagination metadata, not just the data.</b> A status 200 with correct data but wrong pagination metadata is still a bug. total, per_page, and page tell clients how to paginate — if they are wrong, mobile apps show incorrect page counts. Your QA instinct should flag pagination fields as critical.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p2">Test 2</span> Create user — type check on id field</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">assert <span class="fn">isinstance</span>(body[<span class="st">"id"</span>], <span class="fn">str</span>), (
+    <span class="fn">f</span><span class="st">"Expected id to be str, got {type(body['id']).__name__}"</span>
+)</div>
+      <div class="eb-why"><b>Type assertions catch contract violations.</b> reqres returns id as a string — not an integer. A client that stores it as int and sends it back would cause mismatches. <code>isinstance(value, str)</code> asserts the type explicitly. The message includes the actual type so failures are immediately actionable.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p3">Test 3</span> Login — boolean flag drives both branches</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code">(<span class="st">"eve.holt@reqres.in"</span>, <span class="st">"cityslicka"</span>, <span class="nm">200</span>, <span class="kw">True</span>),   <span class="cm"># has_token=True</span>
+(<span class="st">"eve.holt@reqres.in"</span>, <span class="st">""</span>,            <span class="nm">400</span>, <span class="kw">False</span>),  <span class="cm"># has_token=False</span>
+
+<span class="kw">if</span> expect_token:
+    assert <span class="st">"token"</span> <span class="kw">in</span> body
+<span class="kw">else</span>:
+    assert <span class="st">"error"</span> <span class="kw">in</span> body</div>
+      <div class="eb-why"><b>The fourth parameter drives which assertion runs.</b> One test function handles both success and failure paths. The boolean flag tells the function whether to assert a token or an error. This is cleaner than two separate parametrized functions and makes the data table readable — you can see at a glance which scenarios expect success.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p4">Test 4</span> Two separate functions for valid vs invalid IDs</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># Two functions — each has a clear single purpose</span>
+<span class="kw">def</span> <span class="fn">test_valid_user_ids_return_200</span>(user_id): ...
+<span class="kw">def</span> <span class="fn">test_invalid_user_ids_return_404</span>(user_id): ...</div>
+      <div class="eb-why"><b>Separate functions for separate expected outcomes.</b> You could combine them with a status_code parameter, but two functions are clearer — the name tells you everything. In a CI failure report, <code>test_invalid_user_ids_return_404[ninety_nine]</code> is instantly understood. A combined function with status codes is slightly harder to read at a glance.</div>
+    </div>
+    <div class="eb">
+      <div class="eb-code">ids=[<span class="fn">f</span><span class="st">"user_{i}"</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">7</span>)]</div>
+      <div class="eb-why"><b>Generating ids= with a comprehension.</b> Instead of typing <code>["user_1","user_2","user_3","user_4","user_5","user_6"]</code> manually, a list comprehension generates them. Less typing, no risk of a typo on one entry, and easily changed if the range changes.</div>
+    </div>
+  </div>
+
+  <div class="part"><span class="pn p5">Test 5</span> Two sequential PATCH calls in one test</div>
+  <div class="eb-grid">
+    <div class="eb">
+      <div class="eb-code"><span class="cm"># First update</span>
+r = requests.<span class="fn">patch</span>(..., json={<span class="st">"job"</span>: <span class="st">"Senior QA Engineer"</span>}, ...)
+assert r.<span class="fn">json</span>()[<span class="st">"job"</span>] == <span class="st">"Senior QA Engineer"</span>
+assert <span class="st">"updatedAt"</span> <span class="kw">in</span> r.<span class="fn">json</span>()
+
+<span class="cm"># Second update — verify it reflects the NEW value</span>
+r = requests.<span class="fn">patch</span>(..., json={<span class="st">"job"</span>: <span class="st">"SDET"</span>}, ...)
+assert r.<span class="fn">json</span>()[<span class="st">"job"</span>] == <span class="st">"SDET"</span></div>
+      <div class="eb-why"><b>Two sequential updates in one test proves idempotency.</b> Calling PATCH twice and asserting both responses shows the endpoint consistently reflects what you send. A single PATCH test only proves the first update works — it does not prove the endpoint handles repeated updates correctly. reqres is stateless so both assertions pass against the echoed response.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="pg" id="mis">
+  <div class="sec">The 5 mistakes most people made</div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 1 — class variable name mismatch (BASE_URL vs BASE)</div>
+    <div class="diff-body"><span class="cm"># Wrong — defined as BASE_URL but used as self.BASE</span>
+<span class="kw">class</span> ReqresAPI:
+    BASE_URL = <span class="st">"https://reqres.in/api"</span>   <span class="cm"># defined</span>
+
+    <span class="kw">def</span> get_user(<span class="kw">self</span>, user_id):
+        <span class="kw">return</span> requests.get(<span class="fn">f</span><span class="st">"{self.BASE}/..."</span>)  <span class="cm"># AttributeError!</span>
+
+<span class="cm"># Correct — name must match exactly</span>
+<span class="kw">class</span> ReqresAPI:
+    BASE = <span class="st">"https://reqres.in/api"</span>   <span class="cm"># defined as BASE</span>
+
+    <span class="kw">def</span> get_user(<span class="kw">self</span>, user_id):
+        <span class="kw">return</span> requests.get(<span class="fn">f</span><span class="st">"{self.BASE}/..."</span>)  <span class="cm"># matches</span></div>
+    <div class="diff-note"><b>Python is case-sensitive and exact about attribute names.</b> <code>self.BASE_URL</code> and <code>self.BASE</code> are two different attributes. Define it once, use the exact same name everywhere. This was the error that caused all 3 test failures in your run.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 2 — using requests.get for POST/PATCH/DELETE</div>
+    <div class="diff-body"><span class="cm"># Wrong — all methods using GET</span>
+<span class="kw">def</span> create_user(<span class="kw">self</span>, name, job):
+    <span class="kw">return</span> requests.get(...)    <span class="cm"># will never return 201</span>
+
+<span class="kw">def</span> update_user(<span class="kw">self</span>, id, **kwargs):
+    <span class="kw">return</span> requests.get(...)    <span class="cm"># will never return 200 with updatedAt</span>
+
+<span class="cm"># Correct — each method uses the right HTTP verb</span>
+<span class="kw">def</span> create_user(<span class="kw">self</span>, name, job):
+    <span class="kw">return</span> requests.post(...)
+
+<span class="kw">def</span> update_user(<span class="kw">self</span>, id, **kwargs):
+    <span class="kw">return</span> requests.patch(...)</div>
+    <div class="diff-note"><b>HTTP method matters — the API routes differently based on GET/POST/PATCH/DELETE.</b> A GET to /users returns a list. A POST to /users creates a user. Same URL, completely different behaviour. Using the wrong method is like knocking on the wrong door.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 3 — only asserting status code, not body fields</div>
+    <div class="diff-body"><span class="cm"># Incomplete — only checks the door opened, not what's inside</span>
+<span class="kw">def</span> test_create_and_verify_user():
+    r = requests.post(...)
+    assert r.status_code == <span class="nm">201</span>   <span class="cm"># that's it</span>
+
+<span class="cm"># Complete — verifies the actual data</span>
+<span class="kw">def</span> test_create_and_verify_user():
+    r = requests.post(...)
+    assert r.status_code == <span class="nm">201</span>
+    body = r.json()
+    assert body[<span class="st">"name"</span>] == <span class="st">"Kajal Kadam"</span>
+    assert body[<span class="st">"job"</span>]  == <span class="st">"QA Engineer"</span>
+    assert <span class="st">"id"</span> <span class="kw">in</span> body
+    assert isinstance(body[<span class="st">"id"</span>], str)</div>
+    <div class="diff-note"><b>Status code 201 only means the server accepted the request — not that it processed it correctly.</b> An API could return 201 with the wrong name or no ID. Body assertions verify the actual contract. Your 7.4 years of QA experience knows this — a green status light does not mean the feature works.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 4 — not adding HEADERS to every request</div>
+    <div class="diff-body"><span class="cm"># Missing headers — gets 401</span>
+r = requests.get(f"{BASE_URL}/users/2")
+
+<span class="cm"># Correct — headers on every call</span>
+r = requests.get(f"{BASE_URL}/users/2", headers=HEADERS)</div>
+    <div class="diff-note"><b>reqres.in now requires the API key on every request.</b> Define HEADERS once at the top of the file and pass it to every request. Missing it on even one request causes a 401 that looks like a test failure but is actually a configuration issue.</div>
+  </div>
+
+  <div class="diff">
+    <div class="diff-lbl lbl-bad">Mistake 5 — calling .json() on a 204 DELETE response</div>
+    <div class="diff-body"><span class="cm"># Wrong — 204 has no body, .json() raises an error</span>
+r = requests.delete(f"{BASE_URL}/users/2", headers=HEADERS)
+body = r.json()   <span class="cm"># JSONDecodeError — no content!</span>
+
+<span class="cm"># Correct — just assert the status code and empty text</span>
+r = requests.delete(f"{BASE_URL}/users/2", headers=HEADERS)
+assert r.status_code == <span class="nm">204</span>
+assert r.text == <span class="st">""</span></div>
+    <div class="diff-note"><b>204 No Content means the response body is intentionally empty.</b> Calling <code>.json()</code> on it raises a JSONDecodeError. For DELETE tests: assert status 204, optionally assert <code>r.text == ""</code>. Never call <code>.json()</code> on a 204 response.</div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="pg" id="score">
+  <div class="score-box">
+    <div class="score-row">
+      <div class="score-n" id="snum">0/10</div>
+      <div class="score-right">
+        <div class="score-bar"><div class="score-fill" id="sbar" style="width:0%"></div></div>
+        <div class="score-lbl" id="slbl">Tap each item you got right</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cl">
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 1 — asserts <code>total==12</code>, <code>per_page==6</code>, <code>len(data)==6</code> — not just status 200</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 1 — nested loop checks every user has every required field with a useful message</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 2 — asserts <code>name</code> and <code>job</code> echo back correctly, <code>id</code> is present and non-empty</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 2 — <code>isinstance(body["id"], str)</code> type check with a useful failure message</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 3 — parametrized with 4 scenarios, <code>ids=</code> used, boolean flag drives token vs error assertion</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 3 — empty string <code>""</code> for missing email/password (not <code>None</code>)</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 4 — two separate parametrized functions for 200 and 404 scenarios</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 4 — valid IDs assert <code>r.json()["data"]["id"] == user_id</code> not just status 200</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 5 — two sequential PATCH calls, both asserting the updated job value</div></div>
+    <div class="ci" onclick="tick(this)"><div class="ci-box"><svg width="10" height="10" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-text">Test 5 — asserts <code>"updatedAt" in body</code> on first PATCH response</div></div>
+  </div>
+
+  <div id="smsg" style="margin-top:10px"></div>
+
+  <div style="margin-top:14px">
+    <button class="ask" onclick="sendPrompt('Teach me Day 29 GitHub Actions CI/CD — how to run my Playwright and API tests automatically on every git push')">Go to Day 29 — GitHub Actions CI/CD ↗</button>
+    <button class="ask" onclick="sendPrompt('Give me a harder API testing challenge — beyond Day 22, testing pagination auth headers error scenarios and response time')">Give me a harder API challenge ↗</button>
+  </div>
+</div>
+</div>
+
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function tick(el){
+  el.classList.toggle('checked');
+  const svg=el.querySelector('svg');
+  const box=el.querySelector('.ci-box');
+  const on=el.classList.contains('checked');
+  svg.style.display=on?'block':'none';
+  box.style.background=on?'#633806':'';
+  box.style.borderColor=on?'#633806':'';
+  upd();
+}
+function upd(){
+  const done=document.querySelectorAll('.ci.checked').length;
+  const pct=Math.round(done/10*100);
+  document.getElementById('snum').textContent=done+'/10';
+  document.getElementById('sbar').style.width=pct+'%';
+  document.getElementById('slbl').textContent=pct+'% — '+done+' of 10 correct';
+  const m=document.getElementById('smsg');
+  if(done===10)m.innerHTML='<div style="background:var(--color-background-success);border-left:2px solid var(--color-border-success);padding:9px 13px;font-size:13px;color:var(--color-text-success);line-height:1.55">Perfect. You now have full CRUD API test coverage with parametrize and schema validation. Day 29 is GitHub Actions — automate everything you have built.</div>';
+  else if(done>=7)m.innerHTML='<div style="background:var(--color-background-info);border-left:2px solid var(--color-border-info);padding:9px 13px;font-size:13px;color:var(--color-text-info);line-height:1.55">Strong. Check Common Mistakes for what you missed, fix those parts, then move to Day 29.</div>';
+  else if(done>=4)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Halfway. Read Test by Test for unchecked items, rewrite those tests, then move on.</div>';
+  else if(done>0)m.innerHTML='<div style="background:var(--color-background-warning);border-left:2px solid var(--color-border-warning);padding:9px 13px;font-size:13px;color:var(--color-text-warning);line-height:1.55">Reread the Full Solution carefully and rewrite all 5 tests from scratch before Day 29.</div>';
+}
+</script>
+</body>
+</html>
